@@ -1,1 +1,1 @@
-export const DB_NAME="ANIMATCH";
+export const DB_NAME="Animatch";

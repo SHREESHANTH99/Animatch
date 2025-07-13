@@ -14,7 +14,7 @@ function App() {
         <Route path="/discover" element={<Discover />}></Route>
         <Route path="/anime/:id" element={<DetailPage/>}></Route>
         <Route path="/login" element={<LoginPage/>}></Route>
-        <Route path="/signup" element={<SignUpPage/>}></Route>
+        <Route path="/register" element={<SignUpPage/>}></Route>
       </Routes>
     </BrowserRouter>
   );
