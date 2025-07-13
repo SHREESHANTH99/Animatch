@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { icons } from "../../assets/animePosters";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
+  const { login }=useAuth();
+  const navigate =useNavigate();
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -12,8 +16,8 @@ export default function LoginPage() {
         username,
         password,
       });
-      localStorage.setItem("token", res.data.token);
-      setMessage("Login Successfull");
+      await login(res.data.token)
+      navigate("/home")
     } catch (err) {
       setMessage(err.response?.data?.message || "login failed");
     }
