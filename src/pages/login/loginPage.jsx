@@ -7,8 +7,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
-  const { login }=useAuth();
-  const navigate =useNavigate();
+  const { login,loginWithGoogle} = useAuth();
+  const navigate = useNavigate();
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -16,22 +16,26 @@ export default function LoginPage() {
         username,
         password,
       });
-      await login(res.data.token)
-      navigate("/home")
+      await login(res.data.token);
+      navigate("/home");
     } catch (err) {
       setMessage(err.response?.data?.message || "login failed");
     }
   };
+
   return (
     <div className="h-screen   bg-[linear-gradient(135deg,#0f172a_0%,#581c87_50%,_#0f172a_100%)]">
-      
-        <div className="flex justify-center items-center h-screen relative">
-         <form onSubmit={handleLogin}> <div className="relative  md:h-[460px] h-[450px] md:w-[40vw] lg:w-[34vw] rounded-lg bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 ">
+      <div className="flex justify-center items-center h-screen relative">
+        <form onSubmit={handleLogin}>
+          {" "}
+          <div className="relative  md:h-[460px] h-[450px] md:w-[40vw] lg:w-[34vw] rounded-lg bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 ">
             <h1 className="text-center md:text-3xl sm:text-3xl text-2xl bg-gradient-to-br from-cyan-600 via-blue-500 to-purple-600 bg-clip-text text-transparent pb-8 pt-4 font-bold">
               AniMatch
             </h1>
             <div className="flex items-center justify-center">
-              <button className="text-white/80 font-bold md:text-xl h-auto text-center font-serif bg-pink-700 rounded-md w-auto flex gap-2 p-2 border-2 border-gray-50 mb-2 hover:bg-gray-50 hover:text-pink-700 hover:shadow-lg hover:scale-105 text-base">
+              <button onClick={loginWithGoogle}
+                className="text-white/80 font-bold md:text-xl h-auto text-center font-serif bg-pink-700 rounded-md w-auto flex gap-2 p-2 border-2 border-gray-50 mb-2 hover:bg-gray-50 hover:text-pink-700 hover:shadow-lg hover:scale-105 text-base"
+              >
                 Login With
                 <span>
                   <img src={icons.img} alt="" className="w-6" />
@@ -93,12 +97,12 @@ export default function LoginPage() {
                 Register
               </a>
             </div>
-           
           </div>
-       <p className="text-center font-bold text-lg text-green-600 mt-6 flex justify-center items-center">{message}</p>
-      </form>{" "} 
+          <p className="text-center font-bold text-lg text-green-600 mt-6 flex justify-center items-center">
+            {message}
+          </p>
+        </form>
       </div>
-         
     </div>
   );
 }

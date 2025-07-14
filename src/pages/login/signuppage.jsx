@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { icons } from "../../assets/animePosters";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 export default function SignUpPage() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [message, setMessage] = useState("");

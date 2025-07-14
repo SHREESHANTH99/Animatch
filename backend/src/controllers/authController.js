@@ -41,8 +41,8 @@ export const loginUser=async (req,res)=>{
         if(!isMatch){
             return res.status(401).json({message:"Password is Incorrect"})
         }
-        const token=jwt.sign({id:user._id,username:user.username,email:user.email},process.env.JWT_SECRET,{expiresIn:"1d"})
-        res.status(200).json({token,user:{id:user._id,username:user.username,email:user.email}})
+        const token=jwt.sign({id:user._id,username:user.username,email:user.email,createdAt:user.createdAt},process.env.JWT_SECRET,{expiresIn:"1d"})
+        res.status(200).json({token,user:{id:user._id,username:user.username,email:user.email,createdAt:user.createdAt}})
     }catch(err){
     console.log(err)
      res.status(500).json({message:"Server Error",error:err.message});

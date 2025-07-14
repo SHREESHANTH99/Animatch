@@ -7,7 +7,8 @@ router.get('/profile',verifyToken,(req,res)=>{
     res.status(200).json({
         id: req.user.id,
         username: req.user.username,
-        email: req.user.email
+        email: req.user.email,
+        createdAt:req.user.createdAt
     })
 })
 
