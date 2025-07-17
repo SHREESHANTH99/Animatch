@@ -79,21 +79,10 @@ It’s designed as a smart, modern alternative to platforms like MyAnimeList or 
 
 ## 📦 Installation Guide
 
-### ✅ Prerequisites
-- Node.js (>=16)
-- npm or yarn
-- MongoDB Atlas account (or local MongoDB)
-- `.env` file in backend with:
-
-PORT=5000
-MONGO_URI=your_mongodb_atlas_connection
-JWT_SECRET=your_jwt_secret
-CORS_ORIGIN=http://localhost:3000
-SUPABASE_URL=your_supabase_url # optional
-SUPABASE_ANON_KEY=your_supabase_anon_key # optional
 
 
-### 🔧 Backend Setup
+
+## 🔧 Backend Setup
 ```bash
 git clone https://github.com/your-username/animatch.git
 cd animatch/backend
