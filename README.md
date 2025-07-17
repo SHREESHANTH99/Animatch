@@ -1,233 +1,150 @@
-# Animatch My first Full-Stack website
-🌸 AniMatch – Your Personalized Anime Hub
-AniMatch is a full‑stack anime web application that helps users discover, track, and interact with anime content.
-It’s designed as a smart, modern alternative to platforms like MyAnimeList or AniList, featuring AI‑based recommendations, user libraries, and an engaging community section.
+# 🌸 AniMatch – Your Personalized Anime Hub  
 
-Live Demo (Still in building progress)
+AniMatch is a **full‑stack anime web application** that helps users discover, track, and interact with anime content.  
+It’s designed as a smart, modern alternative to platforms like MyAnimeList or AniList, featuring **AI‑based recommendations**, **user libraries**, and an engaging **community section**.
 
-Tech Stack: React, Tailwind, Node.js, Express, MongoDB, JWT, React Three Fiber (Three.js), Supabase (optional Google auth)
+> **Tech Stack:** React, Tailwind, Node.js, Express, MongoDB, JWT, React Three Fiber (Three.js), Supabase (Google Auth)
 
-✨ Features
+---
 
+## ✨ Features
 
-✅ Landing page
+✅ **Landing Page** 
+- Beautiful infinite corrosel of top anime with their ratings
 
-Infinite corosel with Top anime  and their rating by clicking you will be redirected to anime details
+✅ **Home Page**  
+- **3D Anime Poster Cube** built with `@react-three/fiber` and Three.js.  
 
-✅ Home Page
+✅ **User Authentication**  
+- Signup/Login (JWT-based).  
+- Google login via Supabase.  
+- Protected Routes:  
+  - Home, profile, community accessible only after login.  
+  - Login/Signup hidden once logged in.  
+  - Landing page always accessible.
 
-Beautiful hero section with 3D Anime Poster Cube using @react-three/fiber and Three.js.
+✅ **Anime Discovery**  
+- Advanced search & filters (type, status, rating, year, etc.).  
+- Infinite scroll / load more.  
+- Responsive grid of anime cards with hover effects.
 
-✅ User Authentication
+✅ **Anime Details**  
+- Full synopsis, genres, release date, episodes.  
+- Horizontal scrolling **Characters & Voice Actors** section (with images and language).
 
-Signup/Login (JWT-based).
+✅ **User Profile Page**  
+- Shows username, email, **account creation date**.  
+- Edit profile (update username).  
+- Delete account and Change Password.  
 
-Google login via Supabase.
+✅ **User Library & Reviews**  
+- Add anime to personal library (watching, completed, dropped, etc.).  
+- Post reviews, rate anime, and see community reviews.
 
-Protected Routes:
+✅ **Community Section**  
+- Browse posts, join discussions, like and comment on reviews.
 
-Home page, profile, community features accessible only after login.
+✅ **AI Recommendations (Planned)**  
+- Personalized anime suggestions based on watch history.
 
-Login/Signup page is hidden once logged in.
+✅ **Responsive UI**  
+- Built with Tailwind CSS.  
+- Custom utility classes using `@layer utilities`.  
+- Smooth animations with Framer Motion.
 
-Landing page always accessible.
+---
 
-✅ Anime Discovery
+## 🚀 Tech Stack
 
-Advanced search & filter: type, status, rating, orderBy, minScore, year, sort.
+**Frontend:**  
+- React 18  
+- React Router DOM  
+- Tailwind CSS  
+- @react-three/fiber (Three.js)  
+- Framer Motion  
+- Axios  
+- Supabase (for Google Auth)
 
-Infinite scroll / load more.
+**Backend:**  
+- Node.js & Express  
+- MongoDB Atlas (Mongoose)  
+- JWT Authentication  
+- Bcrypt for password hashing  
+- CORS for cross‑origin requests
 
-Responsive grid of anime cards with hover effects.
+**API:**  
+- Jikan API (MyAnimeList unofficial)
 
-✅ Anime Details
+---
 
-Full anime synopsis, genres, release date, episodes.
+## 📦 Installation Guide
 
-Horizontal scrolling characters section: each card shows character image, role, voice actor image, and language.
+### ✅ Prerequisites
+- Node.js (>=16)
+- npm or yarn
+- MongoDB Atlas account (or local MongoDB)
+- `.env` file in backend with:
 
-✅ User Profile Page
-
-Shows username, email, account creation date.
-
-Edit profile (update username).
-
-Delete account or Change Password.
-
-static UI with Tailwind.
-
-✅ User Library & Reviews
-
-Add anime to personal library (watching, completed, dropped, etc.).
-
-Post reviews, rate anime, and see community reviews.
-
-✅ Community Section
-
-Browse posts, join discussions, like and comment on reviews (future-ready protected routes already set up).
-
-✅ AI Recommendations (Planned)
-
-AI‑based suggestions for anime based on your watch history and ratings.
-
-✅ Responsive UI
-
-Built with TailwindCSS.
-
-Custom utility classes using @layer utilities.
-
-Smooth animations with Framer Motion.
-
-More features coming soon
-🚀 Tech Stack
-Frontend:
-
-React 18
-
-React Router DOM
-
-Tailwind CSS
-
-@react-three/fiber (Three.js) for 3D cube & effects
-
-Framer Motion for animations
-
-Axios for API calls
-
-Supabase
-
-Backend:
-
-Node.js & Express
-
-MongoDB Atlas (Mongoose ORM)
-
-JWT for authentication
-
-Bcrypt for password hashing
-
-CORS configuration for cross‑origin requests
-
-External APIs:
-
-Jikan API (MyAnimeList unofficial) for anime data
-
-📦 Installation Guide
-Follow these steps to run AniMatch locally.
-
-✅ Prerequisites
-Node.js (>= 16)
-
-npm or yarn
-
-MongoDB Atlas account (or local MongoDB)
-
-A .env file with the following variables:
-
-ini
-Copy
-Edit
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-CORS_ORIGIN=http://localhost:3000
-SUPABASE_URL=your_supabase_url (if using Google login)
-SUPABASE_ANON_KEY=your_supabase_anon_key (if using Google login)
-🔧 Backend Setup
-Clone the repo and navigate to /backend:
-
-bash
-Copy
-Edit
-git clone https://github.com/your-username/animatch.git
-cd animatch/backend
-Install dependencies:
-
-bash
-Copy
-Edit
-npm install
-Create .env in backend directory:
-
-env
-Copy
-Edit
 PORT=5000
 MONGO_URI=your_mongodb_atlas_connection
 JWT_SECRET=your_jwt_secret
 CORS_ORIGIN=http://localhost:3000
-Start backend:
+SUPABASE_URL=your_supabase_url # optional
+SUPABASE_ANON_KEY=your_supabase_anon_key # optional
 
-bash
-Copy
-Edit
-npm start
-You should see:
 
-arduino
-Copy
-Edit
-Server is running on http://localhost:5000
-MongoDB connected
-🎨 Frontend Setup
-Navigate to frontend folder:
-
-bash
-Copy
-Edit
-cd ../frontend
-Install dependencies:
-
-bash
-Copy
-Edit
+### 🔧 Backend Setup
+```bash
+git clone https://github.com/your-username/animatch.git
+cd animatch/backend
 npm install
-Start frontend:
+Create .env (see above), then:
 
 bash
-Copy
-Edit
 npm start
-Default Vite port is http://localhost:3000.
+Backend will run on http://localhost:5000.
+
+🎨 Frontend Setup
+bash
+cd ../frontend
+npm install
+npm start
+Frontend will run on http://localhost:3000.
 
 🌐 Running the app
 Open http://localhost:3000 in your browser.
 
-You can now:
-
-Register a new account,
-
-Log in,
-
-Access the protected Home page with 3D cube,
-
-Discover anime, and view details.
+Register an account, log in, and explore the features.
 
 🛡️ Protected Routes
-Home, Profile, Library require a valid JWT (stored in localStorage).
+Home, Profile, Library require valid JWT.
 
-Login & Signup redirect to /home if already logged in.
+Login & Signup redirect to Home if already logged in.
 
-Landing Page is always open.
+Landing page is always open.
 
 🎥 3D Anime Cube
 Built using @react-three/fiber.
 
 Fetches top anime posters from Jikan API.
 
-Rotating cube renders posters on faces for a dynamic hero section.
+Rotating cube renders posters dynamically.
 
-💡 Future Roadmap
-✅ Implement review posting & commenting.
+📅 Account Creation Date
+Shown in profile page (stored in createdAt field of user model).
 
-✅ Integrate AI-based recommendation engine.
+💡 Roadmap
+ AI-based recommendations
 
-✅ Add dark mode toggle.
+ Review commenting & reactions
 
-✅ Deploy to production (e.g., Vercel for frontend, Render for backend).
+ Dark mode toggle
+
+ Deployment (Vercel for frontend, Render for backend)
 
 🤝 Contributing
-Feel free to open issues and submit pull requests to improve AniMatch.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
 
 📜 License
 This project is licensed under the MIT License.
+
