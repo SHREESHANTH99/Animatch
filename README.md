@@ -105,24 +105,21 @@ Open http://localhost:3000 in your browser.
 
 Register an account, log in, and explore the features.
 
-🛡️ Protected Routes
-Home, Profile, Library require valid JWT.
+```
+## 🛡️ Protected Routes
+- Home, Profile, Library require valid JWT.
 
-Login & Signup redirect to Home if already logged in.
+- Login & Signup redirect to Home if already logged in.
 
-Landing page is always open.
+- Landing page is always open.
 
-🎥 3D Anime Cube
+🎥 **3D Anime Cube**
 Built using @react-three/fiber.
 
-Fetches top anime posters from Jikan API.
-
-Rotating cube renders posters dynamically.
-
-📅 Account Creation Date
+📅 **Account Creation Date**
 Shown in profile page (stored in createdAt field of user model).
 
-💡 Roadmap
+💡 **Roadmap**
  AI-based recommendations
 
  Review commenting & reactions
@@ -131,9 +128,9 @@ Shown in profile page (stored in createdAt field of user model).
 
  Deployment (Vercel for frontend, Render for backend)
 
-🤝 Contributing
+🤝 **Contributing**
 Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
 
-📜 License
+📜 **License**
 This project is licensed under the MIT License.
 
