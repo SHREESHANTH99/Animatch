@@ -28,7 +28,7 @@ export default function LoginPage() {
       <div className="flex justify-center items-center h-screen relative">
         <form onSubmit={handleLogin}>
           {" "}
-          <div className="relative  md:h-[460px] h-[450px] md:w-[40vw] lg:w-[34vw] rounded-lg bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 ">
+          <div className="relative  md:h-[460px] h-[450px] md:w-[40vw] lg:w-[34vw] rounded-2xl bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 ">
             <h1 className="text-center md:text-3xl sm:text-3xl text-2xl bg-gradient-to-br from-cyan-600 via-blue-500 to-purple-600 bg-clip-text text-transparent pb-8 pt-4 font-bold">
               AniMatch
             </h1>
@@ -58,7 +58,7 @@ export default function LoginPage() {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Type UserName...."
                     required
-                    className="w-[70%] pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent"
+                    className="placeholder:md:text-sm placeholder:text-xs w-[70%] pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="Type Password...."
-                    className="w-[70%] pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent"
+                    className="placeholder:md:text-sm placeholder:text-xs  w-[70%] pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent"
                   />
                 </div>
               </div>

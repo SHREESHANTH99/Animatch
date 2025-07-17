@@ -48,7 +48,7 @@ const DetailPage = () => {
 
   if (error || !anime) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
+      <div className=" min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
         <div className="max-w-4xl mx-auto mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-red-400" />
           <span className="text-red-200">Error: {error}</span>
