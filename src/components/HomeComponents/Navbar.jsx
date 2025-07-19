@@ -17,7 +17,7 @@ export default function AniMatchNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { user, logout,loginWithGoogle } = useAuth();
+  const { user, logout } = useAuth();
   console.log("User", user);
   useEffect(() => {
     const handleScroll = () => {

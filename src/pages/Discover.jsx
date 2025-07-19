@@ -11,7 +11,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { Link, Links } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 const Discover = () => {
   const [anime, setAnime] = useState([]);
@@ -32,9 +32,6 @@ const Discover = () => {
     year: "",
   });
   const [lastRequestTime, setLastRequestTime] = useState(0);
-  // const [requestQueue, setRequestQueue] = useState([]);
-  // const [isProcessingQueue, setIsProcessingQueue] = useState(false);
-
   const RATE_LIMIT_DELAY = 1000;
 
   const makeRateLimitedRequest = useCallback(
@@ -52,7 +49,7 @@ const Discover = () => {
 
       try {
         const response = await fetch(url);
-        if (response.status === 429) {
+        if (response.status === 429) { 
           await new Promise((resolve) => setTimeout(resolve, 2000));
           return await fetch(url);
         }
@@ -61,8 +58,7 @@ const Discover = () => {
         throw error;
       }
     },
-    [lastRequestTime]
-  );
+    [lastRequestTime]);
   const searchAnime = useCallback(
     async (page = 1, resetResults = true) => {
       setLoading(true);
@@ -74,7 +70,7 @@ const Discover = () => {
         if (searchQuery.trim()) {
           url += `&q=${encodeURIComponent(searchQuery.trim())}`;
         }
-
+        
         if (filters.type) url += `&type=${filters.type}`;
         if (filters.status) url += `&status=${filters.status}`;
         if (filters.rating) url += `&rating=${filters.rating}`;
@@ -337,14 +333,14 @@ const Discover = () => {
             <span className="ml-2 text-gray-300">Loading anime...</span>
           </div>
         )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {anime.map((item) => (
                <Link to={`/anime/${item.mal_id}`} className="block">
               <div
                 key={item.mal_id}
-                className="bg-white/10 border border-white/20 rounded-lg overflow-hidden hover:bg-white/20 transition-colors group"
+                className="bg-white/10 border border-white/20 rounded-2xl shadow-2xl overflow-hidden hover:bg-white/20 transition-colors group"
               >
-                <div className="relative aspect-[3/4] overflow-hidden">
+                <div className="relative h-80 overflow-hidden">
                   <img
                   
                     src={

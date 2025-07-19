@@ -132,7 +132,7 @@ const DetailPage = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                 <h4 className="font-semibold text-purple-300 mb-3">Genres</h4>
                 <div className="flex flex-wrap gap-2">
-                  {anime.genres.map((genre) => (
+                    {anime.genres.slice(0, 3).map((genre) => (
                     <span
                       key={genre.mal_id}
                       className="px-3 py-1 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 rounded-full text-sm text-pink-200"

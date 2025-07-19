@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Sparkles, Search, Star, Heart, ArrowRight } from 'lucide-react';
+import { Play, Sparkles, Search, Star, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 export default function LandingPage() {
   const [animeData, setAnimeData] = useState([]);
@@ -48,7 +48,7 @@ export default function LandingPage() {
         <div className="text-center max-w-6xl mx-auto mb-16">
           <div className="flex justify-center items-center gap-8 mb-8">
             <Sparkles className="text-pink-400 animate-bounce" size={32} />
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-6xl md:text-7xl lg:text-9xl font-serif font-black bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               ANIMATCH
             </h1>
             <Sparkles className="text-cyan-400 animate-bounce" style={{ animationDelay: '0.5s' }} size={32} />
