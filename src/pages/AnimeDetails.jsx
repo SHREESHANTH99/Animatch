@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Loader2, AlertCircle, Star, Calendar, PlayCircle, Users } from "lucide-react";
+import { Loader2, AlertCircle, Star, Calendar, PlayCircle, Users, Check, Plus, Clock, X } from "lucide-react";
+import apiInstance from "../utils/api.js";
 
 const DetailPage = () => {
   const { id } = useParams();
@@ -8,6 +9,10 @@ const DetailPage = () => {
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(false);
   const [characters, setCharacters] = useState([]);
+  const [status, setStatus] = useState("planned");
+  const [isAddingToLibrary, setIsAddingToLibrary] = useState(false);
+  const [addToLibrarySuccess, setAddToLibrarySuccess] = useState(false);
+  const [libraryError, setLibraryError] = useState("");
 
   useEffect(() => {
     const fetchAnime = async () => {
@@ -35,6 +40,52 @@ const DetailPage = () => {
     fetchAnime();
   }, [id]);
 
+  const addToLibrary = async () => {
+    setIsAddingToLibrary(true);
+    setLibraryError("");
+    setAddToLibrarySuccess(false);
+    
+    try {
+      await apiInstance.post("/library", {
+        animeId: anime.mal_id,
+        title: anime.title,
+        status: status,
+        imageUrl: anime.images.jpg.large_image_url,
+        rating: anime.score || 0,
+        year: anime.aired?.from ? new Date(anime.aired.from).getFullYear() : anime.year || 'N/A'
+      });
+      
+      setAddToLibrarySuccess(true);
+      setTimeout(() => setAddToLibrarySuccess(false), 3000);
+    } catch (err) {
+      console.error("Error in adding to library:", err);
+      setLibraryError("Failed to add to library. Please try again.");
+      setTimeout(() => setLibraryError(""), 3000);
+    } finally {
+      setIsAddingToLibrary(false);
+    }
+  };
+
+  const getStatusIcon = (statusValue) => {
+    switch (statusValue) {
+      case "planned": return <Clock size={16} className="text-purple-400" />;
+      case "watching": return <PlayCircle size={16} className="text-blue-400" />;
+      case "completed": return <Check size={16} className="text-green-400" />;
+      case "dropped": return <X size={16} className="text-red-400" />;
+      default: return <Plus size={16} />;
+    }
+  };
+
+  const getStatusColor = (statusValue) => {
+    switch (statusValue) {
+      case "planned": return "from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700";
+      case "watching": return "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700";
+      case "completed": return "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700";
+      case "dropped": return "from-red-500 to-red-600 hover:from-red-600 hover:to-red-700";
+      default: return "from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700";
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
@@ -48,7 +99,7 @@ const DetailPage = () => {
 
   if (error || !anime) {
     return (
-      <div className=" min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
         <div className="max-w-4xl mx-auto mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-red-400" />
           <span className="text-red-200">Error: {error}</span>
@@ -59,7 +110,6 @@ const DetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent z-10" />
         <div className="relative z-20 max-w-7xl mx-auto px-6 py-12">
@@ -75,8 +125,6 @@ const DetailPage = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
               </div>
             </div>
-
-            {/* Anime Info */}
             <div className="lg:col-span-2 space-y-6">
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 mb-4">
@@ -86,8 +134,6 @@ const DetailPage = () => {
                   <p className="text-xl text-gray-300 mb-4">{anime.title_english}</p>
                 )}
               </div>
-
-              {/* Quick Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
                   <Star className="h-6 w-6 text-yellow-400 mx-auto mb-1" />
@@ -110,14 +156,11 @@ const DetailPage = () => {
                   <p className="text-sm text-gray-300">Type</p>
                 </div>
               </div>
-
-              {/* Synopsis */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <h3 className="text-xl font-semibold mb-3 text-pink-400">Synopsis</h3>
                 <p className="text-gray-200 leading-relaxed">{anime.synopsis}</p>
               </div>
 
-              {/* Additional Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                   <h4 className="font-semibold text-purple-300 mb-2">Aired</h4>
@@ -132,7 +175,7 @@ const DetailPage = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                 <h4 className="font-semibold text-purple-300 mb-3">Genres</h4>
                 <div className="flex flex-wrap gap-2">
-                    {anime.genres.slice(0, 3).map((genre) => (
+                  {anime.genres.slice(0, 3).map((genre) => (
                     <span
                       key={genre.mal_id}
                       className="px-3 py-1 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 rounded-full text-sm text-pink-200"
@@ -143,7 +186,78 @@ const DetailPage = () => {
                 </div>
               </div>
 
-              {/* Back Link */}
+              <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="text-2xl">📚</div>
+                  <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                    Add to Your Library
+                  </h2>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-3">
+                      Choose Status:
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { value: "planned", label: "Plan to Watch", icon: Clock },
+                        { value: "watching", label: "Watching", icon: PlayCircle },
+                        { value: "completed", label: "Completed", icon: Check },
+                        { value: "dropped", label: "Dropped", icon: X }
+                      ].map((option) => {
+                        const Icon = option.icon;
+                        const isSelected = status === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            onClick={() => setStatus(option.value)}
+                            className={`p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                              isSelected
+                                ? "border-purple-400 bg-purple-500/20 text-purple-300"
+                                : "border-white/20 hover:border-white/40 text-gray-300 hover:text-white"
+                            }`}
+                          >
+                            <Icon size={20} />
+                            <span className="text-xs font-medium">{option.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button
+                    onClick={addToLibrary}
+                    disabled={isAddingToLibrary}
+                    className={`w-full px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-70 bg-gradient-to-r ${getStatusColor(status)} text-white shadow-lg flex items-center justify-center gap-2`}
+                  >
+                    {isAddingToLibrary ? (
+                      <>
+                        <Loader2 size={20} className="animate-spin" />
+                        Adding to Library...
+                      </>
+                    ) : (
+                      <>
+                        {getStatusIcon(status)}
+                        Add to {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </>
+                    )}
+                  </button>
+
+                  {addToLibrarySuccess && (
+                    <div className="p-3 bg-green-900/30 border border-green-500/50 rounded-lg flex items-center gap-2">
+                      <Check className="h-5 w-5 text-green-400" />
+                      <span className="text-green-200">Successfully added to your library!</span>
+                    </div>
+                  )}
+
+                  {libraryError && (
+                    <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-lg flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-red-400" />
+                      <span className="text-red-200">{libraryError}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="text-center">
                 <Link
                   to="/discover"
@@ -157,7 +271,6 @@ const DetailPage = () => {
         </div>
       </div>
 
-      {/* Characters Section */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex items-center gap-3 mb-8">
           <Users className="h-8 w-8 text-pink-400" />
@@ -166,7 +279,6 @@ const DetailPage = () => {
           </h2>
         </div>
 
-        {/* Horizontal Scroll Container */}
         <div className="relative">
           <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-transparent pb-4">
             <div className="flex space-x-6 min-w-max">
@@ -175,7 +287,6 @@ const DetailPage = () => {
                   key={char.character.mal_id}
                   className="flex-shrink-0 w-80 bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
                 >
-                  {/* Character Info */}
                   <div className="flex items-start gap-4 mb-4">
                     <img
                       src={char.character.images.jpg.image_url}
@@ -191,8 +302,6 @@ const DetailPage = () => {
                       </p>
                     </div>
                   </div>
-
-                  {/* Voice Actors */}
                   {char.voice_actors.length > 0 && (
                     <div className="border-t border-white/20 pt-4">
                       <p className="text-sm font-semibold text-purple-300 mb-3">

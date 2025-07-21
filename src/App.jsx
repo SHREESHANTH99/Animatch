@@ -10,7 +10,7 @@ import ProfilePage2 from "./pages/ProfilePage2.jsx";
 import { PublicOnlyRoute } from "./components/protectedroutes/PublicOnlyRoute.jsx";
 import { TopAnime } from "./pages/TopAnime.jsx";
 import { Trending } from "./pages/Trending.jsx";
-import { Library } from "./pages/Library.jsx";
+import Library from "./pages/Library.jsx";
 function App() {
   return (
     <Routes>

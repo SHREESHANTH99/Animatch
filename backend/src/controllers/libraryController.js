@@ -25,7 +25,7 @@ export const getUserLibrary = async (req, res) => {
   try {
     const items = await LibraryItem.find({ userId: req.user.id }).sort({
       updatedAt: -1,
-    }); //hold
+    });
     res.status(200).json(items);
   } catch (err) {
     console.error(err);

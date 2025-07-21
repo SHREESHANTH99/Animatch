@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 const features = [
   { 
     title: 'Track Your Watchlist', 
-    desc: 'Organize anime by Watching, Completed, Dropped with smart progress tracking',
-    href: '/watchlist',
+    desc: 'Organize anime by Watching, Completed, Dropped and Planned with smart progress tracking',
+    href: '/library',
     icon: '📺',
     gradient: 'from-purple-500 via-pink-500 to-red-500',
     particles: ['⭐', '🎬', '📖'],

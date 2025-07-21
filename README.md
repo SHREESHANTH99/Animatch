@@ -6,7 +6,6 @@ It’s designed as a smart, modern alternative to platforms like MyAnimeList or 
 > **Tech Stack:** React, Tailwind, Node.js, Express, MongoDB, JWT, React Three Fiber (Three.js), Supabase (Google Auth)
 
 ---
-
 ## ✨ Features
 
 ✅ **Landing Page** 
