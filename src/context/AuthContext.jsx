@@ -67,12 +67,16 @@ export const AuthProvider = ({ children }) => {
   };
   const fetchUserProfile = async (authToken) => {
     try {
-      const res = await fetch("http://localhost:5000/api/user/profile", {
+      // const res = await fetch("http://localhost:5000/api/user/profile", {
+      //   headers: {
+      //     Authorization: `Bearer ${authToken}`,
+      //   },
+      // });
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      
       const contentType = res.headers.get("content-type");
       if (!res.ok || !contentType?.includes("application/json")) {
         throw new Error("Invalid or expired token");
