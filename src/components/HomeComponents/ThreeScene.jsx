@@ -4,6 +4,7 @@ import { useRef,useState,useEffect } from "react";
 import { useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { narutoPosters } from "../../assets/animePosters.js"
+import { Link} from "react-router-dom";
 function AnimeCube() {
   const meshRef = useRef();
    const { size } = useThree();
@@ -60,9 +61,9 @@ export default function ThreeScene() {
         Your Anime Journey Starts Here 🚀
       </p>
       <div className="pt-2">
-        <button className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 w-auto rounded-lg shadow-lg transition duration-300">
+        <Link to="/discover"><button className="bg-pink-600  hover:bg-white hover:text-pink-600 hover:scale-105 text-white font-bold py-2 w-44 rounded-lg shadow-lg transition duration-300">
           Start Exploring
-        </button>
+        </button></Link>
       </div>
       </section>
     <div className="w-full md:w-1/2  h-[500px] flex justify-end items-center">
