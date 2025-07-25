@@ -61,7 +61,7 @@ export const supabaseLogin = async (req, res) => {
     }
 
     // ✅ Verify token with Supabase API
-    const supabaseRes = await fetch("https://<your-project>.supabase.co/auth/v1/user", {
+    const supabaseRes = await fetch("https://pzecswmzijxyzlcfvqwd.supabase.co/auth/v1/user", {
       headers: {
         Authorization: `Bearer ${supabaseToken}`,
         apikey: process.env.SUPABASE_ANON_KEY,
