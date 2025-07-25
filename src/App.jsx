@@ -13,7 +13,6 @@ import { Trending } from "./pages/Trending.jsx";
 import Library from "./pages/Library.jsx";
 import { useEffect, useState } from "react";
 import PageLoader from "./components/Preloader/loader.jsx";
-import AniMatchNavbar from "./components/HomeComponents/Navbar.jsx";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
@@ -21,7 +20,7 @@ function App() {
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [location.pathname]);
   return (

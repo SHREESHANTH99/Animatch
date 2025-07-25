@@ -11,38 +11,40 @@ export const AuthProvider = ({ children }) => {
   const [authMethod, setAuthMethod] = useState(null);
   const navigate = useNavigate();
 
+  // ✅ normal login with backend
   const login = async (newToken) => {
     try {
       localStorage.setItem("token", newToken);
       setToken(newToken);
-      setAuthMethod('jwt');
-
+      setAuthMethod("jwt");
       await fetchUserProfile(newToken);
       navigate("/home");
     } catch (error) {
+      console.error("Login error:", error);
       localStorage.removeItem("token");
       setToken(null);
       setAuthMethod(null);
       throw error;
     }
   };
+
+  // ✅ Google login via Supabase
   const loginWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/home", // Dynamic redirect
+          redirectTo: window.location.origin + "/home",
         },
       });
-      
-      if (error) {
-        throw error;
-      }
-      setAuthMethod('supabase');
+      if (error) throw error;
+      // supabase.onAuthStateChange will handle the rest
     } catch (error) {
+      console.error("Google login error:", error);
       throw error;
     }
   };
+
   const logout = async () => {
     try {
       setLoading(true);
@@ -50,153 +52,131 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       setAuthMethod(null);
-      if (authMethod === 'supabase') {
-        await supabase.auth.signOut({ scope: 'global' });
-      } else {
-        supabase.auth.signOut({ scope: 'global' }).catch(console.error);
-      }
+
+      await supabase.auth.signOut({ scope: "global" }).catch(() => {});
       navigate("/login");
+    } finally {
       setLoading(false);
-    } catch (error) {
-      setToken(null);
-      setUser(null);
-      setAuthMethod(null);
-      setLoading(false);
-      navigate("/login");
     }
   };
+
+  // ✅ fetch user profile with backend JWT
   const fetchUserProfile = async (authToken) => {
-    try {
-      // const res = await fetch("http://localhost:5000/api/user/profile", {
-      //   headers: {
-      //     Authorization: `Bearer ${authToken}`,
-      //   },
-      // });
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      const contentType = res.headers.get("content-type");
-      if (!res.ok || !contentType?.includes("application/json")) {
-        throw new Error("Invalid or expired token");
-      }
-      
-      const data = await res.json();
-      setUser(data);
-    } catch (err) {
-      localStorage.removeItem("token");
-      setToken(null);
-      setAuthMethod(null);
-      throw err;
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType?.includes("application/json")) {
+      throw new Error("Invalid or expired token");
     }
+    const data = await res.json();
+    setUser(data);
   };
+
+  // ✅ on mount, restore session
   useEffect(() => {
     let mounted = true;
 
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("❌ Supabase session error:", error.message);
-        }
+        if (error) console.error("Supabase session error:", error.message);
 
         if (session?.user && mounted) {
-          console.log("🧠 Supabase session found:", session.user.email);
-          setUser(session.user);
-          setAuthMethod('supabase');
-          if (token) {
-            localStorage.removeItem("token");
-            setToken(null);
-          }
-          if (mounted) setLoading(false);
+          console.log("✅ Supabase session found:", session.user.email);
+          // exchange supabase token with backend JWT
+          await exchangeSupabaseToken(session.access_token);
           return;
         }
+
         if (token && mounted) {
           console.log("📦 JWT token found, validating...");
           try {
             await fetchUserProfile(token);
-            setAuthMethod('jwt');
+            setAuthMethod("jwt");
           } catch (error) {
-            console.error("❌ JWT validation failed:", error.message);
+            console.error("JWT validation failed:", error.message);
             localStorage.removeItem("token");
             setToken(null);
           }
         }
-      } catch (error) {
-        console.error("❌ Auth initialization error:", error.message);
+      } catch (err) {
+        console.error("Auth init error:", err.message);
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
     initializeAuth();
-
     return () => {
       mounted = false;
     };
-  }, []); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ✅ listen for Supabase auth events
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("🔄 Supabase auth event:", event, session?.user?.email);
-        if (loading && !user && !authMethod) {
-          console.log("🚫 Ignoring auth event during logout");
-          return;
-        }
-        
+        console.log("🔄 Supabase auth event:", event);
         if (event === "SIGNED_IN" && session?.user) {
-
-          if (authMethod !== null || user === null) {
-            setUser(session.user);
-            setAuthMethod('supabase');
-            if (token) {
-              localStorage.removeItem("token");
-              setToken(null);
-            }
-
-            if (window.location.pathname === "/login" || window.location.pathname === "/") {
-              navigate("/home");
-            }
-          }
-        } else if (event === "SIGNED_OUT") {
-          console.log("🔄 Supabase signed out event");
-          if (authMethod === 'supabase' && user) {
-            setUser(null);
-            setAuthMethod(null);
-            if (window.location.pathname !== "/login") {
-              navigate("/login");
-            }
-          }
-        } else if (event === "TOKEN_REFRESHED" && session?.user) {
-          console.log("🔄 Token refreshed");
-          if (authMethod === 'supabase') {
-            setUser(session.user);
-          }
+          console.log("✅ Google login successful, exchanging token...");
+          await exchangeSupabaseToken(session.access_token);
+        }
+        if (event === "SIGNED_OUT") {
+          console.log("👋 Signed out");
+          setUser(null);
+          setAuthMethod(null);
+          setToken(null);
+          navigate("/login");
         }
       }
     );
-
     return () => subscription.unsubscribe();
-  }, [navigate, token, authMethod, loading, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ✅ exchange supabase token for backend JWT
+  const exchangeSupabaseToken = async (supabaseToken) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/supabase-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ supabaseToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Supabase token exchange failed:", data);
+        return;
+      }
+      console.log("✅ Supabase token exchanged for backend JWT");
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      setUser(data.user);
+      setAuthMethod("jwt");
+      navigate("/home");
+    } catch (err) {
+      console.error("Supabase exchange error:", err);
+    }
+  };
+
   const isAuthenticated = !!user;
   const getAuthMethod = () => authMethod;
 
-  const value = {
-    user,
-    token,
-    login,
-    loginWithGoogle,
-    logout,
-    isAuthenticated,
-    loading,
-    authMethod,
-    getAuthMethod,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        login,
+        loginWithGoogle,
+        logout,
+        isAuthenticated,
+        loading,
+        authMethod,
+        getAuthMethod,
+      }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

@@ -1,7 +1,7 @@
 import {User} from "../models/User.models.js"
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import {jwtDecode} from "jwt-decode";
 export const regiterUser=async(req,res)=>{
    try{
     console.log("Content-type",req.headers["content-type"]);
@@ -49,3 +49,28 @@ export const loginUser=async (req,res)=>{
      }
 }
 
+export const supabaseLogin = async (req, res) => {
+  try {
+    const { supabaseToken } = req.body;
+    if (!supabaseToken) return res.status(400).json({ message: "No token" });
+
+    const decoded = jwtDecode(supabaseToken);
+    const email = decoded?.email;
+    if (!email) return res.status(400).json({ message: "Invalid Supabase token" });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({ username: email.split("@")[0], email });
+    }
+
+    const backendToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.status(200).json({
+      token: backendToken,
+      user: { id: user._id, username: user.username, email: user.email },
+    });
+  } catch (err) {
+    console.error("Supabase login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
