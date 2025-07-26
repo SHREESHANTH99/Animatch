@@ -91,6 +91,29 @@ export const AuthProvider = ({ children }) => {
       throw err;
     }
   };
+
+  const exchangeToken=async(supabaseUser)=>{
+    try{
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/exchange-token`,{
+        method:'Post',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          supabaseToken:'placeholder',
+          userData:supabaseUser
+        }),
+      });
+      if(!response.ok){
+        throw new Error('Token exchange failed')
+      }
+      const data= await response.json();
+      return data.token;
+    }catch(error){
+      console.error("Token exchange error:",error)
+      throw error;
+    }
+  }
   useEffect(() => {
     let mounted = true;
 
@@ -104,17 +127,22 @@ export const AuthProvider = ({ children }) => {
 
         if (session?.user && mounted) {
           console.log("🧠 Supabase session found:", session.user.email);
-          const supabaseToken= session.access_token;
-          localStorage.setItem("token",supabaseToken)
-          setToken(supabaseToken)
+          try{
+          const customToken= await exchangeToken(session.user);;
+          localStorage.setItem("token",customToken)
+          setToken(customToken)
           setUser(session.user);
           setAuthMethod('supabase');
-          if (token) {
-            localStorage.removeItem("token");
-            setToken(null);
-          }
+          // if (token) {
+          //   localStorage.removeItem("token");
+          //   setToken(null);
+          // }
           if (mounted) setLoading(false);
           return;
+        }catch(err){
+          console.error(" Token exchange failed",err);
+          await logout();
+        }
         }
         if (token && mounted) {
           console.log("📦 JWT token found, validating...");
@@ -150,20 +178,23 @@ export const AuthProvider = ({ children }) => {
         }
         
         if (event === "SIGNED_IN" && session?.user) {
-
           if (authMethod !== null || user === null) {
-            const supabaseToken=session.access_token;
-            localStorage.setItem("token",supabaseToken)
-            setToken(supabaseToken)
-            setUser(session.user);
-            setAuthMethod('supabase');
-            if (token) {
-              localStorage.removeItem("token");
-              setToken(null);
-            }
+            try{
+           const customToken= await exchangeToken(session.user);;
+          localStorage.setItem("token",customToken)
+          setToken(customToken)
+          setUser(session.user);
+          setAuthMethod('supabase');
+            // if (token) {
+            //   localStorage.removeItem("token");
+            //   setToken(null);
+            // }
 
             if (window.location.pathname === "/login" || window.location.pathname === "/") {
               navigate("/home");
+            }
+            }catch(error){
+              console.error("Token exchange failed")
             }
           }
         } else if (event === "SIGNED_OUT") {
