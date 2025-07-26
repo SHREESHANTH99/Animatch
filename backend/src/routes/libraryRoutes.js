@@ -1,7 +1,6 @@
 import express from "express";
 import { addLibraryItem,deleteLibraryItem,updateLibraryItem,getUserLibrary } from "../controllers/libraryController.js";
-// import { verifyToken } from "../middleware/authMiddlesware.js";
-import { verifyToken } from "../middleware/auth.js";
+import { verifyToken } from "../middleware/authMiddlesware.js";
 const router=express.Router();
 
 
