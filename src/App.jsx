@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Discover from "./pages/Discover";
 import LandingPage from "./pages/landingPage";
@@ -11,22 +11,9 @@ import { PublicOnlyRoute } from "./components/protectedroutes/PublicOnlyRoute.js
 import { TopAnime } from "./pages/TopAnime.jsx";
 import { Trending } from "./pages/Trending.jsx";
 import Library from "./pages/Library.jsx";
-import { useEffect, useState } from "react";
-import PageLoader from "./components/Preloader/loader.jsx";
 function App() {
-  const [isLoading, setIsLoading] = useState(false);
-  const location = useLocation();
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
   return (
     <>
-      <PageLoader isLoading={isLoading} />
-      <div className={`${isLoading ? 'opacity-0 pointer-events-none':'opacity-100'} transition-opacity duration-300`}>
         <Routes>
           <Route path="/" element={<LandingPage />}></Route>
           <Route
@@ -56,7 +43,6 @@ function App() {
             <Route path="/library" element={<Library />}></Route>
           </Route>
         </Routes>
-      </div>
     </>
   );
 }

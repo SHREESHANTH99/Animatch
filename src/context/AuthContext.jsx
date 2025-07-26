@@ -104,6 +104,9 @@ export const AuthProvider = ({ children }) => {
 
         if (session?.user && mounted) {
           console.log("🧠 Supabase session found:", session.user.email);
+          const supabaseToken= session.access_token;
+          localStorage.setItem("token",supabaseToken)
+          setToken(supabaseToken)
           setUser(session.user);
           setAuthMethod('supabase');
           if (token) {
@@ -149,6 +152,9 @@ export const AuthProvider = ({ children }) => {
         if (event === "SIGNED_IN" && session?.user) {
 
           if (authMethod !== null || user === null) {
+            const supabaseToken=session.access_token;
+            localStorage.setItem("token",supabaseToken)
+            setToken(supabaseToken)
             setUser(session.user);
             setAuthMethod('supabase');
             if (token) {
@@ -163,6 +169,8 @@ export const AuthProvider = ({ children }) => {
         } else if (event === "SIGNED_OUT") {
           console.log("🔄 Supabase signed out event");
           if (authMethod === 'supabase' && user) {
+            localStorage.removeItem("token")
+            setToken(null)
             setUser(null);
             setAuthMethod(null);
             if (window.location.pathname !== "/login") {
@@ -172,6 +180,8 @@ export const AuthProvider = ({ children }) => {
         } else if (event === "TOKEN_REFRESHED" && session?.user) {
           console.log("🔄 Token refreshed");
           if (authMethod === 'supabase') {
+            const refreshedToken=session.access_token;
+            localStorage.setItem("token",refreshedToken);setToken(refreshedToken)
             setUser(session.user);
           }
         }

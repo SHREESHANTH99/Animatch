@@ -1,6 +1,6 @@
 import express from "express";
-import { verifyToken } from "../middleware/authMiddlesware.js";
-
+// import { verifyToken } from "../middleware/authMiddlesware.js";
+import { verifyToken } from "../middleware/auth.js";
 const router =express.Router();
 router.get('/profile',verifyToken,(req,res)=>{
     console.log("Decoded token:",req.user)

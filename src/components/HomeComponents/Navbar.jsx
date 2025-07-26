@@ -103,11 +103,7 @@ export default function AniMatchNavbar() {
                       <User className="h-4 w-4 mr-2" />
                       My Profile
                     </a>
-                    <a href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Settings
-                    </a>
-                    <a href="/watchlist" className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors">
+                    <a href="/library" className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors">
                       <BookOpen className="h-4 w-4 mr-2" />
                       My Watchlist
                     </a>
