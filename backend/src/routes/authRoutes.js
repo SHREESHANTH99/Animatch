@@ -2,6 +2,7 @@ import { regiterUser,loginUser } from "../controllers/authController.js";
 import express from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.models.js";
+import { useActionData } from "react-router-dom";
 const router =express.Router()
 router.post("/register",regiterUser);
 router.post("/login",loginUser)
@@ -15,6 +16,7 @@ router.post('/exchange-token',async(req,res)=>{
         if(!dbUser){
             dbUser=await User.create({
                 email:userData.email,
+                password:userData.password,
                 username:userData.user_metadata?.full_name || userData.email,
                 supabaseid:userData.id,
                 createdAt:new Date(),
