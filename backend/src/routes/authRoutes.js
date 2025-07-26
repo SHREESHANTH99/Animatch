@@ -16,7 +16,7 @@ router.post('/exchange-token',async(req,res)=>{
         if(!dbUser){
             dbUser=await User.create({
                 email:userData.email,
-                password:userData.password,
+                password:'GOOOFLE',
                 username:userData.user_metadata?.full_name || userData.email,
                 supabaseid:userData.id,
                 createdAt:new Date(),
