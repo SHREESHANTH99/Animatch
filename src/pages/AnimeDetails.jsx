@@ -282,7 +282,7 @@ const DetailPage = () => {
         <div className="relative">
           <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-transparent pb-4">
             <div className="flex space-x-6 min-w-max">
-              {characters.map((char) => (
+              {(characters || [] ).map((char) => (
                 <div
                   key={char.character.mal_id}
                   className="flex-shrink-0 w-80 bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"

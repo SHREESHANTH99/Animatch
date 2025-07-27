@@ -240,7 +240,7 @@ function AnimeCard({ item, updateStatus, deleteItem }) {
   return (
     <div className="group relative bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
       <div className="relative h-96 overflow-hidden">
-         <Link to={`/anime/${item.mal_id}`} className="block">
+         <Link to={`/anime/${item.animeId}`} className="block">
         <img
           src={item.imageUrl}
           alt={item.title}
