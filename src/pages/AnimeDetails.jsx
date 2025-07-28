@@ -13,7 +13,6 @@ const DetailPage = () => {
   const [isAddingToLibrary, setIsAddingToLibrary] = useState(false);
   const [addToLibrarySuccess, setAddToLibrarySuccess] = useState(false);
   const [libraryError, setLibraryError] = useState("");
-
   useEffect(() => {
     const fetchAnime = async () => {
       setLoading(true);
@@ -40,18 +39,19 @@ const DetailPage = () => {
     fetchAnime();
   }, [id]);
 
+  
   const addToLibrary = async () => {
     setIsAddingToLibrary(true);
     setLibraryError("");
     setAddToLibrarySuccess(false);
-    
+  
     try {
       await apiInstance.post("/library", {
         animeId: anime.mal_id,
         title: anime.title,
         status: status,
         imageUrl: anime.images.jpg.large_image_url,
-        rating: anime.score || 0,
+        scores: anime.score && typeof anime.score==='number' ? anime.score:null,
         year: anime.aired?.from ? new Date(anime.aired.from).getFullYear() : anime.year || 'N/A'
       });
       
@@ -59,7 +59,12 @@ const DetailPage = () => {
       setTimeout(() => setAddToLibrarySuccess(false), 3000);
     } catch (err) {
       console.error("Error in adding to library:", err);
-      setLibraryError("Failed to add to library. Please try again.");
+       if(err.response?.status===409){
+          const errorMessage=err.response.data.message || "This anime already exists in your  library"
+          setLibraryError(errorMessage)
+        }else{
+          setLibraryError("Failed to add to library. Please try again.")
+        }
       setTimeout(() => setLibraryError(""), 3000);
     } finally {
       setIsAddingToLibrary(false);
@@ -107,7 +112,7 @@ const DetailPage = () => {
       </div>
     );  
   }
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="relative">

@@ -24,12 +24,19 @@ const libraryItemSchema = new mongoose.Schema(
       enum: ["watching", "completed", "dropped", "planned"],
       default: "watching",
     },
-    score: {
+    scores: {
       type: Number,
       min: 0,
       max: 10,
+      default:null
     },
+    year:{
+      type:Number,
+      default:null
+    }
   },
   { timestamps: true }
 );
+
+libraryItemSchema.index({userId:1,animeId:1},{unique:true})
 export const LibraryItem=mongoose.model("LibraryItem",libraryItemSchema)

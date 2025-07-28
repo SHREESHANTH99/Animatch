@@ -16,7 +16,6 @@ export default function LibraryPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("watching");
   const [searchTerm, setSearchTerm] = useState("");
-
   useEffect(() => {
     const fetchLibrary = async () => {
       try {
@@ -30,7 +29,6 @@ export default function LibraryPage() {
     };
     fetchLibrary();
   }, []);
-
   const updateStatus = async (id, newStatus) => {
     try {
       await apiInstance.patch(`/library/${id}`, { status: newStatus });
@@ -256,13 +254,13 @@ function AnimeCard({ item, updateStatus, deleteItem }) {
         </div>
         <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
           <Star size={12} className="text-yellow-400 fill-current" />
-          <span className="text-white text-lg font-semibold">{item.score}</span>
+          <span className="text-white text-sm font-semibold">{item.scores}</span>
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
           <div className="p-4 w-full">
             <div className="flex items-center gap-2 text-white text-sm mb-2">
               <Calendar size={14} />
-              <span>{item.year}</span>
+              <span>{item.year || 'N/A'}</span>
             </div>
           </div>
         </div></Link>

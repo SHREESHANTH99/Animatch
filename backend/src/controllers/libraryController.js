@@ -2,14 +2,28 @@ import { LibraryItem } from "../models/libraryItem.model.js";
 
 export const addLibraryItem = async (req, res) => {
   try {
-    const { animeId, title, imageUrl, status } = req.body;
+    const { animeId, title, imageUrl, status,scores,year } = req.body;
     if (!animeId || !title || !imageUrl) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+    const userId=req.user.id
+    const existingItem= await LibraryItem.findOne({
+      userId:userId,
+      animeId:animeId
+    })
+    if(existingItem){
+      return res.status(409).json({
+        error:"This anime already exists in your  library",
+        existingItem:existingItem,
+        message:`${title} is already in your ${existingItem.status} list`
+      })
+    }
     const newItem = new LibraryItem({
-      userId: req.user.id,
+      userId,
       animeId,
+      scores,
       title,
+      year,
       imageUrl,
       status: status || "watching",
     });
