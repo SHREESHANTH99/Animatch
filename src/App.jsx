@@ -22,7 +22,7 @@ function App() {
     <>
           <Routes>
             <Route path="/" element={<LandingPage />}></Route>
-            <Route path="/login" element={<Login />}></Route>
+            <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>}></Route>
             <Route
               path="/register"
               element={
