@@ -94,7 +94,7 @@ Backend will run on http://localhost:5000.
 
 🎨 Frontend Setup
 bash
-cd ../frontend
+cd animatch
 npm install
 npm start
 Frontend will run on http://localhost:3000.
