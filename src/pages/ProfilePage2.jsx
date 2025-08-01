@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   Mail,
@@ -17,9 +17,129 @@ import {
   Trash2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
+import apiInstance from "../utils/api.js";
 const ProfilePage2 = () => {
   const { user, logout } = useAuth();
+  const [library, setLibrary] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const fetchLibrary = async () => {
+      try {
+        const res = await apiInstance.get("/library");
+        setLibrary(res.data);
+      } catch (err) {
+        console.error("Error fetching library:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user) {
+      fetchLibrary();
+    }
+  }, [user]);
+  const getStats = () => {
+    const watchlist = library.filter(
+      (anime) => anime.status === "planned"
+    ).length;
+    const watching = library.filter(
+      (anime) => anime.status === "watching"
+    ).length;
+    const completed = library.filter(
+      (anime) => anime.status === "completed"
+    ).length;
+
+    return { watchlist, watching, completed };
+  };
+
+  const getRecentActivity = () => {
+  console.log("=== RECENT ACTIVITY DEBUG ===");
+  console.log("Library for recent activity:", library);
   
+  if (!library || library.length === 0) {
+    console.log("No library items found");
+    return [];
+  }
+  
+  const itemsWithTimestamps = library.filter((anime) => 
+    anime.updated_at || anime.created_at || anime.createdAt || anime.updatedAt
+  );
+  
+  console.log("Items with any timestamp:", itemsWithTimestamps.length);
+  console.log("Sample timestamp values:", itemsWithTimestamps.slice(0, 3).map(item => ({
+    title: item.title,
+    updated_at: item.updated_at,
+    created_at: item.created_at,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt
+  })));
+  
+  if (itemsWithTimestamps.length === 0) {
+    console.log("No items with timestamps found");
+    return [];
+  }
+  
+  const sortedItems = itemsWithTimestamps.sort((a, b) => {
+    const dateA = new Date(a.updated_at || a.updatedAt || a.created_at || a.createdAt);
+    const dateB = new Date(b.updated_at || b.updatedAt || b.created_at || b.createdAt);
+    return dateB - dateA;
+  });
+  
+  const recentItems = sortedItems.slice(0, 5);
+  console.log("Recent 5 items:", recentItems);
+  
+  const mappedActivity = recentItems.map((anime) => ({
+    id: anime.id || anime._id || anime.animeId,
+    anime: anime.title,
+    action: getActionText(anime.status),
+    date: formatDate(anime.updated_at || anime.updatedAt || anime.created_at || anime.createdAt),
+  }));
+  
+  console.log("Final mapped activity:", mappedActivity);
+  return mappedActivity;
+};
+
+  const getActionText = (status) => {
+    switch (status) {
+      case "watching":
+        return "Started Watching";
+      case "completed":
+        return "Completed";
+      case "planned":
+        return "Added to Watchlist";
+      case "dropped":
+        return "Dropped";
+      default:
+        return "Updated";
+    }
+  };
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown date";
+
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return "Today";
+      if (diffDays === 1) return "Yesterday";
+      if (diffDays < 7) return `${diffDays} days ago`;
+      if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+      if (diffDays < 365) return `${Math.ceil(diffDays / 30)} months ago`;
+
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid date";
+    }
+  };
+  const stats = getStats();
+  const recentActivity = getRecentActivity();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
       <div className="absolute inset-0 overflow-hidden">
@@ -102,7 +222,7 @@ const ProfilePage2 = () => {
               </div>
               <div>
                 <p className="text-gray-400 text-sm font-medium">Watchlist</p>
-                <p className="text-3xl font-bold text-white"></p>
+                <p className="text-3xl font- text-white">{stats.watchlist}</p>
               </div>
             </div>
           </div>
@@ -113,7 +233,9 @@ const ProfilePage2 = () => {
               </div>
               <div>
                 <p className="text-gray-400 text-sm font-medium">Watching</p>
-                <p className="text-3xl font-bold text-white"></p>
+                <p className="text-3xl font-medium text-white">
+                  {stats.watching}
+                </p>
               </div>
             </div>
           </div>
@@ -124,7 +246,9 @@ const ProfilePage2 = () => {
               </div>
               <div>
                 <p className="text-gray-400 text-sm font-medium">Completed</p>
-                <p className="text-3xl font-bold text-white"></p>
+                <p className="text-3xl font-medium text-white">
+                  {stats.completed}
+                </p>
               </div>
             </div>
           </div>
@@ -135,20 +259,50 @@ const ProfilePage2 = () => {
               <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
                 <Activity size={20} className="text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white">Recent Activity</h3>
+              <h3 className="text-2xl font-medium text-white">
+                Recent Activity
+              </h3>
             </div>
+            <div className="mb-4 p-2 bg-red-500/10 rounded text-red-300 text-xs">
+              Debug: Library length: {library.length} | Recent activity length:{" "}
+              {recentActivity.length}
+            </div>
+
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <TrendingUp size={16} className="text-white" />
+              {loading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">Loading recent activity...</p>
                 </div>
-                <div className="flex-1">
-                  <p className="text-white font-medium">
-                    <span className="text-purple-400"></span>
+              ) : recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <div
+                    key={activity.id || index}
+                    className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <TrendingUp size={16} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-medium">
+                        {activity.action}{" "}
+                        <span className="text-purple-400">
+                          {activity.anime}
+                        </span>
+                      </p>
+                      <p className="text-gray-400 text-sm">{activity.date}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">No recent activity found</p>
+                  <p className="text-gray-500 text-xs mt-2">
+                    {library.length > 0
+                      ? "Library items found but no recent activity timestamps"
+                      : "No library items found"}
                   </p>
-                  <p className="text-gray-400 text-sm"></p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500">

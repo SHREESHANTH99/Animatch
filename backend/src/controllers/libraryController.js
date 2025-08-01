@@ -2,7 +2,7 @@ import { LibraryItem } from "../models/libraryItem.model.js";
 
 export const addLibraryItem = async (req, res) => {
   try {
-    const { animeId, title, imageUrl, status,scores,year } = req.body;
+    const { animeId, title, imageUrl, status,scores,year} = req.body;
     if (!animeId || !title || !imageUrl) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -26,8 +26,11 @@ export const addLibraryItem = async (req, res) => {
       year,
       imageUrl,
       status: status || "watching",
+      created_at: new Date(),
+      updated_at: new Date()
     });
-    await newItem.save();
+    const savedItem=await newItem.save();
+     console.log("Saved item with updated_at:", savedItem.updated_at); // Debug log
     res.status(201).json(newItem);
   } catch (err) {
     console.error(err);
