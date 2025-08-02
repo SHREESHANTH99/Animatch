@@ -24,9 +24,9 @@ import apiInstance from "../utils/api.js";
 import axios from "axios";
 
 const ProfilePage2 = () => {
-  const { user, logout, setUser} = useAuth();
+ const { user, logout, setUser, authMethod } = useAuth();
   const [library, setLibrary] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -51,51 +51,66 @@ const ProfilePage2 = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchLibrary = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       try {
+        setError(null);
         const res = await apiInstance.get("/library");
-        setLibrary(res.data);
+        setLibrary(Array.isArray(res.data) ? res.data : []);
+
+        setEditForm({
+          username: user.user_metadata?.full_name || user?.username || "",
+          email: user?.email || "",
+        });
       } catch (err) {
         console.error("Error fetching library:", err);
+        setError("Failed to fetch library data");
+        setLibrary([]);
       } finally {
         setLoading(false);
       }
     };
-    if (user) {
-      fetchLibrary();
-      setEditForm({
-        username: user.user_metadata?.full_name || user?.username || "",
-        email: user?.email || "",
-      });
-    }
+
+    fetchLibrary();
   }, [user]);
 
   const getStats = () => {
+    if (!Array.isArray(library)) {
+      return { watchlist: 0, watching: 0, completed: 0 };
+    }
+
     const watchlist = library.filter(
-      (anime) => anime.status === "planned"
+      (anime) => anime?.status === "planned"
     ).length;
     const watching = library.filter(
-      (anime) => anime.status === "watching"
+      (anime) => anime?.status === "watching"
     ).length;
     const completed = library.filter(
-      (anime) => anime.status === "completed"
+      (anime) => anime?.status === "completed"
     ).length;
 
     return { watchlist, watching, completed };
   };
 
   const getRecentActivity = () => {
-    if (!library || library.length === 0) {
+    if (!Array.isArray(library) || library.length === 0) {
       return [];
     }
 
     const itemsWithTimestamps = library.filter(
       (anime) =>
-        anime.updated_at ||
-        anime.created_at ||
-        anime.createdAt ||
-        anime.updatedAt
+        anime &&
+        (anime.updated_at ||
+          anime.created_at ||
+          anime.createdAt ||
+          anime.updatedAt)
     );
 
     if (itemsWithTimestamps.length === 0) {
@@ -109,14 +124,14 @@ const ProfilePage2 = () => {
       const dateB = new Date(
         b.updated_at || b.updatedAt || b.created_at || b.createdAt
       );
-      return dateB - dateA;
+      return dateB.getTime() - dateA.getTime();
     });
 
     const recentItems = sortedItems.slice(0, 5);
 
     return recentItems.map((anime) => ({
-      id: anime.id || anime._id || anime.animeId,
-      anime: anime.title,
+      id: anime.id || anime._id || anime.animeId || Math.random(),
+      anime: anime.title || "Unknown Title",
       action: getActionText(anime.status),
       date: formatDate(
         anime.updated_at ||
@@ -147,8 +162,13 @@ const ProfilePage2 = () => {
 
     try {
       const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return "Invalid date";
+      }
+
       const now = new Date();
-      const diffTime = Math.abs(now - date);
+      const diffTime = Math.abs(now.getTime() - date.getTime());
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays === 0) return "Today";
@@ -168,182 +188,229 @@ const ProfilePage2 = () => {
     }
   };
 
-const handleEditProfile = async (e) => {
-  e.preventDefault();
-  setUpdateLoading(true);
-  const token = localStorage.getItem("token");
-  
-  try {
-    console.log("Updating profile...");
+  const handleEditProfile = async (e) => {
+    e.preventDefault();
+    
+    if (!editForm.username.trim()) {
+      alert("Username is required");
+      return;
+    }
+    if (!editForm.email.trim()) {
+      alert("Email is required");
+      return;
+    }
+    
+    setUpdateLoading(true);
+    const token = localStorage.getItem("token");
 
-    await axios.patch(
-      `${process.env.REACT_APP_API_URL}/api/user/edit`,
-      editForm,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    if (!token) {
+      alert("Authentication token not found. Please login again.");
+      setUpdateLoading(false);
+      return;
+    }
+
+    try {
+      console.log("Updating profile...");
+
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/user/edit`,
+        {
+          username: editForm.username.trim(),
+          email: editForm.email.trim(),
         },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+      const updatedUserData = {
+        ...user,
+        username: editForm.username.trim(),
+        email: editForm.email.trim(),
+        user_metadata: {
+          ...user.user_metadata,
+          full_name: editForm.username.trim(),
+        },
+      };
+      setUser(updatedUserData);
+
+      console.log("Profile updated successfully!");
+      alert("Profile updated successfully!");
+      setShowEditModal(false);
+    } catch (error) {
+      console.error("Profile update error:", error);
+      
+      if (error.code === 'ECONNABORTED') {
+        alert("Request timeout. Please try again.");
+      } else if (error.response) {
+        const message = error.response.data?.message || "Failed to update profile";
+        alert(`Error: ${message}`);
+      } else if (error.request) {
+        alert("Cannot connect to server. Please check your internet connection.");
+      } else {
+        alert("An unexpected error occurred. Please try again.");
       }
-    );
-    
-    const updatedUserData = {
-      ...user,
-      username: editForm.username,
-      email: editForm.email,
-      user_metadata: {
-        ...user.user_metadata,
-        full_name: editForm.username,
-      },
-    };
- 
-    setUser(updatedUserData);
-    
-    console.log("Profile updated successfully!");
-    alert("Profile updated successfully!");
-    setShowEditModal(false);
-    
-  } catch (error) {
-    console.error("Profile update error:", error);
-    alert(error.response?.data?.message || "Failed to update profile");
-  } finally {
-    setUpdateLoading(false);
-  }
-};
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
 
-const handleChangePassword = async (e) => {
-  e.preventDefault();
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (authMethod === 'supabase') {
+      alert("Password change is not available for Google OAuth users. Please manage your password through your Google account.");
+      return;
+    }
 
-  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-    alert("New passwords don't match!");
-    return;
-  }
+    if (!passwordForm.currentPassword) {
+      alert("Current password is required!");
+      return;
+    }
 
-  if (passwordForm.newPassword.length < 6) {
-    alert("New password must be at least 6 characters long!");
-    return;
-  }
+    if (!passwordForm.newPassword) {
+      alert("New password is required!");
+      return;
+    }
 
-  setPasswordLoading(true);
-  const token = localStorage.getItem("token");
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert("New passwords don't match!");
+      return;
+    }
 
-  try {
-    console.log("=== PASSWORD CHANGE ATTEMPT ===");
-    console.log("API URL:", process.env.REACT_APP_API_URL);
-    console.log("Full URL:", `${process.env.REACT_APP_API_URL}/api/user/change-password`);
-    console.log("Token exists:", !!token);
-    console.log("Current password length:", passwordForm.currentPassword.length);
-    console.log("New password length:", passwordForm.newPassword.length);
+    if (passwordForm.newPassword.length < 6) {
+      alert("New password must be at least 6 characters long!");
+      return;
+    }
 
-    const requestData = {
-      currentPassword: passwordForm.currentPassword,
-      newPassword: passwordForm.newPassword,
-    };
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      alert("New password must be different from current password!");
+      return;
+    }
 
-    console.log("Request payload:", requestData);
+    setPasswordLoading(true);
+    const token = localStorage.getItem("token");
 
-    const response = await axios.patch(
-      `${process.env.REACT_APP_API_URL}/api/user/change-password`,
-      requestData,
-      {
+    if (!token) {
+      alert("Authentication token not found. Please login again.");
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      console.log("=== PASSWORD CHANGE ATTEMPT ===");
+      console.log("API URL:", process.env.REACT_APP_API_URL);
+
+      const requestData = {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      };
+
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/user/change-password`,
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+
+      console.log("✅ SUCCESS!");
+      console.log("Response status:", response.status);
+
+      alert("Password changed successfully!");
+      setShowPasswordModal(false);
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setShowPasswords({
+        current: false,
+        new: false,
+        confirm: false,
+      });
+    } catch (error) {
+      console.log("❌ PASSWORD CHANGE FAILED");
+      console.error("Error:", error);
+
+      if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+        alert("Cannot connect to server. Please check if your backend is running.");
+      } else if (error.code === 'ECONNABORTED') {
+        alert("Request timeout. Please try again.");
+      } else if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || "Unknown error";
+
+        if (status === 401) {
+          alert(`Incorrect current password: ${message}`);
+        } else if (status === 404) {
+          alert("Password change endpoint not found. Please contact support.");
+        } else if (status === 500) {
+          alert(`Server error: ${message}`);
+        } else {
+          alert(`Error (${status}): ${message}`);
+        }
+      } else {
+        alert("An unexpected error occurred. Check the console for details.");
+      }
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== "DELETE") {
+      alert("Please type 'DELETE' to confirm account deletion");
+      return;
+    }
+
+    setDeleteLoading(true);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Authentication token not found. Please login again.");
+      setDeleteLoading(false);
+      return;
+    }
+
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/user/delete`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
         },
         timeout: 10000,
-      }
-    );
-
-    console.log("✅ SUCCESS!");
-    console.log("Response status:", response.status);
-    console.log("Response data:", response.data);
-
-    alert("Password changed successfully!");
-    setShowPasswordModal(false);
-    setPasswordForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setShowPasswords({
-      current: false,
-      new: false,
-      confirm: false,
-    });
-
-  } catch (error) {
-    console.log("❌ PASSWORD CHANGE FAILED");
-    console.log("Error type:", error.constructor.name);
-    console.log("Error message:", error.message);
-    
-    if (error.response) {
-      console.log("Response status:", error.response.status);
-      console.log("Response data:", error.response.data);
-      console.log("Response headers:", error.response.headers);
-    } else if (error.request) {
-      console.log("No response received");
-      console.log("Request:", error.request);
-    } else {
-      console.log("Request setup error:", error.message);
-    }
-
-    if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
-      alert("Cannot connect to server. Please check if your backend is running.");
-    } 
-    else if (error.code === 'ECONNABORTED') {
-      alert("Request timeout. Please try again.");
-    }
-    else if (error.response) {
-      const status = error.response.status;
-      const message = error.response.data?.message || "Unknown error";
+      });
       
-      if (status === 401) {
-        alert(`Incorrect current password: ${message}`);
-      } else if (status === 404) {
-        alert("Password change endpoint not found. Please contact support.");
-      } else if (status === 500) {
-        alert(`Server error: ${message}`);
+      alert("Account deleted successfully");
+      localStorage.clear();
+      
+      logout();
+    } catch (error) {
+      console.error("Account deletion error:", error);
+      
+      if (error.code === 'ECONNABORTED') {
+        alert("Request timeout. Please try again.");
+      } else if (error.response) {
+        const message = error.response.data?.message || "Failed to delete account";
+        alert(`Error: ${message}`);
       } else {
-        alert(`Error (${status}): ${message}`);
+        alert("An unexpected error occurred. Please try again.");
       }
-    } else {
-      alert("An unexpected error occurred. Check the console for details.");
+    } finally {
+      setDeleteLoading(false);
     }
-    
-  } finally {
-    setPasswordLoading(false);
-  }
-};
-
-const handleDeleteAccount = async () => {
-  if (deleteConfirmation !== "DELETE") {
-    alert("Please type 'DELETE' to confirm account deletion");
-    return;
-  }
-
-  setDeleteLoading(true);
-  const token = localStorage.getItem("token"); 
-
-  try {
-    await axios.delete(`${process.env.REACT_APP_API_URL}/api/user/delete`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    alert("Account deleted successfully");
-    logout();
-  } catch (error) {
-    console.error("Account deletion error:", error);
-    alert(error.response?.data?.message || "Failed to delete account");
-  } finally {
-    setDeleteLoading(false);
-  }
-};
-
+  };
 
   const closeEditModal = () => {
     setShowEditModal(false);
     setEditForm({
-      username: user.user_metadata?.full_name || user?.username || "",
+      username: user?.user_metadata?.full_name || user?.username || "",
       email: user?.email || "",
     });
   };
@@ -367,9 +434,16 @@ const handleDeleteAccount = async () => {
     setDeleteConfirmation("");
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading user data...</div>
+      </div>
+    );
+  }
+
   const stats = getStats();
   const recentActivity = getRecentActivity();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
 
