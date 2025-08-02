@@ -67,11 +67,6 @@ export const AuthProvider = ({ children }) => {
   };
   const fetchUserProfile = async (authToken) => {
     try {
-      // const res = await fetch("http://localhost:5000/api/user/profile", {
-      //   headers: {
-      //     Authorization: `Bearer ${authToken}`,
-      //   },
-      // });
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -116,51 +111,58 @@ export const AuthProvider = ({ children }) => {
   }
   useEffect(() => {
     let mounted = true;
+const initializeAuth = async () => {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error("❌ Supabase session error:", error.message);
+    }
 
-    const initializeAuth = async () => {
+    if (session?.user && mounted) {
+      console.log("🧠 Supabase session found:", session.user.email);
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const customToken = await exchangeToken(session.user);
+        localStorage.setItem("token", customToken);
+        setToken(customToken);
+        setUser(session.user);
+        setAuthMethod('supabase');
+        if (mounted) setLoading(false);
+        return;
+      } catch (err) {
+        console.error("Token exchange failed", err);
+        await logout();
+      }
+    }
+    
+    if (token && mounted) {
+      console.log("📦 JWT token found, validating...");
+      try {
+        // Check if we have stored JWT user data first
+        const storedJwtUserData = localStorage.getItem('jwtUserData');
         
-        if (error) {
-          console.error("❌ Supabase session error:", error.message);
-        }
-
-        if (session?.user && mounted) {
-          console.log("🧠 Supabase session found:", session.user.email);
-          try{
-          const customToken= await exchangeToken(session.user);;
-          localStorage.setItem("token",customToken)
-          setToken(customToken)
-          setUser(session.user);
-          setAuthMethod('supabase');
-          // if (token) {
-          //   localStorage.removeItem("token");
-          //   setToken(null);
-          // }
-          if (mounted) setLoading(false);
-          return;
-        }catch(err){
-          console.error(" Token exchange failed",err);
-          await logout();
-        }
-        }
-        if (token && mounted) {
-          console.log("📦 JWT token found, validating...");
-          try {
-            await fetchUserProfile(token);
-            setAuthMethod('jwt');
-          } catch (error) {
-            console.error("❌ JWT validation failed:", error.message);
-            localStorage.removeItem("token");
-            setToken(null);
-          }
+        if (storedJwtUserData) {
+          console.log("📦 Restoring JWT user data from localStorage");
+          setUser(JSON.parse(storedJwtUserData));
+          setAuthMethod('jwt');
+        } else {
+          // Fallback to fetching from API
+          await fetchUserProfile(token);
+          setAuthMethod('jwt');
         }
       } catch (error) {
-        console.error("❌ Auth initialization error:", error.message);
-      } finally {
-        if (mounted) setLoading(false);
+        console.error("❌ JWT validation failed:", error.message);
+        localStorage.removeItem("token");
+        localStorage.removeItem("jwtUserData");
+        setToken(null);
       }
-    };
+    }
+  } catch (error) {
+    console.error("❌ Auth initialization error:", error.message);
+  } finally {
+    if (mounted) setLoading(false);
+  }
+};
 
     initializeAuth();
 
@@ -168,74 +170,84 @@ export const AuthProvider = ({ children }) => {
       mounted = false;
     };
   }, []); 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("🔄 Supabase auth event:", event, session?.user?.email);
-        if (loading && !user && !authMethod) {
-          console.log("🚫 Ignoring auth event during logout");
-          return;
-        }
-        
-        if (event === "SIGNED_IN" && session?.user) {
-          if (authMethod !== null || user === null) {
-            try{
-           const customToken= await exchangeToken(session.user);;
-          localStorage.setItem("token",customToken)
-          setToken(customToken)
-          setUser(session.user);
-          setAuthMethod('supabase');
-            // if (token) {
-            //   localStorage.removeItem("token");
-            //   setToken(null);
-            // }
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      console.log("🔄 Supabase auth event:", event, session?.user?.email);
+
+      if (authMethod === 'jwt') {
+        console.log("🚫 Ignoring Supabase event - using JWT auth");
+        return;
+      }
+      
+      if (loading && !user && !authMethod) {
+        console.log("🚫 Ignoring auth event during logout");
+        return;
+      }
+      
+      if (event === "SIGNED_IN" && session?.user) {
+        if (authMethod !== null || user === null) {
+          try {
+            const customToken = await exchangeToken(session.user);
+            localStorage.setItem("token", customToken);
+            setToken(customToken);
+            setUser(session.user);
+            setAuthMethod('supabase');
 
             if (window.location.pathname === "/login" || window.location.pathname === "/") {
               navigate("/home");
             }
-            }catch(error){
-              console.error("Token exchange failed")
-            }
-          }
-        } else if (event === "SIGNED_OUT") {
-          console.log("🔄 Supabase signed out event");
-          if (authMethod === 'supabase' && user) {
-            localStorage.removeItem("token")
-            setToken(null)
-            setUser(null);
-            setAuthMethod(null);
-            if (window.location.pathname !== "/login") {
-              navigate("/login");
-            }
-          }
-        } else if (event === "TOKEN_REFRESHED" && session?.user) {
-          console.log("🔄 Token refreshed");
-          if (authMethod === 'supabase') {
-            const refreshedToken=session.access_token;
-            localStorage.setItem("token",refreshedToken);setToken(refreshedToken)
-            setUser(session.user);
+          } catch (error) {
+            console.error("Token exchange failed");
           }
         }
+      } else if (event === "SIGNED_OUT") {
+        console.log("🔄 Supabase signed out event");
+        if (authMethod === 'supabase' && user) {
+          localStorage.removeItem("token");
+          setToken(null);
+          setUser(null);
+          setAuthMethod(null);
+          if (window.location.pathname !== "/login") {
+            navigate("/login");
+          }
+        }
+      } else if (event === "TOKEN_REFRESHED" && session?.user) {
+        console.log("🔄 Token refreshed");
+        if (authMethod === 'supabase') {
+          const refreshedToken = session.access_token;
+          localStorage.setItem("token", refreshedToken);
+          setToken(refreshedToken);
+          setUser(session.user);
+        }
       }
-    );
+    }
+  );
 
-    return () => subscription.unsubscribe();
-  }, [navigate, token, authMethod, loading, user]);
+  return () => subscription.unsubscribe();
+}, [navigate, token, authMethod, loading, user]);
   const isAuthenticated = !!user;
-  const getAuthMethod = () => authMethod;
+ const persistentSetUser = (userData) => {
+  setUser(userData);
 
-  const value = {
-    user,
-    token,
-    login,
-    loginWithGoogle,
-    logout,
-    isAuthenticated,
-    loading,
-    authMethod,
-    getAuthMethod,
-  };
+  if (authMethod === 'jwt' && userData) {
+    localStorage.setItem('jwtUserData', JSON.stringify(userData));
+  } else if (authMethod === 'jwt' && !userData) {
+    localStorage.removeItem('jwtUserData');
+  }
+};
 
+const value = {
+  user,
+  token,
+  login,
+  loginWithGoogle,
+  logout,
+  isAuthenticated,
+  loading,
+  authMethod,
+  setUser: persistentSetUser
+};
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
