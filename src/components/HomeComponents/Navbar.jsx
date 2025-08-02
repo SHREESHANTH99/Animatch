@@ -12,7 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-
+import {logo} from "../../assets/animePosters.js"
 export default function AniMatchNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -50,10 +50,9 @@ export default function AniMatchNavbar() {
             <div className="flex-shrink-0 group cursor-pointer">
               <div className="flex items-center space-x-2">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-cyan-500/50">
-                    <span className="text-white font-bold text-lg">A</span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200 shadow-lg ">
+                    <span className="text-white font-bold text-lg"><img src={logo.img} className="rounded-lg" /></span>
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full animate-pulse shadow-lg shadow-pink-500/50"></div>
                 </div>
                 <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg">
                   AniMatch

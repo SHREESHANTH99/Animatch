@@ -13,3 +13,7 @@ export const icons={
     title:"Google",
     img:"/assets/devicon_google.png"
 }
+export const logo={
+    title:"Animatch",
+    img:"/assets/favicon.png"
+}
