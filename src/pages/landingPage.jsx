@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Play, Sparkles, Search, Star, Heart } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Play, Sparkles, Search, Star, Heart, Zap, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 export default function LandingPage() {
   const [animeData, setAnimeData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const scrollRef1 = useRef(null);
+  const scrollRef2 = useRef(null);
 
   useEffect(() => {
     const fetchAnime = async () => {
@@ -36,157 +38,240 @@ export default function LandingPage() {
     window.location.href="/register"
   };
 
+  const handleMouseEnter = (ref, speed) => {
+    if (ref.current) {
+      ref.current.style.animationPlayState = 'paused';
+    }
+  };
+
+  const handleMouseLeave = (ref) => {
+    if (ref.current) {
+      ref.current.style.animationPlayState = 'running';
+    }
+  };
+
   const extendedAnime = [...animeData, ...animeData, ...animeData];
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-purple-900/30 to-pink-900/20"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.3),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,75,178,0.2),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-purple-900/40 to-pink-900/20"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(120,119,198,0.4),transparent_60%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,75,178,0.3),transparent_60%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_70%)]"></div>
+      <div className="absolute top-10 left-10 w-2 h-2 bg-pink-400 rounded-full opacity-60 animate-bounce"></div>
+      <div className="absolute top-32 right-20 w-3 h-3 bg-cyan-400 rounded-full opacity-60 animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute top-60 left-1/4 w-1 h-1 bg-purple-400 rounded-full opacity-80 animate-ping" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-40 right-1/3 w-4 h-4 bg-pink-400 rounded-full opacity-40 animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+      <div className="absolute bottom-20 left-1/5 w-2 h-2 bg-cyan-400 rounded-full opacity-60 animate-pulse" style={{ animationDelay: '1.5s' }}></div>
 
-      <div className="relative z-10 container mx-auto px-4 pt-20 pb-16">
-        <div className="text-center max-w-6xl mx-auto mb-16">
+      <div className="relative z-10 container mx-auto px-4 pt-16 pb-16">
+        <div className="text-center max-w-7xl mx-auto mb-20">
           <div className="flex justify-center items-center gap-8 mb-8">
-            <Sparkles className="text-pink-400 animate-bounce" size={32} />
-            <h1 className="text-6xl md:text-7xl lg:text-9xl font-serif font-black bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <div className="relative">
+              <Sparkles className="text-pink-400 animate-spin" size={36} />
+              <div className="absolute inset-0 bg-pink-400/20 rounded-full animate-ping"></div>
+            </div>
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-black bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-2xl">
               ANIMATCH
             </h1>
-            <Sparkles className="text-cyan-400 animate-bounce" style={{ animationDelay: '0.5s' }} size={32} />
+            <div className="relative">
+              <Sparkles className="text-cyan-400 animate-spin" style={{ animationDelay: '0.5s', animationDirection: 'reverse' }} size={36} />
+              <div className="absolute inset-0 bg-cyan-400/20 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+            </div>
           </div>
           
-          <p className="text-2xl md:text-3xl text-white/90 font-light mb-6">
-            Discover Your Next Obsession
-          </p>
+          <div className="relative mb-8">
+            <p className="text-3xl md:text-4xl text-white/95 font-light mb-4 animate-pulse">
+              Discover Your Next Obsession
+            </p>
+            <div className="w-32 h-1 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 mx-auto rounded-full"></div>
+          </div>
           
-          <p className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto">
-            The most advanced anime discovery platform powered by AI recommendations and passionate community
+          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
+            The most advanced anime discovery platform powered by AI recommendations and passionate community insights
           </p>
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            <div className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <Zap className="text-yellow-400" size={20} />
+              <span className="text-white/90 font-medium">AI-Powered</span>
+            </div>
+            <div className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <Users className="text-green-400" size={20} />
+              <span className="text-white/90 font-medium">Community Driven</span>
+            </div>
+            <div className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <TrendingUp className="text-blue-400" size={20} />
+              <span className="text-white/90 font-medium">Real-time Updates</span>
+            </div>
+          </div>
         </div>
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Trending This Week
-          </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-pink-400 to-purple-400 mx-auto rounded-full"></div>
+        <div className="text-center mb-16">
+          <div className="relative inline-block">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 relative z-10">
+              Trending This Week
+            </h2>
+            <div className="absolute -inset-4 bg-gradient-to-r from-pink-400/20 via-purple-400/20 to-cyan-400/20 blur-xl rounded-lg"></div>
+          </div>
+          <div className="w-32 h-1 bg-gradient-to-r from-pink-400 to-purple-400 mx-auto rounded-full mb-8"></div>
         </div>
-        <div className="relative overflow-hidden mb-16">
+        <div className="relative overflow-hidden mb-20 rounded-3xl">
           {isLoading ? (
-            <div className="flex gap-6 justify-center">
+            <div className="flex gap-6 justify-center p-8">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-48 h-64 bg-white/10 rounded-2xl animate-pulse">
-                  <div className="w-full h-full bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-2xl"></div>
+                <div key={i} className="flex-shrink-0 w-52 h-72 bg-white/10 rounded-3xl animate-pulse backdrop-blur-sm">
+                  <div className="w-full h-full bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-3xl"></div>
                 </div>
               ))}
             </div>
           ) : (
-            <>
-              <div className="flex gap-6 mb-6 animate-scroll-right">
+            <div className="py-8">
+              <div 
+                ref={scrollRef1}
+                className="flex gap-8 mb-8 animate-scroll-right hover-pause"
+                onMouseEnter={() => handleMouseEnter(scrollRef1)}
+                onMouseLeave={() => handleMouseLeave(scrollRef1)}
+              >
                 {extendedAnime.map((anime, index) => (
                   <Link to={`/anime/${anime.mal_id}`} className="block">
                   <div
                     key={`row1-${anime.mal_id}-${index}`}
-                    className="group relative flex-shrink-0 w-48 h-64 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300"
+                    className="group relative flex-shrink-0 w-52 h-72 overflow-hidden rounded-3xl shadow-2xl transform hover:scale-110 hover:rotate-2 transition-all duration-500 cursor-pointer"
                   >
                     <img
                       src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url}
                       alt={anime.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <h4 className="text-white font-bold text-sm mb-1 truncate">{anime.title}</h4>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                      <h4 className="text-white font-bold text-lg mb-2 truncate">{anime.title}</h4>
                       {anime.score && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star className="text-yellow-400" size={16} />
+                          <span className="text-white/90 text-sm font-medium">{anime.score}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-pink-400 text-sm font-medium">
+                        <Heart className="text-pink-400" size={16} />
+                        <span>{anime.members ? anime.members.toLocaleString() : 'N/A'} Members</span>
+                      </div>
+                    </div>
+                    
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100">
+                      <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm">
+                        <Play className="text-white ml-1" size={20} />
+                      </div>
+                    </div>
+
+                    <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100">
+                      <div className="px-3 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-xs font-medium">
+                        #{anime.rank || 'Top'}
+                      </div>
+                    </div>
+                  </div></Link>
+                ))}
+              </div>
+              <div 
+                ref={scrollRef2}
+                className="flex gap-8 animate-scroll-left hover-pause"
+                onMouseEnter={() => handleMouseEnter(scrollRef2)}
+                onMouseLeave={() => handleMouseLeave(scrollRef2)}
+              >
+                {extendedAnime.slice().reverse().map((anime, index) => (
+                  <div
+                    key={`row2-${anime.mal_id}-${index}`}
+                    className="group relative flex-shrink-0 w-48 h-64 overflow-hidden rounded-3xl shadow-2xl transform hover:scale-110 hover:-rotate-2 transition-all duration-500 cursor-pointer"
+                  >
+                    <img
+                      src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url}
+                      alt={anime.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                      <h4 className="text-white font-bold text-sm mb-2 truncate">{anime.title}</h4>
+                      {anime.score && (
+                        <div className="flex items-center gap-2">
                           <Star className="text-yellow-400" size={14} />
                           <span className="text-white/90 text-xs">{anime.score}</span>
                         </div>
                       )}
                     </div>
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
-                        <Play className="text-white" size={16} />
+                    
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100">
+                      <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                        <Heart className="text-white" size={14} />
                       </div>
                     </div>
-                  </div></Link>
+                  </div>
                 ))}
               </div>
-              <div className="flex gap-6 animate-scroll-left">
-                {extendedAnime.slice().reverse().map((anime, index) => (
-                  <Link to={`/anime/${anime.mal_id}`} className="block">
-                  <div
-                    key={`row2-${anime.mal_id}-${index}`}
-                    className="group relative flex-shrink-0 w-44 h-56 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300"
-                  >
-                    <img
-                      src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url}
-                      alt={anime.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-3 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <h4 className="text-white font-bold text-xs mb-1 truncate">{anime.title}</h4>
-                      {anime.score && (
-                        <div className="flex items-center gap-1">
-                          <Star className="text-yellow-400" size={12} />
-                          <span className="text-white/90 text-xs">{anime.score}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                        <Heart className="text-white" size={12} />
-                      </div>
-                    </div>
-                  </div></Link>
-                ))}
-              </div>
-              <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-slate-900 via-purple-900/50 to-transparent pointer-events-none z-10"></div>
-              <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-slate-900 via-purple-900/50 to-transparent pointer-events-none z-10"></div>
-            </>
+              <div className="absolute top-0 left-0 w-40 h-full bg-gradient-to-r from-slate-900 via-purple-900/70 to-transparent pointer-events-none z-10"></div>
+              <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-l from-slate-900 via-purple-900/70 to-transparent pointer-events-none z-10"></div>
+            </div>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          <div className="text-center">
-            <div className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent mb-4">
-              50K+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-24">
+          <div className="text-center group">
+            <div className="relative mb-6">
+              <div className="text-5xl md:text-7xl font-black bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent mb-4 group-hover:scale-110 transition-transform duration-300">
+                50K+
+              </div>
+              <div className="absolute -inset-2 bg-gradient-to-r from-pink-400/20 to-purple-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
             </div>
-            <p className="text-xl text-white/80">Anime Titles</p>
+            <p className="text-xl md:text-2xl text-white/90 font-medium">Anime Titles</p>
+            <p className="text-white/60 mt-2">And growing daily</p>
           </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">
-              1M+
+          <div className="text-center group">
+            <div className="relative mb-6">
+              <div className="text-5xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4 group-hover:scale-110 transition-transform duration-300">
+                1M+
+              </div>
+              <div className="absolute -inset-2 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
             </div>
-            <p className="text-xl text-white/80">Active Users</p>
+            <p className="text-xl md:text-2xl text-white/90 font-medium">Active Users</p>
+            <p className="text-white/60 mt-2">Passionate fans worldwide</p>
           </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent mb-4">
-              99%
+          <div className="text-center group">
+            <div className="relative mb-6">
+              <div className="text-5xl md:text-7xl font-black bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent mb-4 group-hover:scale-110 transition-transform duration-300">
+                99%
+              </div>
+              <div className="absolute -inset-2 bg-gradient-to-r from-green-400/20 to-teal-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
             </div>
-            <p className="text-xl text-white/80">Match Accuracy</p>
+            <p className="text-xl md:text-2xl text-white/90 font-medium">Match Accuracy</p>
+            <p className="text-white/60 mt-2">AI-powered precision</p>
           </div>
         </div>
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Find Your Perfect Anime?
-          </h2>
-          <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto">
-            Join thousands of anime fans discovering their next favorite series
-          </p>
-          <button
-            onClick={handleGetStarted}
-            className="group relative px-12 md:px-16 py-4 md:py-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full text-white font-bold text-xl md:text-2xl transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-pink-500/50"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative flex items-center gap-4">
-              <Search className="group-hover:rotate-12 transition-transform duration-300" size={24} />
-              <span>Start Discovering</span>
-            </div>
-          </button>
+        <div className="text-center relative flex flex-col items-center justify-center gap-8 mb-24">
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-cyan-500/10 rounded-3xl blur-xl"></div>
+          <div className="relative bg-white/5 backdrop-blur-md rounded-3xl p-12 border border-white/10">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Ready to Find Your Perfect Anime?
+            </h2>
+            <p className="text-xl md:text-2xl text-white/80 mb-10 max-w-3xl mx-auto leading-relaxed">
+              Join millions of anime fans discovering their next favorite series with our AI-powered recommendation engine
+            </p>
+            <button
+              onClick={handleGetStarted}
+              className="group relative px-16 md:px-20 py-6 md:py-8 bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 rounded-full text-white font-bold text-2xl md:text-3xl transform hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-pink-500/50 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative flex items-center gap-4 justify-center">
+                <Search className="group-hover:rotate-12 transition-transform duration-500" size={28} />
+                <span className='text-2xl md:text-4xl'>Start Discovering</span>
+                <ArrowRight className="group-hover:translate-x-2 transition-transform duration-500" size={28} />
+              </div>
+            </button>
+          </div>
         </div>
       </div>
-      <div className="absolute top-20 left-20 w-4 h-4 bg-pink-400 rounded-full opacity-60 animate-pulse"></div>
-      <div className="absolute top-40 right-32 w-3 h-3 bg-cyan-400 rounded-full opacity-60 animate-pulse" style={{ animationDelay: '1s' }}></div>
-      <div className="absolute bottom-32 left-32 w-5 h-5 bg-purple-400 rounded-full opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute bottom-20 right-20 w-4 h-4 bg-pink-400 rounded-full opacity-60 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+
       <style jsx>{`
         @keyframes scroll-right {
           0% {
@@ -207,11 +292,15 @@ export default function LandingPage() {
         }
         
         .animate-scroll-right {
-          animation: scroll-right 60s linear infinite;
+          animation: scroll-right 80s linear infinite;
         }
         
         .animate-scroll-left {
-          animation: scroll-left 80s linear infinite;
+          animation: scroll-left 100s linear infinite;
+        }
+
+        .hover-pause:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </div>

@@ -77,14 +77,14 @@ export const TopAnime = () => {
           </div>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {animeData.map((item, index) => (
               <Link to={`/anime/${item.mal_id}`} className="block">
             <div
               key={`${item.mal_id}-${index}`}
               className="group relative bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25"
             >
-              <div className="relative h-80 overflow-hidden">
+              <div className="relative h-90 overflow-hidden">
                 <img
                   src={item.images?.webp?.large_image_url || item.images?.jpg?.large_image_url}
                   alt={item.title}
