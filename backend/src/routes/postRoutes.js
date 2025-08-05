@@ -1,0 +1,248 @@
+import express from 'express';
+import { Group } from "../models/Group.js";
+import { Post } from "../models/post.js"
+import {User} from  "../models/User.models.js";
+import {verifyToken} from "../middleware/authMiddlesware.js"
+// Generate unique invite code
+const router = express.Router();
+router.get('/group/:groupId', verifyToken, async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // Check if user has access to group
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    if (group.isPrivate && !group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const posts = await Post.find({ group: groupId })
+      .populate('author', 'username')
+      .populate('likes.user', 'username')
+      .populate('comments.author', 'username')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Format posts with admin status
+    const formattedPosts = posts.map(post => ({
+      ...post.toObject(),
+      isAdmin: group.admins.includes(post.author._id)
+    }));
+
+    res.json({ posts: formattedPosts });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Create new post
+router.post('/create', verifyToken, async (req, res) => {
+  try {
+    const { content, groupId } = req.body;
+
+    if (!content || !groupId) {
+      return res.status(400).json({ message: 'Content and groupId are required' });
+    }
+
+    // Check if user is member of group
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    if (!group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: 'Must be a group member to post' });
+    }
+
+    // Get user details
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const post = new Post({
+      content,
+      username: user.username,
+      author: req.user.id,
+      group: groupId
+    });
+
+    await post.save();
+
+    // Update group post count
+    await Group.findByIdAndUpdate(groupId, {
+      $inc: { postCount: 1 }
+    });
+
+    res.status(201).json({ 
+      post: {
+        ...post.toObject(),
+        isAdmin: group.admins.includes(req.user.id)
+      }
+    });
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// React to post
+router.post('/:postId/react', verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { reactionType = 'like' } = req.body;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Check if user has access to the group
+    const group = await Group.findById(post.group);
+    if (group.isPrivate && !group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Check if user already reacted
+    const existingReaction = post.likes.find(like => 
+      like.user.toString() === req.user.id
+    );
+
+    if (existingReaction) {
+      if (existingReaction.type === reactionType) {
+        // Remove reaction if same type
+        post.likes = post.likes.filter(like => 
+          like.user.toString() !== req.user.id
+        );
+      } else {
+        // Update reaction type
+        existingReaction.type = reactionType;
+      }
+    } else {
+      // Add new reaction
+      post.likes.push({
+        user: req.user.id,
+        type: reactionType
+      });
+    }
+
+    await post.save();
+    res.json({ message: 'Reaction updated successfully' });
+  } catch (error) {
+    console.error('Error reacting to post:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Add comment to post
+router.post('/:postId/comment',verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ message: 'Comment content is required' });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Check if user has access to the group
+    const group = await Group.findById(post.group);
+    if (group.isPrivate && !group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const user = await User.findById(req.user.id);
+    
+    post.comments.push({
+      content,
+      author: req.user.id,
+      username: user.username,
+      createdAt: new Date()
+    });
+
+    await post.save();
+    res.json({ message: 'Comment added successfully' });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete post
+router.delete('/:postId', verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const group = await Group.findById(post.group);
+    
+    // Check if user is author, admin, or group creator
+    const canDelete = post.author.toString() === req.user.id || 
+                     group.admins.includes(req.user.id) ||
+                     group.creator.toString() === req.user.id;
+
+    if (!canDelete) {
+      return res.status(403).json({ message: 'Not authorized to delete this post' });
+    }
+
+    await Post.findByIdAndDelete(postId);
+    
+    // Update group post count
+    await Group.findByIdAndUpdate(post.group, {
+      $inc: { postCount: -1 }
+    });
+
+    res.json({ message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Edit post
+router.put('/:postId', verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ message: 'Content is required' });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Only author can edit post
+    if (post.author.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to edit this post' });
+    }
+
+    post.content = content;
+    post.isEdited = true;
+    await post.save();
+
+    res.json({ message: 'Post updated successfully' });
+  } catch (error) {
+    console.error('Error editing post:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+export default router;  

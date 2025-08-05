@@ -13,6 +13,7 @@ import Library from "./pages/Library.jsx";
 import Login from "./pages/login/loginPage.jsx";
 import PageLoader from "./components/Preloader/loader.jsx";
 import { usePageLoader } from "./context/PageLoader.jsx";
+import Community from "./pages/Community.jsx";
 function App() {
   const isLoading = usePageLoader();
   if (isLoading) {
@@ -39,6 +40,7 @@ function App() {
               <Route path="/top" element={<TopAnime />}></Route>
               <Route path="/trending" element={<Trending />}></Route>
               <Route path="/library" element={<Library />}></Route>
+              <Route path="/Community" element={<Community/>}></Route>
             </Route>
           </Routes>
     </>
