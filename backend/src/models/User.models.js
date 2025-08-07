@@ -16,7 +16,9 @@ const userShema = new mongoose.Schema({
         type:String,
         required:true,
         minlength:6
-    }
+    },
+     resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Number }, //
 },{timestamps:true})
 
 export const User=mongoose.model("User",userShema);

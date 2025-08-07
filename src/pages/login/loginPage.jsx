@@ -2,17 +2,22 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Lock, User, EyeOff, Eye, AlertCircle } from "lucide-react";
+import { Lock, User, EyeOff, Eye, AlertCircle, ArrowLeft, Mail } from "lucide-react";
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isgoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isForgotPasswordLoading, setIsForgotPasswordLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { login, loginWithGoogle } = useAuth();
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -30,6 +35,21 @@ export default function LoginPage() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const validateEmail = () => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -53,7 +73,7 @@ export default function LoginPage() {
           await login(res.data.token);
           setTimeout(() => navigate("/home"), 1000);
         } catch (err) {
-          setMessage("Invalid credentials.Please try again");
+          setMessage("Invalid credentials. Please try again");
         } finally {
           setIsLoading(false);
         }
@@ -63,6 +83,7 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     setTimeout(async () => {
@@ -75,6 +96,41 @@ export default function LoginPage() {
       }
     }, 1500);
   };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!validateEmail()) {
+      return;
+    }
+    setIsForgotPasswordLoading(true);
+    setMessage("");
+
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/forgot-password`,
+        { email }
+      );
+      
+      setMessage("Password reset link sent to your email!");
+      setEmail("");
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        setMessage("");
+      }, 3000);
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Failed to send reset email");
+    } finally {
+      setIsForgotPasswordLoading(false);
+    }
+  };
+
+  const resetToLogin = () => {
+    setShowForgotPassword(false);
+    setMessage("");
+    setErrors({});
+    setEmail("");
+  };
+
   const GoogleIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 24 24">
       <path
@@ -95,6 +151,7 @@ export default function LoginPage() {
       />
     </svg>
   );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden">
@@ -105,158 +162,249 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8">
           <div className="text-center mb-8">
+            {showForgotPassword && (
+              <button
+                onClick={resetToLogin}
+                className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
             <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2">
               AniMatch
             </h1>
             <p className="text-gray-400 text-sm">
-              Welcome back! Please sign in to your account
+              {showForgotPassword 
+                ? "Enter your email to reset your password"
+                : "Welcome back! Please sign in to your account"
+              }
             </p>
           </div>
 
-          <div className="space-y-6">
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={isgoogleLoading}
-              className="w-full flex items-center justify-center gap-3 bg-white hover:bg-white/20 disabled:bg-white/5 border border-white/20 rounded-xl py-3 px-4 text-gray-800 font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-lg group disabled:cursor-not-allowed disabled:scale-100"
-            >
-              {isgoogleLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Signing in...</span>
-                </>
-              ) : (
-                <>
-                  <GoogleIcon />
-                  <span>Continue with Google</span>
-                </>
-              )}
-            </button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-slate-900 px-4 text-gray-400">
-                  Or continue with email
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">
-                Username
-              </label>
+          {!showForgotPassword ? (
+            <div className="space-y-6">
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={isgoogleLoading}
+                className="w-full flex items-center justify-center gap-3 bg-white hover:bg-white/20 disabled:bg-white/5 border border-white/20 rounded-xl py-3 px-4 text-gray-800 font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-lg group disabled:cursor-not-allowed disabled:scale-100"
+              >
+                {isgoogleLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span className="text-white">Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <GoogleIcon />
+                    <span>Continue with Google</span>
+                  </>
+                )}
+              </button>
+
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    if (errors.username) {
-                      setErrors((prev) => ({ ...prev, username: "" }));
-                    }
-                  }}
-                  placeholder="Enter your username"
-                  required
-                  disabled={isLoading}
-                  className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    errors.username
-                      ? "border-red-500 focus:ring-red-500/50"
-                      : "border-white/20 focus:ring-blue-500/50 focus:border-blue-500/50"
-                  }`}
-                />
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-slate-900 px-4 text-gray-400">
+                    Or continue with email
+                  </span>
+                </div>
               </div>
-              {errors.username && (
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Username
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (errors.username) {
+                        setErrors((prev) => ({ ...prev, username: "" }));
+                      }
+                    }}
+                    placeholder="Enter your username"
+                    required
+                    disabled={isLoading}
+                    className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all duration-200 ${
+                      errors.username
+                        ? "border-red-500 focus:ring-red-500/50"
+                        : "border-white/20 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    }`}
+                  />
+                </div>
+                {errors.username && (
                   <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
                     <AlertCircle className="w-4 h-4" />
                     {errors.username}
                   </div>
                 )}
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (errors.password) {
-                      setErrors((prev) => ({ ...prev, password: "" }));
-                    }
-                  }}
-                  placeholder="Enter your password"
-                  required
-                  disabled={isLoading}
-                  className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    errors.password
-                      ? "border-red-500 focus:ring-red-500/50"
-                      : "border-white/20 focus:ring-blue-500/50 focus:border-blue-500/50"
-                  }`}
-                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (errors.password) {
+                        setErrors((prev) => ({ ...prev, password: "" }));
+                      }
+                    }}
+                    placeholder="Enter your password"
+                    required
+                    disabled={isLoading}
+                    className={`w-full pl-12 pr-12 py-3 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all duration-200 ${
+                      errors.password
+                        ? "border-red-500 focus:ring-red-500/50"
+                        : "border-white/20 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors disabled:cursor-not-allowed"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.password}
+                  </div>
+                )}
+              </div>
+
+              <div className="text-right">
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLoading}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors disabled:cursor-not-allowed"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-purple-400 hover:text-purple-300 text-sm font-medium hover:underline transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  Forgot your password?
                 </button>
               </div>
-              {errors.password && (
-                <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.password}
-                </div>
-              )}
-            </div>
-            <button
-              type="submit"
-              onClick={handleLogin}
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Signing in...</span>
-                </div>
-              ) : (
-                "Sign In"
-              )}
-            </button>
-            {message && (
-              <div
-                className={`text-center p-3 rounded-xl ${
-                  message.includes("failed") || message.includes("error")
-                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                    : "bg-green-500/20 text-green-400 border border-green-500/30"
-                }`}
+
+              <button
+                type="submit"
+                onClick={handleLogin}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
               >
-                {message}
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </div>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+
+              <div className="text-center">
+                <p className="text-gray-400">
+                  Don't have an account?{" "}
+                  <a
+                    href="/register"
+                    className="text-purple-400 hover:text-purple-300 font-medium hover:underline transition-colors"
+                  >
+                    Create one here
+                  </a>
+                </p>
               </div>
-            )}
-            <div className="text-center">
-              <p className="text-gray-400">
-                Don't have an account?{" "}
-                <a
-                  href="/register"
-                  className="text-purple-400 hover:text-purple-300 font-medium hover:underline transition-colors"
-                >
-                  Create one here
-                </a>
-              </p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email) {
+                        setErrors((prev) => ({ ...prev, email: "" }));
+                      }
+                    }}
+                    placeholder="Enter your email address"
+                    required
+                    disabled={isForgotPasswordLoading}
+                    className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all duration-200 ${
+                      errors.email
+                        ? "border-red-500 focus:ring-red-500/50"
+                        : "border-white/20 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    }`}
+                  />
+                </div>
+                {errors.email && (
+                  <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.email}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                onClick={handleForgotPassword}
+                disabled={isForgotPasswordLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
+              >
+                {isForgotPasswordLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Sending...</span>
+                  </div>
+                ) : (
+                  "Send Reset Link"
+                )}
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={resetToLogin}
+                  className="text-gray-400 hover:text-white font-medium hover:underline transition-colors"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            </div>
+          )}
+
+          {message && (
+            <div
+              className={`text-center p-3 rounded-xl mt-6 ${
+                message.includes("failed") || message.includes("error")
+                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                  : "bg-green-500/20 text-green-400 border border-green-500/30"
+              }`}
+            >
+              {message}
+            </div>
+          )}
         </div>
+
         <div className="text-center mt-6">
           <p className="text-gray-500 text-sm">
             By signing in, you agree to our Terms of Service and Privacy Policy

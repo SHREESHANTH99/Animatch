@@ -133,10 +133,10 @@ export const AuthProvider = ({ children }) => {
           setToken(customToken)
           setUser(session.user);
           setAuthMethod('supabase');
-          // if (token) {
-          //   localStorage.removeItem("token");
-          //   setToken(null);
-          // }
+          if (token) {
+            localStorage.removeItem("token");
+            setToken(null);
+          }
           if (mounted) setLoading(false);
           return;
         }catch(err){
@@ -185,10 +185,10 @@ export const AuthProvider = ({ children }) => {
           setToken(customToken)
           setUser(session.user);
           setAuthMethod('supabase');
-            // if (token) {
-            //   localStorage.removeItem("token");
-            //   setToken(null);
-            // }
+            if (token) {
+              localStorage.removeItem("token");
+              setToken(null);
+            }
 
             if (window.location.pathname === "/login" || window.location.pathname === "/") {
               navigate("/home");

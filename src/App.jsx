@@ -14,6 +14,7 @@ import Login from "./pages/login/loginPage.jsx";
 import PageLoader from "./components/Preloader/loader.jsx";
 import { usePageLoader } from "./context/PageLoader.jsx";
 import Community from "./pages/Community.jsx";
+import ResetPassword from "./pages/login/ResetPassword.jsx";
 function App() {
   const isLoading = usePageLoader();
   if (isLoading) {
@@ -24,6 +25,8 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />}></Route>
             <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>}></Route>
+            <Route path="/login/:token" element={<ResetPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route
               path="/register"
               element={

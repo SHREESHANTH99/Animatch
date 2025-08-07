@@ -202,7 +202,7 @@ const Discover = () => {
                 <select
                   value={filters.type}
                   onChange={(e) => handleFilterChange("type", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All Types</option>
                   <option value="tv">TV</option>
@@ -220,7 +220,7 @@ const Discover = () => {
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All Status</option>
                   <option value="airing">Airing</option>
@@ -235,7 +235,7 @@ const Discover = () => {
                 <select
                   value={filters.rating}
                   onChange={(e) => handleFilterChange("rating", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All Ratings</option>
                   <option value="g">G - All Ages</option>
@@ -255,7 +255,7 @@ const Discover = () => {
                   onChange={(e) =>
                     handleFilterChange("orderBy", e.target.value)
                   }
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="popularity">Popularity</option>
                   <option value="score">Score</option>
@@ -278,7 +278,7 @@ const Discover = () => {
                   onChange={(e) =>
                     handleFilterChange("minScore", e.target.value)
                   }
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., 7.5"
                 />
               </div>
@@ -292,7 +292,7 @@ const Discover = () => {
                   max="2030"
                   value={filters.year}
                   onChange={(e) => handleFilterChange("year", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., 2023"
                 />
               </div>
@@ -303,7 +303,7 @@ const Discover = () => {
                 <select
                   value={filters.sort}
                   onChange={(e) => handleFilterChange("sort", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="asc">Ascending</option>
                   <option value="desc">Descending</option>

@@ -6,7 +6,8 @@ import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import libraryRoutes from "./src/routes/libraryRoutes.js";
 import groupRoutes from './src/routes/groupRoutes.js';
-import postRoutes from './src/routes/postRoutes.js'; 
+import postRoutes from './src/routes/postRoutes.js';
+ import forgotPasswordRoutes from "./src/routes/forgotPasswordRoutes.js";
 dotenv.config({
   path: "./.env",
 });
@@ -32,6 +33,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/library", libraryRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/posts', postRoutes);
+app.use("/api/auth", forgotPasswordRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0" , () =>
   console.log(`Server is running on http://localhost:${PORT}`)
