@@ -10,8 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authMethod, setAuthMethod] = useState(null);
   const navigate = useNavigate();
-  
-  // Prevent multiple simultaneous auth operations
+
   const authOperationRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -45,7 +44,6 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         throw error;
       }
-      // Don't set loading to false here - let the auth state change handle it
     } catch (error) {
       setLoading(false);
       throw error;
@@ -55,14 +53,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      
-      // Clear local state first
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
       setAuthMethod(null);
-      
-      // Sign out from Supabase
       await supabase.auth.signOut({ scope: 'global' });
       
       navigate("/login");
@@ -124,7 +118,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Handle Supabase Google OAuth flow
   const handleSupabaseAuth = async (session) => {
     if (authOperationRef.current || !mountedRef.current) {
       return;
@@ -142,9 +135,7 @@ export const AuthProvider = ({ children }) => {
         setToken(customToken);
         setUser(session.user);
         setAuthMethod('supabase');
-        
-        // Navigate to home if we're on login page
-        if (window.location.pathname === "/login" || window.location.pathname === "/") {
+        if (window.location.pathname === "/login") {
           navigate("/home");
         }
       }
@@ -161,7 +152,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Initial auth check
   useEffect(() => {
     let mounted = true;
     mountedRef.current = true;
@@ -169,8 +159,7 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       try {
         console.log("🚀 Initializing auth...");
-        
-        // Check for Supabase session first
+
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -182,8 +171,6 @@ export const AuthProvider = ({ children }) => {
           await handleSupabaseAuth(session);
           return;
         }
-
-        // Check for existing JWT token
         const existingToken = localStorage.getItem("token");
         if (existingToken && mounted) {
           console.log("📦 JWT token found, validating...");
@@ -215,22 +202,20 @@ export const AuthProvider = ({ children }) => {
       mounted = false;
       mountedRef.current = false;
     };
-  }, []); // Only run once on mount
-
-  // Handle auth state changes
+  }, []); 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("🔄 Supabase auth event:", event, session?.user?.email);
         
-        // Prevent handling events during logout or if already processing
+       
         if (authOperationRef.current || !mountedRef.current) {
           console.log("🚫 Ignoring auth event - operation in progress");
           return;
         }
         
         if (event === "SIGNED_IN" && session?.user) {
-          // Only handle if we don't already have this user authenticated
+          
           if (!user || user.id !== session.user.id) {
             await handleSupabaseAuth(session);
           }
@@ -249,8 +234,6 @@ export const AuthProvider = ({ children }) => {
         } else if (event === "TOKEN_REFRESHED" && session?.user) {
           console.log("🔄 Token refreshed for:", session.user.email);
           if (mountedRef.current && authMethod === 'supabase') {
-            // For token refresh, we might want to exchange the new token
-            // but for now, just update the user data
             setUser(session.user);
           }
         }
@@ -260,7 +243,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, authMethod, user]); // Removed token and loading from dependencies
+  }, [navigate, authMethod, user]); 
 
   const isAuthenticated = !!user;
   const getAuthMethod = () => authMethod;
