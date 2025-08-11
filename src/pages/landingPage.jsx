@@ -200,39 +200,49 @@ export default function LandingPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-black via-purple-950 to-black">
       <motion.div 
-        className="absolute inset-0 bg-[conic-gradient(at_50%_50%,rgba(255,0,150,0.1),rgba(139,92,246,0.2),rgba(0,255,255,0.1),rgba(255,0,150,0.1))]"
+        className="absolute inset-0 bg-gradient-conic from-pink-500/10 via-purple-500/20 to-cyan-500/10"
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
       />
       <motion.div 
-        className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,0,150,0.4),transparent_50%)]"
+        className="absolute inset-0 bg-radial-gradient opacity-40"
+        style={{
+          background: 'radial-gradient(circle at 25% 25%, rgba(255,0,150,0.4), transparent 50%)'
+        }}
         variants={pulseVariants}
         animate="animate"
       />
       <motion.div 
-        className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(0,255,255,0.3),transparent_50%)]"
+        className="absolute inset-0 bg-radial-gradient opacity-30"
+        style={{
+          background: 'radial-gradient(circle at 75% 75%, rgba(0,255,255,0.3), transparent 50%)'
+        }}
         variants={pulseVariants}
         animate="animate"
-        style={{ animationDelay: '1s' }}
+        transition={{ delay: 1 }}
       />
       <motion.div 
-        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.4),transparent_50%)]"
+        className="absolute inset-0 bg-radial-gradient opacity-40"
+        style={{
+          background: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.4), transparent 50%)'
+        }}
         variants={pulseVariants}
         animate="animate"
-        style={{ animationDelay: '2s' }}
+        transition={{ delay: 2 }}
       />
+      
       {[...Array(7)].map((_, i) => (
         <motion.div
           key={i}
-          className={`absolute w-${i % 3 + 1} h-${i % 3 + 1} rounded-full`}
+          className="absolute w-2 h-2 rounded-full"
           style={{
             background: `linear-gradient(45deg, ${['#ff006e', '#8b5cf6', '#00ffff', '#ff4bcd'][i % 4]}, ${['#8b5cf6', '#00ffff', '#ff4bcd', '#ff006e'][i % 4]})`,
             top: `${(i * 123) % 100}%`,
             left: `${(i * 456) % 100}%`,
-             animationDelay: `${i * 0.5}s`
           }}
           variants={floatingVariants}
           animate="animate"
+          transition={{ delay: i * 0.5 }}
         />
       ))}
 
@@ -268,7 +278,8 @@ export default function LandingPage() {
             
             <motion.div className="relative" variants={titleVariants}>
               <motion.h1 
-                className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black bg-gradient-to-r from-pink-400 via-purple-400 via-cyan-400 to-pink-400 bg-clip-text text-transparent drop-shadow-2xl"
+                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-pink-400 via-purple-400 via-cyan-400 to-pink-400 bg-clip-text text-transparent drop-shadow-2xl"
+                style={{ backgroundSize: '200% 100%' }}
                 animate={{ 
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                 }}
@@ -288,7 +299,7 @@ export default function LandingPage() {
                 className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-xl opacity-60"
                 variants={pulseVariants}
                 animate="animate"
-                style={{ animationDelay: '0.5s' }}
+                transition={{ delay: 0.5 }}
               />
               <div className="relative w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
                 <motion.div
@@ -353,13 +364,14 @@ export default function LandingPage() {
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <feature.icon className={`text-${feature.color.split('-')[1]}-400`} size={18} />
+                  <feature.icon className="text-yellow-400" size={18} />
                   <span className="text-white/90 font-medium text-sm sm:text-base">{feature.text}</span>
                 </motion.div>
               </motion.div>
             ))}
           </motion.div>
         </motion.div>
+        
         <motion.div 
           className="text-center mb-12 sm:mb-16"
           initial={{ opacity: 0, y: 50 }}
@@ -382,6 +394,7 @@ export default function LandingPage() {
             animate="animate"
           />
         </motion.div>
+        
         <div className="relative overflow-hidden mb-16 sm:mb-24 rounded-3xl">
           <AnimatePresence mode="wait">
             {isLoading ? (
@@ -398,7 +411,7 @@ export default function LandingPage() {
                     className="flex-shrink-0 w-40 sm:w-52 h-56 sm:h-72 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl backdrop-blur-sm border border-white/10"
                     variants={skeletonVariants}
                     animate="animate"
-                    style={{ animationDelay: `${i * 0.1}s` }}
+                    transition={{ delay: i * 0.1 }}
                   >
                     <div className="w-full h-full bg-gradient-to-br from-pink-400/20 via-purple-400/20 to-cyan-400/20 rounded-3xl"></div>
                   </motion.div>
@@ -414,7 +427,11 @@ export default function LandingPage() {
               >
                 <div 
                   ref={scrollRef1}
-                  className="flex gap-6 sm:gap-8 mb-6 sm:mb-8 animate-scroll-right hover-pause"
+                  className="flex gap-6 sm:gap-8 mb-6 sm:mb-8 hover-pause"
+                  style={{
+                    animation: 'scroll-right 80s linear infinite',
+                    width: 'max-content'
+                  }}
                   onMouseEnter={() => handleMouseEnter(scrollRef1)}
                   onMouseLeave={() => handleMouseLeave(scrollRef1)}
                 >
@@ -504,9 +521,14 @@ export default function LandingPage() {
                     </motion.div>
                   ))}
                 </div>
+                
                 <div 
                   ref={scrollRef2}
-                  className="flex gap-6 sm:gap-8 animate-scroll-left hover-pause"
+                  className="flex gap-6 sm:gap-8 hover-pause"
+                  style={{
+                    animation: 'scroll-left 100s linear infinite',
+                    width: 'max-content'
+                  }}
                   onMouseEnter={() => handleMouseEnter(scrollRef2)}
                   onMouseLeave={() => handleMouseLeave(scrollRef2)}
                 >
@@ -572,7 +594,6 @@ export default function LandingPage() {
                     </motion.div>
                   ))}
                 </div>
-                
 
                 <div className="absolute top-0 left-0 w-20 sm:w-40 h-full bg-gradient-to-r from-black via-purple-950/90 to-transparent pointer-events-none z-10"></div>
                 <div className="absolute top-0 right-0 w-20 sm:w-40 h-full bg-gradient-to-l from-black via-purple-950/90 to-transparent pointer-events-none z-10"></div>
@@ -580,7 +601,6 @@ export default function LandingPage() {
             )}
           </AnimatePresence>
         </div>
-
 
         <motion.div 
           ref={statsRef}
@@ -613,7 +633,7 @@ export default function LandingPage() {
                   {stat.number}
                 </motion.div>
                 <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-bold mb-2">{stat.title}</p>
-                     <p className="text-white/60 text-sm sm:text-base">{stat.subtitle}</p>
+                <p className="text-white/60 text-sm sm:text-base">{stat.subtitle}</p>
               </motion.div>
             </motion.div>
           ))}
@@ -626,7 +646,7 @@ export default function LandingPage() {
           transition={{ delay: 1.2, duration: 0.8 }}
         >
           <motion.div 
-            className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/20 to-cyan-500/10 rounded-3xl blur-2xl animate-pulse"
+            className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/20 to-cyan-500/10 rounded-3xl blur-2xl"
             variants={pulseVariants}
             animate="animate"
           />
@@ -650,7 +670,7 @@ export default function LandingPage() {
             </motion.p>
             <div className="relative inline-block">
               <motion.div 
-                className="absolute -inset-4 bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 rounded-full blur-2xl opacity-70 animate-pulse"
+                className="absolute -inset-4 bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 rounded-full blur-2xl opacity-70"
                 variants={pulseVariants}
                 animate="animate"
               />
@@ -660,7 +680,7 @@ export default function LandingPage() {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="absolute inset-0 bg-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"></div>
                 <div className="relative flex items-center gap-3 sm:gap-4 justify-center">
                   <Search className="group-hover:rotate-12 transition-transform duration-700" size={24} />
                   <span>Start Discovering</span>
@@ -671,6 +691,7 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </div>
+      
       <style jsx>{`
         @keyframes scroll-right {
           0% {
@@ -690,26 +711,6 @@ export default function LandingPage() {
           }
         }
         
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
-        @keyframes gradient-x {
-          0%, 100% {
-            background-size: 200% 200%;
-            background-position: left center;
-          }
-          50% {
-            background-size: 200% 200%;
-            background-position: right center;
-          }
-        }
-        
         @keyframes shimmer {
           0% {
             transform: translateX(-100%) skewX(-12deg);
@@ -719,30 +720,14 @@ export default function LandingPage() {
           }
         }
         
-        .animate-scroll-right {
-          animation: scroll-right 80s linear infinite;
-        }
-        
-        .animate-scroll-left {
-          animation: scroll-left 100s linear infinite;
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-        
-        .animate-gradient-x {
-          animation: gradient-x 3s ease infinite;
-        }
-        
         .animate-shimmer {
           animation: shimmer 2s ease-in-out infinite;
         }
 
-         .hover-pause:hover {
+        .hover-pause:hover {
           animation-play-state: paused;
         }
       `}</style>
     </div>
-      );
+  );
 }
