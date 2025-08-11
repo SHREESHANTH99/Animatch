@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { supabase } from "../utils/supabase.client";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +10,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authMethod, setAuthMethod] = useState(null);
   const navigate = useNavigate();
+  
+  // Prevent multiple simultaneous auth operations
+  const authOperationRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const login = async (newToken) => {
     try {
@@ -26,64 +30,67 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
+
   const loginWithGoogle = async () => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/home", // Dynamic redirect
+          redirectTo: "/home",
         },
       });
       
       if (error) {
+        setLoading(false);
         throw error;
       }
-      setAuthMethod('supabase');
+      // Don't set loading to false here - let the auth state change handle it
     } catch (error) {
+      setLoading(false);
       throw error;
     }
   };
+
   const logout = async () => {
     try {
       setLoading(true);
+      
+      // Clear local state first
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
       setAuthMethod(null);
-      if (authMethod === 'supabase') {
-        await supabase.auth.signOut({ scope: 'global' });
-      } else {
-        supabase.auth.signOut({ scope: 'global' }).catch(console.error);
-      }
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
       navigate("/login");
-      setLoading(false);
     } catch (error) {
-      setToken(null);
-      setUser(null);
-      setAuthMethod(null);
+      console.error("Logout error:", error);
+    } finally {
       setLoading(false);
-      navigate("/login");
     }
   };
+
   const fetchUserProfile = async (authToken) => {
     try {
-      // const res = await fetch("http://localhost:5000/api/user/profile", {
-      //   headers: {
-      //     Authorization: `Bearer ${authToken}`,
-      //   },
-      // });
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       });
+      
       const contentType = res.headers.get("content-type");
       if (!res.ok || !contentType?.includes("application/json")) {
         throw new Error("Invalid or expired token");
       }
       
       const data = await res.json();
-      setUser(data);
+      if (mountedRef.current) {
+        setUser(data);
+      }
+      return data;
     } catch (err) {
       localStorage.removeItem("token");
       setToken(null);
@@ -92,33 +99,78 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const exchangeToken=async(supabaseUser)=>{
-    try{
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/exchange-token`,{
-        method:'Post',
-        headers:{
-          'Content-Type':'application/json'
+  const exchangeToken = async (supabaseUser) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/exchange-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        body:JSON.stringify({
-          supabaseToken:'placeholder',
-          userData:supabaseUser
+        body: JSON.stringify({
+          supabaseToken: 'placeholder',
+          userData: supabaseUser
         }),
       });
-      if(!response.ok){
-        throw new Error('Token exchange failed')
+      
+      if (!response.ok) {
+        throw new Error('Token exchange failed');
       }
-      const data= await response.json();
+      
+      const data = await response.json();
       return data.token;
-    }catch(error){
-      console.error("Token exchange error:",error)
+    } catch (error) {
+      console.error("Token exchange error:", error);
       throw error;
     }
-  }
+  };
+
+  // Handle Supabase Google OAuth flow
+  const handleSupabaseAuth = async (session) => {
+    if (authOperationRef.current || !mountedRef.current) {
+      return;
+    }
+    
+    authOperationRef.current = true;
+    
+    try {
+      console.log("🔄 Processing Supabase auth for:", session.user.email);
+      
+      const customToken = await exchangeToken(session.user);
+      
+      if (mountedRef.current) {
+        localStorage.setItem("token", customToken);
+        setToken(customToken);
+        setUser(session.user);
+        setAuthMethod('supabase');
+        
+        // Navigate to home if we're on login page
+        if (window.location.pathname === "/login" || window.location.pathname === "/") {
+          navigate("/home");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Supabase auth processing failed:", error);
+      if (mountedRef.current) {
+        await logout();
+      }
+    } finally {
+      authOperationRef.current = false;
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Initial auth check
   useEffect(() => {
     let mounted = true;
+    mountedRef.current = true;
 
     const initializeAuth = async () => {
       try {
+        console.log("🚀 Initializing auth...");
+        
+        // Check for Supabase session first
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -127,38 +179,33 @@ export const AuthProvider = ({ children }) => {
 
         if (session?.user && mounted) {
           console.log("🧠 Supabase session found:", session.user.email);
-          try{
-          const customToken= await exchangeToken(session.user);;
-          localStorage.setItem("token",customToken)
-          setToken(customToken)
-          setUser(session.user);
-          setAuthMethod('supabase');
-          if (token) {
-            localStorage.removeItem("token");
-            setToken(null);
-          }
-          if (mounted) setLoading(false);
+          await handleSupabaseAuth(session);
           return;
-        }catch(err){
-          console.error(" Token exchange failed",err);
-          await logout();
         }
-        }
-        if (token && mounted) {
+
+        // Check for existing JWT token
+        const existingToken = localStorage.getItem("token");
+        if (existingToken && mounted) {
           console.log("📦 JWT token found, validating...");
           try {
-            await fetchUserProfile(token);
-            setAuthMethod('jwt');
+            await fetchUserProfile(existingToken);
+            if (mounted) {
+              setAuthMethod('jwt');
+            }
           } catch (error) {
             console.error("❌ JWT validation failed:", error.message);
             localStorage.removeItem("token");
-            setToken(null);
+            if (mounted) {
+              setToken(null);
+            }
           }
         }
       } catch (error) {
         console.error("❌ Auth initialization error:", error.message);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -166,61 +213,55 @@ export const AuthProvider = ({ children }) => {
 
     return () => {
       mounted = false;
+      mountedRef.current = false;
     };
-  }, []); 
+  }, []); // Only run once on mount
+
+  // Handle auth state changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("🔄 Supabase auth event:", event, session?.user?.email);
-        if (loading && !user && !authMethod) {
-          console.log("🚫 Ignoring auth event during logout");
+        
+        // Prevent handling events during logout or if already processing
+        if (authOperationRef.current || !mountedRef.current) {
+          console.log("🚫 Ignoring auth event - operation in progress");
           return;
         }
         
         if (event === "SIGNED_IN" && session?.user) {
-          if (authMethod !== null || user === null) {
-            try{
-           const customToken= await exchangeToken(session.user);;
-          localStorage.setItem("token",customToken)
-          setToken(customToken)
-          setUser(session.user);
-          setAuthMethod('supabase');
-            if (token) {
-              localStorage.removeItem("token");
-              setToken(null);
-            }
-
-            if (window.location.pathname === "/login" || window.location.pathname === "/") {
-              navigate("/home");
-            }
-            }catch(error){
-              console.error("Token exchange failed")
-            }
+          // Only handle if we don't already have this user authenticated
+          if (!user || user.id !== session.user.id) {
+            await handleSupabaseAuth(session);
           }
         } else if (event === "SIGNED_OUT") {
           console.log("🔄 Supabase signed out event");
-          if (authMethod === 'supabase' && user) {
-            localStorage.removeItem("token")
-            setToken(null)
+          if (mountedRef.current && authMethod === 'supabase') {
+            localStorage.removeItem("token");
+            setToken(null);
             setUser(null);
             setAuthMethod(null);
+            
             if (window.location.pathname !== "/login") {
               navigate("/login");
             }
           }
         } else if (event === "TOKEN_REFRESHED" && session?.user) {
-          console.log("🔄 Token refreshed");
-          if (authMethod === 'supabase') {
-            const refreshedToken=session.access_token;
-            localStorage.setItem("token",refreshedToken);setToken(refreshedToken)
+          console.log("🔄 Token refreshed for:", session.user.email);
+          if (mountedRef.current && authMethod === 'supabase') {
+            // For token refresh, we might want to exchange the new token
+            // but for now, just update the user data
             setUser(session.user);
           }
         }
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, [navigate, token, authMethod, loading, user]);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, authMethod, user]); // Removed token and loading from dependencies
+
   const isAuthenticated = !!user;
   const getAuthMethod = () => authMethod;
 
@@ -239,7 +280,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
