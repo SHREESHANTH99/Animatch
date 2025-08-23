@@ -40,7 +40,7 @@ export default function AniMatchNavbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300  ${
         isScrolled
-          ? "bg-gradient-to-r from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg shadow-lg"
+          ? "bg-gradient-to-r from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg shadow-lg border-gray-600 border-1"
           : "bg-transparent"
       }`}
     >
@@ -55,7 +55,7 @@ export default function AniMatchNavbar() {
                   </div>
                 </div>
                 <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg">
-                  AniMatch
+                 <a href="/"> AniMatch</a>
                 </div>
               </div>
             </div>

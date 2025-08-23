@@ -1,6 +1,7 @@
 import { AlertCircle, Loader2, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import AniMatchNavbar from "../components/HomeComponents/Navbar";
 export const TopAnime = () => {
   const [animeData, setAnimeData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -53,11 +54,12 @@ export const TopAnime = () => {
   
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <AniMatchNavbar/>
       <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-purple-900/30 to-pink-900/20"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.3),transparent_50%)]"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,75,178,0.2),transparent_50%)]"></div>
 
-      <div className="relative z-10 px-6 py-10">
+      <div className="relative z-10 px-6 py-14">
         <h1 className="text-4xl pb-8 bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent text-center font-semibold font-serif">
           <Star className="h-5 w-5"/>
           Top Anime

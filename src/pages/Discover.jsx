@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Link} from "react-router-dom";
+import AniMatchNavbar from "../components/HomeComponents/Navbar";
 
 const Discover = () => {
   const [anime, setAnime] = useState([]);
@@ -156,7 +157,8 @@ const Discover = () => {
   return (
 
     <div className="min-h-screen  bg-[linear-gradient(135deg,#0f172a_0%,#581c87_50%,_#0f172a_100%)]">
-      <div className="container mx-auto px-4 py-8">
+      <AniMatchNavbar/>
+      <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-red-400 to-cyan-400 bg-clip-text text-transparent mb-2 font-serif">
             Anime Discovery

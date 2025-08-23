@@ -1,24 +1,27 @@
 import mongoose from "mongoose";
-const userShema = new mongoose.Schema({
-    username:{
-        type:String,
-        required:true,
-        unique:true,
-        minlength:3,
-        maxlength:20
+const userShema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 3,
+      maxlength: 99,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    password:{
-        type:String,
-        required:true,
-        minlength:6
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
     },
-     resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Number }, //
-},{timestamps:true})
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Number }, //
+  },
+  { timestamps: true }
+);
 
-export const User=mongoose.model("User",userShema);
+export const User = mongoose.model("User", userShema);
