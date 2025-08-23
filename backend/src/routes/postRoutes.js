@@ -4,7 +4,12 @@ import { Post } from "../models/post.js";
 import { User } from "../models/User.models.js";
 import { verifyToken } from "../middleware/authMiddlesware.js";
 import NotificationHelper from "../utils/NotificationHelper.js";
+
 const router = express.Router();
+
+/**
+ * ✅ Get posts of a group with pagination
+ */
 router.get("/group/:groupId", verifyToken, async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -12,11 +17,8 @@ router.get("/group/:groupId", verifyToken, async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Check if user has access to group
     const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
+    if (!group) return res.status(404).json({ message: "Group not found" });
 
     if (group.isPrivate && !group.members.includes(req.user.id)) {
       return res.status(403).json({ message: "Access denied" });
@@ -32,7 +34,7 @@ router.get("/group/:groupId", verifyToken, async (req, res) => {
 
     const formattedPosts = posts.map((post) => ({
       ...post.toObject(),
-      isAdmin: group.admins.includes(post.author._id),
+      isAdmin: group.admins.includes(post.author._id.toString()),
     }));
 
     res.json({ posts: formattedPosts });
@@ -42,10 +44,12 @@ router.get("/group/:groupId", verifyToken, async (req, res) => {
   }
 });
 
-// Create new post
+/**
+ * ✅ Create a new post in group
+ */
 router.post("/create", verifyToken, async (req, res) => {
   try {
-    const { content, groupId } = req.body;
+    const { content, groupId, images } = req.body;
 
     if (!content || !groupId) {
       return res
@@ -53,11 +57,8 @@ router.post("/create", verifyToken, async (req, res) => {
         .json({ message: "Content and groupId are required" });
     }
 
-    // Check if user is member of group
     const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
+    if (!group) return res.status(404).json({ message: "Group not found" });
 
     if (!group.members.includes(req.user.id)) {
       return res
@@ -65,25 +66,20 @@ router.post("/create", verifyToken, async (req, res) => {
         .json({ message: "Must be a group member to post" });
     }
 
-    // Get user details
     const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     const post = new Post({
       content,
       username: user.username,
       author: req.user.id,
       group: groupId,
+      images: images || [],
     });
 
     await post.save();
 
-    // Update group post count
-    await Group.findByIdAndUpdate(groupId, {
-      $inc: { postCount: 1 },
-    });
+    await Group.findByIdAndUpdate(groupId, { $inc: { postCount: 1 } });
 
     res.status(201).json({
       post: {
@@ -97,46 +93,43 @@ router.post("/create", verifyToken, async (req, res) => {
   }
 });
 
-// React to post
+/**
+ * ✅ React to a post (like/unlike/etc.)
+ */
 router.post("/:postId/react", verifyToken, async (req, res) => {
   try {
     const { postId } = req.params;
     const { reactionType = "like" } = req.body;
-    const userId = req.user.userId;
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
+    const userId = req.user.id;
 
-    // Check if user has access to the group
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
     const group = await Group.findById(post.group);
     if (group.isPrivate && !group.members.includes(req.user.id)) {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    // Check if user already reacted
     const existingReaction = post.likes.find(
       (like) => like.userId.toString() === userId
     );
 
     if (existingReaction) {
-      // Remove existing reaction
       post.likes = post.likes.filter(
         (like) => like.userId.toString() !== userId
       );
     } else {
-      // Add new reaction
       post.likes.push({ userId, reactionType });
 
-      // Create notification for post owner
       const user = await User.findById(userId);
       await NotificationHelper.createLikeNotification(
-        post.userId._id,
+        post.author, // 👈 FIXED: notify post.author
         userId,
         user.username,
         postId
       );
     }
+
     await post.save();
     res.json({ message: "Reaction updated successfully" });
   } catch (error) {
@@ -145,56 +138,56 @@ router.post("/:postId/react", verifyToken, async (req, res) => {
   }
 });
 
-// Add comment to post
+/**
+ * ✅ Add comment to post (with mentions)
+ */
 router.post("/:postId/comment", verifyToken, async (req, res) => {
   try {
     const { postId } = req.params;
     const { content } = req.body;
-    const userId = req.user.userId;
-    if (!content) {
+    const userId = req.user.id;
+
+    if (!content)
       return res.status(400).json({ message: "Comment content is required" });
-    }
 
     const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
+    if (!post) return res.status(404).json({ message: "Post not found" });
 
-    // Check if user has access to the group
     const group = await Group.findById(post.group);
     if (group.isPrivate && !group.members.includes(req.user.id)) {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(userId);
 
     post.comments.push({
       content,
-      author: req.user.id,
+      author: userId,
       username: user.username,
       createdAt: new Date(),
     });
 
     await post.save();
-     await NotificationHelper.createCommentNotification(
-      post.userId._id,
+
+    await NotificationHelper.createCommentNotification(
+      post.author, // 👈 FIXED: notify post.author
       userId,
       user.username,
       postId
     );
 
-    // Check for mentions in comment and create notifications
+    // Mentions
     const mentionRegex = /@(\w+)/g;
     let match;
     const mentionedUsernames = [];
-    
+
     while ((match = mentionRegex.exec(content)) !== null) {
       mentionedUsernames.push(match[1]);
     }
 
     if (mentionedUsernames.length > 0) {
-      const mentionedUsers = await User.find({ 
-        username: { $in: mentionedUsernames } 
+      const mentionedUsers = await User.find({
+        username: { $in: mentionedUsernames },
       });
 
       for (const mentionedUser of mentionedUsers) {
@@ -208,6 +201,7 @@ router.post("/:postId/comment", verifyToken, async (req, res) => {
         }
       }
     }
+
     res.json({ message: "Comment added successfully" });
   } catch (error) {
     console.error("Error adding comment:", error);
@@ -215,19 +209,18 @@ router.post("/:postId/comment", verifyToken, async (req, res) => {
   }
 });
 
-// Delete post
+/**
+ * ✅ Delete post
+ */
 router.delete("/:postId", verifyToken, async (req, res) => {
   try {
     const { postId } = req.params;
 
     const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
+    if (!post) return res.status(404).json({ message: "Post not found" });
 
     const group = await Group.findById(post.group);
 
-    // Check if user is author, admin, or group creator
     const canDelete =
       post.author.toString() === req.user.id ||
       group.admins.includes(req.user.id) ||
@@ -241,10 +234,7 @@ router.delete("/:postId", verifyToken, async (req, res) => {
 
     await Post.findByIdAndDelete(postId);
 
-    // Update group post count
-    await Group.findByIdAndUpdate(post.group, {
-      $inc: { postCount: -1 },
-    });
+    await Group.findByIdAndUpdate(post.group, { $inc: { postCount: -1 } });
 
     res.json({ message: "Post deleted successfully" });
   } catch (error) {
@@ -253,22 +243,20 @@ router.delete("/:postId", verifyToken, async (req, res) => {
   }
 });
 
-// Edit post
+/**
+ * ✅ Edit post
+ */
 router.put("/:postId", verifyToken, async (req, res) => {
   try {
     const { postId } = req.params;
     const { content } = req.body;
 
-    if (!content) {
+    if (!content)
       return res.status(400).json({ message: "Content is required" });
-    }
 
     const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
+    if (!post) return res.status(404).json({ message: "Post not found" });
 
-    // Only author can edit post
     if (post.author.toString() !== req.user.id) {
       return res
         .status(403)
@@ -285,4 +273,5 @@ router.put("/:postId", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 export default router;
