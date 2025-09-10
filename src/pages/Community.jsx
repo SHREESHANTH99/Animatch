@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContext";
 import {
   Heart,
   MessageCircle,
@@ -13,14 +14,14 @@ import {
   Hash,
   Crown,
   UserPlus,
-  Menu,
   Settings,
   Bell,
-  Eye,
   Filter,
   Image,
   Smile,
   MoreHorizontal,
+  Eye,
+  Trash2,
 } from "lucide-react";
 
 const Community = () => {
@@ -33,7 +34,6 @@ const Community = () => {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDescription, setNewGroupDescription] = useState("");
-  const [newGroupAnime, setNewGroupAnime] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showComments, setShowComments] = useState({});
   const [newComment, setNewComment] = useState({});
@@ -45,7 +45,137 @@ const Community = () => {
   const [notifications, setNotifications] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [typingUsers, setTypingUsers] = useState({});
+  const [isTyping, setIsTyping] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const socket = useSocket();
+  const typingTimeoutRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Socket.IO event handlers
+  useEffect(() => {
+    if (!socket) return;
+
+    // Handle new post
+    const handleNewPost = (post) => {
+      setPosts(prevPosts => [post, ...prevPosts]);
+    };
+
+    // Handle new comment
+    const handleNewComment = ({ postId, comment }) => {
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post._id === postId 
+            ? { ...post, comments: [...(post.comments || []), comment] }
+            : post
+        )
+      );
+    };
+
+    // Handle reaction
+    const handleReaction = ({ postId, userId, reactionType, action }) => {
+      setPosts(prevPosts => 
+        prevPosts.map(post => {
+          if (post._id === postId) {
+            const updatedReactions = { ...post.reactions };
+            if (action === 'add') {
+              updatedReactions[userId] = reactionType;
+            } else {
+              delete updatedReactions[userId];
+            }
+            return { ...post, reactions: updatedReactions };
+          }
+          return post;
+        })
+      );
+    };
+
+    // Handle typing indicator
+    const handleUserTyping = ({ userId, isTyping, groupId }) => {
+      if (activeGroup?._id !== groupId) return;
+      
+      setTypingUsers(prev => {
+        const newTypingUsers = { ...prev };
+        if (isTyping) {
+          newTypingUsers[userId] = true;
+        } else {
+          delete newTypingUsers[userId];
+        }
+        return newTypingUsers;
+      });
+    };
+
+    // Handle online status
+    const handleUserOnline = ({ userId }) => {
+      setOnlineUsers(prev => new Set([...prev, userId]));
+    };
+
+    const handleUserOffline = ({ userId }) => {
+      setOnlineUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    };
+
+    // Set up event listeners
+    socket.on('new-post', handleNewPost);
+    socket.on('new-comment', handleNewComment);
+    socket.on('reaction', handleReaction);
+    socket.on('user-typing', handleUserTyping);
+    socket.on('user-online', handleUserOnline);
+    socket.on('user-offline', handleUserOffline);
+
+    // Clean up event listeners
+    return () => {
+      socket.off('new-post', handleNewPost);
+      socket.off('new-comment', handleNewComment);
+      socket.off('reaction', handleReaction);
+      socket.off('user-typing', handleUserTyping);
+      socket.off('user-online', handleUserOnline);
+      socket.off('user-offline', handleUserOffline);
+    };
+  }, [socket, activeGroup]);
+
+  // Handle typing indicator
+  const handleTyping = useCallback(() => {
+    // Skip if socket is not properly initialized
+    if (!socket || typeof socket.emit !== 'function' || !activeGroup?._id) return;
+
+    if (!isTyping) {
+      setIsTyping(true);
+      try {
+        socket.emit('typing', { 
+          groupId: activeGroup._id, 
+          isTyping: true 
+        });
+      } catch (error) {
+        console.error('Error emitting typing event:', error);
+      }
+    }
+
+    // Clear the previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a new timeout
+    typingTimeoutRef.current = setTimeout(() => {
+      if (socket && socket.emit) {
+        socket.emit('typing', { 
+          groupId: activeGroup._id, 
+          isTyping: false 
+        });
+      }
+      setIsTyping(false);
+    }, 2000); // 2 seconds of inactivity
+  }, [socket, activeGroup?._id, isTyping]);
+
+  // Scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [posts]);
 
   // Emoji categories and data
   const emojiCategories = {
@@ -68,57 +198,104 @@ const Community = () => {
     "🎉",
   ];
 
-  // Image upload handler - Fixed error handling
+  // Handle image upload with progress tracking
   const handleImageUpload = async (files) => {
     if (!files || files.length === 0) return;
+    
+    // Check total number of images (max 4)
+    if (selectedImages.length + files.length > 4) {
+      alert('You can upload a maximum of 4 images per post');
+      return;
+    }
 
     setUploadingImage(true);
     const uploadedImages = [];
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+    // First, create previews for all files
     for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        // 5MB limit
-        alert(`${file.name} is too large. Please select files under 5MB.`);
+      // Validate file type
+      if (!validImageTypes.includes(file.type)) {
+        alert(`${file.name} is not a valid image file. Please upload a JPEG, PNG, GIF, or WebP image.`);
         continue;
       }
-
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is too large. Maximum file size is 5MB.`);
+        continue;
+      }
+      
+      // Create preview URL for immediate display
+      const previewUrl = URL.createObjectURL(file);
+      uploadedImages.push({
+        id: `preview-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        url: previewUrl,
+        name: file.name,
+        file: file, // Keep the file reference for upload
+        isUploading: true,
+        uploadProgress: 0
+      });
+    }
+    
+    // Update UI with previews immediately
+    setSelectedImages(prev => [...prev, ...uploadedImages]);
+    
+    // Process uploads
+    for (const img of uploadedImages) {
       try {
         const formData = new FormData();
-        formData.append("image", file);
-
-        // Use environment variable or fallback
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
-        const response = await fetch(`${apiUrl}/api/upload/image`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          uploadedImages.push({
-            id: Date.now() + Math.random(),
-            url: data.imageUrl,
-            name: file.name,
-          });
-        } else {
-          console.error(`Upload failed for ${file.name}:`, response.statusText);
-          alert(`Failed to upload ${file.name}: ${response.statusText}`);
-        }
+        formData.append('image', img.file);
+        
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+        const xhr = new XMLHttpRequest();
+        
+        // Track upload progress
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            setSelectedImages(prev => 
+              prev.map(i => 
+                i.id === img.id 
+                  ? { ...i, uploadProgress: progress } 
+                  : i
+              )
+            );
+          }
+        };
+        
+        xhr.open('POST', `${apiUrl}/api/upload/image`, true);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const response = JSON.parse(xhr.responseText);
+            setSelectedImages(prev => 
+              prev.map(i => 
+                i.id === img.id 
+                  ? { ...i, url: response.imageUrl, isUploading: false, uploadProgress: 100 }
+                  : i
+              )
+            );
+          } else {
+            throw new Error(`Upload failed: ${xhr.statusText}`);
+          }
+        };
+        
+        xhr.onerror = () => {
+          setSelectedImages(prev => prev.filter(i => i.id !== img.id));
+          alert(`Failed to upload ${img.name}. Please try again.`);
+        };
+        
+        xhr.send(formData);
       } catch (error) {
-        console.error(`Failed to upload ${file.name}:`, error);
-        alert(`Failed to upload ${file.name}: Network error`);
+        console.error('Upload error:', error);
+        setSelectedImages(prev => prev.filter(i => i.id !== img.id));
+        alert(`Error uploading ${img.name}: ${error.message}`);
       }
     }
-
-    setSelectedImages((prev) => [...prev, ...uploadedImages]);
+    
     setUploadingImage(false);
-  };
-
-  // Add emoji to post
-  const addEmojiToPost = (emoji) => {
-    setNewPost((prev) => prev + emoji);
   };
 
   // Add emoji to comment
@@ -154,6 +331,7 @@ const Community = () => {
       console.error("❌ Fetch groups error:", err);
     }
   }, [token, activeGroup]);
+
   const fetchNotifications = useCallback(async () => {
     if (!token) return;
 
@@ -216,6 +394,7 @@ const Community = () => {
     },
     [token]
   );
+
   const createGroup = async () => {
     if (!newGroupName.trim() || !token) return;
 
@@ -246,7 +425,6 @@ const Community = () => {
       setShowCreateGroup(false);
       setNewGroupName("");
       setNewGroupDescription("");
-      setNewGroupAnime("");
     } catch (err) {
       console.error("❌ Group creation failed:", err);
       alert(err.message || "Failed to create group");
@@ -276,18 +454,29 @@ const Community = () => {
     }
   };
   const handlePost = async () => {
-    if (!newPost.trim() || !activeGroup || !token) return;
-
+    if ((!newPost.trim() && selectedImages.length === 0) || !activeGroup || !token) {
+      return;
+    }
+  
     try {
+      setUploadingImage(true);
+      
+      // Filter out any images that are still uploading
+      const readyImages = selectedImages.filter(img => !img.isUploading);
+      
+      // Check if there are any images still uploading
+      const hasUploadingImages = selectedImages.some(img => img.isUploading);
+      if (hasUploadingImages) {
+        alert('Please wait for all images to finish uploading before posting');
+        return;
+      }
+      
       const postData = {
         content: newPost.trim(),
         groupId: activeGroup._id,
+        images: readyImages.map(img => img.url)
       };
-
-      if (selectedImages.length > 0) {
-        postData.images = selectedImages.map((img) => img.url);
-      }
-
+  
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const res = await fetch(`${apiUrl}/api/posts/create`, {
         method: "POST",
@@ -297,21 +486,38 @@ const Community = () => {
         },
         body: JSON.stringify(postData),
       });
-
+  
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
-
+  
+      // Reset form
       setNewPost("");
       setSelectedImages([]);
-      fetchPosts(activeGroup._id);
-    } catch (err) {
-      console.error("❌ Post creation failed:", err);
-      alert("Failed to create post");
+      
+      // Refresh posts
+      await fetchPosts(activeGroup._id);
+      
+      // Emit socket event for new post
+      if (socket) {
+        const newPostData = await res.json();
+        socket.emit('new-post', newPostData);
+      }
+      
+      // Scroll to the top of the posts list
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error) {
+      console.error("❌ Post creation failed:", error);
+      alert(error.message || "Failed to create post. Please try again.");
+    } finally {
+      setUploadingImage(false);
     }
   };
   const handleReaction = async (postId, reactionType) => {
-    if (!postId || !reactionType || !token) return;
+    if (!postId || !reactionType || !token || !socket) return;
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -332,7 +538,35 @@ const Community = () => {
     }
   };
   const addComment = async (postId) => {
-    if (!newComment[postId]?.trim() || !token) return;
+    if (!newComment[postId]?.trim() || !token || !socket) return;
+    
+    const content = newComment[postId].trim();
+    
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const response = await fetch(`${apiUrl}/api/posts/${postId}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ content })
+      });
+
+      if (!response.ok) throw new Error('Failed to add comment');
+      
+      const data = await response.json();
+      
+      // Emit socket event for new comment
+      socket.emit('new-comment', {
+        postId,
+        comment: data.comment
+      });
+      
+      setNewComment(prev => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -372,7 +606,7 @@ const Community = () => {
       fetchGroups();
       fetchNotifications();
     }
-  }, [token]);
+  }, [token, fetchGroups, fetchNotifications]);
 
   useEffect(() => {
     if (activeGroup && activeGroup._id) {
@@ -411,6 +645,266 @@ const Community = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showNotifications]);
+
+  const renderTypingIndicator = () => {
+    if (Object.keys(typingUsers).length === 0) return null;
+    
+    const typingUserIds = Object.keys(typingUsers);
+    const typingUserNames = typingUserIds
+      .filter(id => id !== user?._id) // Don't show current user in typing indicator
+      .map(id => {
+        const user = groups
+          .flatMap(g => g.members)
+          .find(m => m._id === id);
+        return user?.username || 'Someone';
+      });
+
+    if (typingUserNames.length === 0) return null;
+
+    return (
+      <div className="text-xs text-gray-400 mt-1 ml-2">
+        {typingUserNames.join(', ')}
+        {typingUserNames.length === 1 ? ' is ' : ' are '}
+        typing...
+      </div>
+    );
+  };
+
+  const renderOnlineUsers = () => {
+    const onlineCount = onlineUsers.size;
+    if (onlineCount === 0) return null;
+    
+    return (
+      <div className="text-xs text-green-400 mt-1 ml-2">
+        {onlineCount} {onlineCount === 1 ? 'user' : 'users'} online
+      </div>
+    );
+  };
+
+  const handlePostInputChange = (e) => {
+    const value = e.target.value;
+    setNewPost(value);
+    handleTyping();
+  };
+
+  // Cleanup image URLs when component unmounts or when images change
+  useEffect(() => {
+    // Store the current selected images to clean up later
+    const currentImages = [...selectedImages];
+    
+    return () => {
+      currentImages.forEach(img => {
+        if (img.url && img.url.startsWith('blob:')) {
+          URL.revokeObjectURL(img.url);
+        }
+      });
+    };
+  }, [selectedImages]);
+
+  const renderPostForm = () => (
+    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 mb-6 border border-white/10 shadow-2xl">
+      <div className="flex items-start space-x-4">
+        <img 
+          src={user?.avatar || '/default-avatar.png'} 
+          alt={user?.username} 
+          className="w-12 h-12 rounded-full object-cover border-2 border-purple-400/50"
+        />
+        <div className="flex-1">
+          <div className="relative">
+            <textarea
+              value={newPost}
+              onChange={handlePostInputChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handlePost();
+                }
+              }}
+              placeholder={`What's on your mind, ${user?.username || 'friend'}?`}
+              className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent resize-none transition-all duration-200"
+              rows={3}
+            />
+            {renderTypingIndicator()}
+          </div>
+          
+          {/* Image Previews */}
+          {selectedImages.length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              {selectedImages.map((img) => (
+                <div key={img.id} className="relative group rounded-xl overflow-hidden border border-white/10 bg-black/20">
+                  <div className="relative w-full aspect-square">
+                    <img
+                      src={img.url}
+                      alt="Preview"
+                      className="w-full h-full object-contain p-1"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/image-placeholder.png';
+                      }}
+                    />
+                  </div>
+                  {img.isUploading && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 h-1.5">
+                      <div 
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-300"
+                        style={{ width: `${img.uploadProgress}%` }}
+                      />
+                    </div>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImages(prev => prev.filter(i => i.id !== img.id));
+                    }}
+                    className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+            <div className="flex space-x-1">
+              {/* Image Upload Button */}
+              <label className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer">
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    handleImageUpload(e.target.files);
+                    e.target.value = ''; // Reset input to allow selecting same file again
+                  }}
+                />
+                <div className="flex items-center space-x-1">
+                  <Image size={20} className="text-purple-300" />
+                  <span className="text-sm hidden sm:inline">Photo/Video</span>
+                </div>
+              </label>
+
+              {/* Emoji Picker */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(prev => ({ ...prev, post: !prev.post }))}
+                  className="p-2 text-white/70 hover:text-yellow-300 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  <Smile size={20} />
+                </button>
+                {showEmojiPicker.post && (
+                  <div className="absolute bottom-12 left-0 bg-gray-800/95 backdrop-blur-lg rounded-xl shadow-2xl p-3 z-10 w-64 border border-white/10">
+                    <div className="grid grid-cols-8 gap-1">
+                      {Object.values(emojiCategories).flat().map((emoji, idx) => (
+                        <button
+                          key={idx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setNewPost(prev => prev + emoji);
+                            setShowEmojiPicker(prev => ({ ...prev, post: false }));
+                          }}
+                          className="text-xl hover:bg-white/10 p-1 rounded-lg transition-colors hover:scale-110 transform"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <button
+              onClick={handlePost}
+              disabled={(!newPost.trim() && selectedImages.length === 0) || uploadingImage}
+              className={`px-5 py-2 rounded-xl font-medium transition-all duration-200 ${
+                (!newPost.trim() && selectedImages.length === 0) || uploadingImage
+                  ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg hover:shadow-purple-500/20'
+              }`}
+            >
+              {uploadingImage ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {selectedImages.some(img => img.isUploading) ? 'Uploading...' : 'Posting...'}
+                </span>
+              ) : 'Post'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Add delete post function
+  const deletePost = async (postId) => {
+    if (!postId || !token) return;
+    
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const res = await fetch(`${apiUrl}/api/posts/${postId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete post');
+      }
+
+      // Update UI by removing the deleted post
+      setPosts(prev => prev.filter(post => post._id !== postId));
+      
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post. Please try again.');
+    }
+  };
+
+  // Add delete comment function
+  const deleteComment = async (postId, commentId) => {
+    if (!postId || !commentId || !token) return;
+
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const res = await fetch(`${apiUrl}/api/posts/${postId}/comments/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete comment');
+      }
+
+      // Update UI by removing the deleted comment
+      setPosts(prev => 
+        prev.map(post => 
+          post._id === postId
+            ? {
+                ...post,
+                comments: post.comments.filter(comment => comment._id !== commentId)
+              }
+            : post
+        )
+      );
+      
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      alert('Failed to delete comment. Please try again.');
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 relative overflow-hidden">
@@ -596,13 +1090,10 @@ const Community = () => {
             <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-4 shadow-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <button
-                    onClick={() => setShowSidebar(true)}
-                    className="lg:hidden p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                  >
-                    <Menu size={18} />
-                  </button>
-                  <div className="min-w-0 flex-1">
+                  <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <Star className="text-white" size={20} />
+                  </div>
+                  <div>
                     <div className="flex items-center gap-2 mb-1">
                       <Hash className="text-pink-400 flex-shrink-0" size={20} />
                       <h1 className="text-xl lg:text-2xl font-bold text-white truncate">
@@ -725,138 +1216,7 @@ const Community = () => {
             {/* Post Composer */}
             <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 lg:p-4">
               <div className="max-w-4xl mx-auto">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-3 lg:p-4 shadow-lg">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                      {user?.username?.[0]?.toUpperCase() || "👤"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <textarea
-                        value={newPost}
-                        onChange={(e) => setNewPost(e.target.value)}
-                        className="w-full p-3 border border-white/20 rounded-xl resize-none focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm"
-                        placeholder={`What's happening in ${activeGroup.anime}? Share theories, reactions, or just say hi!`}
-                        rows="3"
-                      />
-
-                      {/* Selected Images Preview */}
-                      {selectedImages.length > 0 && (
-                        <div className="flex gap-2 flex-wrap mt-2">
-                          {selectedImages.map((image) => (
-                            <div key={image.id} className="relative">
-                              <img
-                                src={image.url}
-                                alt={image.name}
-                                className="w-12 h-12 object-cover rounded-lg border border-white/20"
-                              />
-                              <button
-                                onClick={() =>
-                                  setSelectedImages((prev) =>
-                                    prev.filter((img) => img.id !== image.id)
-                                  )
-                                }
-                                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
-                              >
-                                <X size={10} className="text-white" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex justify-between items-center mt-3">
-                        <div className="flex gap-2">
-                          <div className="relative">
-                            <button
-                              className="flex items-center gap-1 text-pink-400 hover:bg-white/10 p-2 rounded-full transition-colors"
-                              onClick={() =>
-                                setShowEmojiPicker((prev) => ({
-                                  ...prev,
-                                  post: !prev.post,
-                                }))
-                              }
-                            >
-                              <Smile size={16} />
-                            </button>
-                            {showEmojiPicker.post && (
-                              <div className="absolute bottom-full left-0 mb-2 bg-black/90 backdrop-blur-xl rounded-xl border border-white/20 p-3 shadow-2xl z-20">
-                                <div className="space-y-2">
-                                  {Object.entries(emojiCategories).map(
-                                    ([category, emojis]) => (
-                                      <div key={category}>
-                                        <p className="text-xs text-white/60 mb-1 capitalize">
-                                          {category}
-                                        </p>
-                                        <div className="flex flex-wrap gap-1">
-                                          {emojis.map((emoji) => (
-                                            <button
-                                              key={emoji}
-                                              onClick={() => {
-                                                addEmojiToPost(emoji);
-                                                setShowEmojiPicker((prev) => ({
-                                                  ...prev,
-                                                  post: false,
-                                                }));
-                                              }}
-                                              className="p-1 rounded hover:bg-white/20 transition-colors text-lg"
-                                            >
-                                              {emoji}
-                                            </button>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="file"
-                              ref={fileInputRef}
-                              onChange={(e) =>
-                                handleImageUpload(Array.from(e.target.files))
-                              }
-                              accept="image/*"
-                              multiple
-                              className="hidden"
-                            />
-                            <button
-                              className="flex items-center gap-1 text-pink-400 hover:bg-white/10 p-2 rounded-full transition-colors"
-                              onClick={() => fileInputRef.current?.click()}
-                              disabled={uploadingImage}
-                            >
-                              {uploadingImage ? (
-                                <div className="animate-spin w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full" />
-                              ) : (
-                                <Image size={16} />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-white/50">
-                            {newPost.length}/500
-                          </span>
-                          <button
-                            onClick={handlePost}
-                            disabled={
-                              !newPost.trim() ||
-                              newPost.length > 500 ||
-                              uploadingImage
-                            }
-                            className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-lg"
-                          >
-                            <Send size={14} />
-                            Post
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {renderPostForm()}
               </div>
             </div>
 
@@ -931,28 +1291,28 @@ const Community = () => {
                                 {post.username?.[0]?.toUpperCase() || "👤"}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <div className="flex items-center justify-between w-full mb-1">
                                   <span className="font-semibold text-white">
                                     {post.username}
                                   </span>
-                                  {post.isAdmin && (
-                                    <Crown
-                                      size={14}
-                                      className="text-yellow-400"
-                                    />
+                                  {post.user && post.user._id === user?._id && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm('Are you sure you want to delete this post?')) {
+                                          deletePost(post._id);
+                                        }
+                                      }}
+                                      className="text-gray-400 hover:text-red-400 p-1 transition-colors"
+                                      title="Delete post"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
                                   )}
-                                  <span className="text-xs text-white/50">
-                                    •
-                                  </span>
-                                  <span className="text-xs text-white/50">
-                                    {new Date(post.createdAt).toLocaleString()}
-                                  </span>
                                 </div>
-                                <p className="text-white/90 leading-relaxed break-words whitespace-pre-wrap">
-                                  {post.content}
+                                <p className="text-gray-400 text-xs">
+                                  {new Date(post.createdAt).toLocaleString()}
                                 </p>
-
-                                {/* Post Images */}
                                 {post.images && post.images.length > 0 && (
                                   <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl overflow-hidden">
                                     {post.images
@@ -965,7 +1325,7 @@ const Community = () => {
                                           <img
                                             src={image}
                                             alt="Post content"
-                                            className="w-full h-32 object-cover hover:scale-105 transition-transform duration-200 cursor-pointer"
+                                            className="w-full h-32 object-contain hover:scale-105 transition-transform duration-200 cursor-pointer"
                                             onClick={() =>
                                               window.open(image, "_blank")
                                             }
@@ -1069,28 +1429,44 @@ const Community = () => {
                                     className="flex items-start gap-2 group/comment"
                                   >
                                     <div className="w-7 h-7 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                                      {comment.username?.[0]?.toUpperCase() ||
-                                        "👤"}
+                                      {comment.user?.username?.[0]?.toUpperCase() || "👤"}
                                     </div>
-                                    <div className="flex-1 bg-white/10 rounded-xl p-3 min-w-0 hover:bg-white/15 transition-colors">
+                                    <div className="flex-1 bg-white/5 rounded-xl p-3 min-w-0 hover:bg-white/10 transition-colors relative">
                                       <div className="flex items-center justify-between mb-1">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          <span className="text-sm font-medium text-white">
-                                            {comment.username}
+                                        <span className="font-medium text-white/90 text-sm">
+                                          {comment.user?.username || 'User'}
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-gray-400">
+                                            {new Date(comment.createdAt).toLocaleTimeString([], {
+                                              hour: "2-digit",
+                                              minute: "2-digit",
+                                            })}
                                           </span>
-                                          <span className="text-xs text-white/50">
-                                            {new Date(
-                                              comment.createdAt
-                                            ).toLocaleString()}
-                                          </span>
+                                          {comment.user?._id === user?._id && (
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (window.confirm('Delete this comment?')) {
+                                                  deleteComment(post._id, comment._id);
+                                                }
+                                              }}
+                                              className="text-gray-400 hover:text-red-400 p-1 transition-colors"
+                                              title="Delete comment"
+                                            >
+                                              <Trash2 size={14} />
+                                            </button>
+                                          )}
                                         </div>
-                                        <button className="opacity-0 group-hover/comment:opacity-100 transition-opacity p-1 rounded hover:bg-white/20 text-white/60">
-                                          <Heart size={12} />
-                                        </button>
                                       </div>
-                                      <p className="text-sm text-white/90 break-words leading-relaxed">
+                                      <p className="text-sm text-white/80 break-words mt-1">
                                         {comment.content}
                                       </p>
+                                      <div className="flex justify-end mt-1">
+                                        <button className="opacity-0 group-hover/comment:opacity-100 transition-opacity p-1 rounded hover:bg-white/20 text-white/60">
+                                          <Heart size={14} />
+                                        </button>
+                                      </div>
                                     </div>
                                   </div>
                                 ))}

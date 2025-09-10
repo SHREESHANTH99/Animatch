@@ -15,6 +15,7 @@ import PageLoader from "./components/Preloader/loader.jsx";
 import { usePageLoader } from "./context/PageLoader.jsx";
 import Community from "./pages/Community.jsx";
 import ResetPassword from "./pages/login/ResetPassword.jsx";
+import { SocketProvider } from "./context/SocketContext.jsx";
 function App() {
   const isLoading = usePageLoader();
   if (isLoading) {
@@ -22,6 +23,7 @@ function App() {
   }
   return (
     <>
+      <SocketProvider>
           <Routes>
             <Route path="/" element={<LandingPage />}></Route>
             <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>}></Route>
@@ -46,6 +48,7 @@ function App() {
               <Route path="/Community" element={<Community/>}></Route>
             </Route>
           </Routes>
+      </SocketProvider>
     </>
   );
 }
