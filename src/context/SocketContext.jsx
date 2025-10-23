@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
-import { useAuth } from './AuthContext';
+import React, { createContext, useContext, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+import { useAuth } from "./AuthContext";
 
 const SocketContext = createContext();
 
-const SOCKET_SERVER_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const SOCKET_SERVER_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 export const useSocket = () => {
   return useContext(SocketContext);
@@ -37,17 +38,17 @@ export const SocketProvider = ({ children }) => {
     };
 
     // Handle connection events
-    socketRef.current.on('connect', () => {
-      console.log('Connected to WebSocket server');
+    socketRef.current.on("connect", () => {
+      console.log("Connected to WebSocket server");
       setupListeners();
     });
 
-    socketRef.current.on('disconnect', (reason) => {
-      console.log('Disconnected from WebSocket server:', reason);
+    socketRef.current.on("disconnect", (reason) => {
+      console.log("Disconnected from WebSocket server:", reason);
     });
 
-    socketRef.current.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error.message);
+    socketRef.current.on("connect_error", (error) => {
+      console.error("WebSocket connection error:", error.message);
     });
 
     // Cleanup function
@@ -62,28 +63,28 @@ export const SocketProvider = ({ children }) => {
   // Function to join a group room
   const joinGroup = (groupId) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('join-group', groupId);
+      socketRef.current.emit("join-group", groupId);
     }
   };
 
   // Function to leave a group room
   const leaveGroup = (groupId) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('leave-group', groupId);
+      socketRef.current.emit("leave-group", groupId);
     }
   };
 
   // Function to send a message
   const sendMessage = (groupId, message, user) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('send-message', { groupId, message, user });
+      socketRef.current.emit("send-message", { groupId, message, user });
     }
   };
 
   // Function to handle typing indicator
   const sendTypingStatus = (groupId, userId, isTyping) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('typing', { groupId, userId, isTyping });
+      socketRef.current.emit("typing", { groupId, userId, isTyping });
     }
   };
 
@@ -94,7 +95,7 @@ export const SocketProvider = ({ children }) => {
       // Store the handler to re-apply on reconnection
       listenersRef.current.set(event, handler);
     }
-    
+
     // Return cleanup function
     return () => {
       if (socketRef.current) {
@@ -121,12 +122,16 @@ export const SocketProvider = ({ children }) => {
     sendTypingStatus,
     on,
     off,
+    // Add emit function directly to context for easier access
+    emit: (...args) => {
+      if (socketRef.current?.connected) {
+        socketRef.current.emit(...args);
+      }
+    },
   };
 
   return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
 };
 

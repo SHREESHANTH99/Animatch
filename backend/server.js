@@ -7,14 +7,14 @@ import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import libraryRoutes from "./src/routes/libraryRoutes.js";
-import groupRoutes from './src/routes/groupRoutes.js';
-import postRoutes from './src/routes/postRoutes.js';
+import groupRoutes from "./src/routes/groupRoutes.js";
+import postRoutes from "./src/routes/postRoutes.js";
 import path from "path";
 import forgotPasswordRoutes from "./src/routes/forgotPasswordRoutes.js";
 import uploadRoutes from "./src/routes/upload.js";
 import notificationRoute from "./src/routes/Notification.routes.js";
 import { dirname } from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 import NotificationHelper from "./src/utils/NotificationHelper.js";
 import jwt from "jsonwebtoken";
 
@@ -32,10 +32,10 @@ const io = new Server(httpServer, {
   cors: {
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
   },
   pingTimeout: 60000,
-  pingInterval: 25000
+  pingInterval: 25000,
 });
 
 // Socket.IO authentication middleware
@@ -61,7 +61,7 @@ const onlineUsers = new Map();
 io.on("connection", (socket) => {
   const userId = socket.user._id;
   console.log(`User connected: ${userId}`);
-  
+
   // Add user to online users
   onlineUsers.set(userId, socket.id);
   io.emit("user-online", { userId });
@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
     io.to(`group-${groupId}`).emit("receive-message", {
       ...message,
       user,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   });
 
@@ -92,6 +92,34 @@ io.on("connection", (socket) => {
   socket.on("typing", (data) => {
     const { groupId, userId, isTyping } = data;
     socket.to(`group-${groupId}`).emit("user-typing", { userId, isTyping });
+  });
+
+  // Handle new post
+  socket.on("new-post", (data) => {
+    console.log("📝 New post event received:", data);
+    const groupId = data.group || data.groupId;
+    if (groupId) {
+      io.to(`group-${groupId}`).emit("new-post", data);
+    }
+  });
+
+  // Handle delete post
+  socket.on("delete-post", (data) => {
+    console.log("🗑️ Delete post event received:", data);
+    io.emit("delete-post", data);
+  });
+
+  // Handle new comment
+  socket.on("new-comment", (data) => {
+    console.log("💬 New comment event received:", data);
+    const { postId, comment } = data;
+    io.emit("new-comment", { postId, comment });
+  });
+
+  // Handle reaction
+  socket.on("reaction", (data) => {
+    console.log("❤️ Reaction event received:", data);
+    io.emit("reaction", data);
   });
 
   // Handle disconnection
@@ -115,21 +143,21 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/library", libraryRoutes);
-app.use('/api/groups', groupRoutes);
-app.use('/api/posts', postRoutes);
+app.use("/api/groups", groupRoutes);
+app.use("/api/posts", postRoutes);
 app.use("/api/auth", forgotPasswordRoutes);
-app.use('/api/upload',uploadRoutes );
-app.use('/api/notifications', notificationRoute);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/notifications", notificationRoute);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Set up notification cleanup to run every 24 hours
 setInterval(async () => {
   try {
     await NotificationHelper.cleanupOldNotifications(30);
-    console.log('Notification cleanup completed');
+    console.log("Notification cleanup completed");
   } catch (error) {
-    console.error('Notification cleanup failed:', error);
+    console.error("Notification cleanup failed:", error);
   }
 }, 24 * 60 * 60 * 1000);
 

@@ -81,11 +81,12 @@ router.post("/create", verifyToken, async (req, res) => {
 
     await Group.findByIdAndUpdate(groupId, { $inc: { postCount: 1 } });
 
+    // Populate the author field before sending response
+    await post.populate("author", "username");
+
     res.status(201).json({
-      post: {
-        ...post.toObject(),
-        isAdmin: group.admins.includes(req.user.id),
-      },
+      ...post.toObject(),
+      isAdmin: group.admins.includes(req.user.id),
     });
   } catch (error) {
     console.error("Error creating post:", error);
@@ -160,12 +161,14 @@ router.post("/:postId/comment", verifyToken, async (req, res) => {
 
     const user = await User.findById(userId);
 
-    post.comments.push({
+    const newComment = {
       content,
       author: userId,
       username: user.username,
       createdAt: new Date(),
-    });
+    };
+
+    post.comments.push(newComment);
 
     await post.save();
 
@@ -202,7 +205,10 @@ router.post("/:postId/comment", verifyToken, async (req, res) => {
       }
     }
 
-    res.json({ message: "Comment added successfully" });
+    res.json({
+      message: "Comment added successfully",
+      comment: newComment,
+    });
   } catch (error) {
     console.error("Error adding comment:", error);
     res.status(500).json({ message: "Server error" });

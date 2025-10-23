@@ -16,16 +16,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (newToken) => {
     try {
+      setLoading(true); // Show loading during login
       localStorage.setItem("token", newToken);
       setToken(newToken);
-      setAuthMethod('jwt');
+      setAuthMethod("jwt");
 
       await fetchUserProfile(newToken);
+      setLoading(false); // Hide loading before navigation
       navigate("/home");
     } catch (error) {
       localStorage.removeItem("token");
       setToken(null);
       setAuthMethod(null);
+      setLoading(false);
       throw error;
     }
   };
@@ -39,7 +42,7 @@ export const AuthProvider = ({ children }) => {
           redirectTo: "/home",
         },
       });
-      
+
       if (error) {
         setLoading(false);
         throw error;
@@ -57,8 +60,8 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       setAuthMethod(null);
-      await supabase.auth.signOut({ scope: 'global' });
-      
+      await supabase.auth.signOut({ scope: "global" });
+
       navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
@@ -69,17 +72,20 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (authToken) => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/user/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
       const contentType = res.headers.get("content-type");
       if (!res.ok || !contentType?.includes("application/json")) {
         throw new Error("Invalid or expired token");
       }
-      
+
       const data = await res.json();
       if (mountedRef.current) {
         setUser(data);
@@ -95,21 +101,24 @@ export const AuthProvider = ({ children }) => {
 
   const exchangeToken = async (supabaseUser) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/exchange-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          supabaseToken: 'placeholder',
-          userData: supabaseUser
-        }),
-      });
-      
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/auth/exchange-token`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            supabaseToken: "placeholder",
+            userData: supabaseUser,
+          }),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Token exchange failed');
+        throw new Error("Token exchange failed");
       }
-      
+
       const data = await response.json();
       return data.token;
     } catch (error) {
@@ -122,19 +131,19 @@ export const AuthProvider = ({ children }) => {
     if (authOperationRef.current || !mountedRef.current) {
       return;
     }
-    
+
     authOperationRef.current = true;
-    
+
     try {
       console.log("🔄 Processing Supabase auth for:", session.user.email);
-      
+
       const customToken = await exchangeToken(session.user);
-      
+
       if (mountedRef.current) {
         localStorage.setItem("token", customToken);
         setToken(customToken);
         setUser(session.user);
-        setAuthMethod('supabase');
+        setAuthMethod("supabase");
         if (window.location.pathname === "/login") {
           navigate("/home");
         }
@@ -160,8 +169,11 @@ export const AuthProvider = ({ children }) => {
       try {
         console.log("🚀 Initializing auth...");
 
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
           console.error("❌ Supabase session error:", error.message);
         }
@@ -177,7 +189,7 @@ export const AuthProvider = ({ children }) => {
           try {
             await fetchUserProfile(existingToken);
             if (mounted) {
-              setAuthMethod('jwt');
+              setAuthMethod("jwt");
             }
           } catch (error) {
             console.error("❌ JWT validation failed:", error.message);
@@ -202,48 +214,46 @@ export const AuthProvider = ({ children }) => {
       mounted = false;
       mountedRef.current = false;
     };
-  }, []); 
+  }, []);
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("🔄 Supabase auth event:", event, session?.user?.email);
-        
-       
-        if (authOperationRef.current || !mountedRef.current) {
-          console.log("🚫 Ignoring auth event - operation in progress");
-          return;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("🔄 Supabase auth event:", event, session?.user?.email);
+
+      if (authOperationRef.current || !mountedRef.current) {
+        console.log("🚫 Ignoring auth event - operation in progress");
+        return;
+      }
+
+      if (event === "SIGNED_IN" && session?.user) {
+        if (!user || user.id !== session.user.id) {
+          await handleSupabaseAuth(session);
         }
-        
-        if (event === "SIGNED_IN" && session?.user) {
-          
-          if (!user || user.id !== session.user.id) {
-            await handleSupabaseAuth(session);
+      } else if (event === "SIGNED_OUT") {
+        console.log("🔄 Supabase signed out event");
+        if (mountedRef.current && authMethod === "supabase") {
+          localStorage.removeItem("token");
+          setToken(null);
+          setUser(null);
+          setAuthMethod(null);
+
+          if (window.location.pathname !== "/login") {
+            navigate("/login");
           }
-        } else if (event === "SIGNED_OUT") {
-          console.log("🔄 Supabase signed out event");
-          if (mountedRef.current && authMethod === 'supabase') {
-            localStorage.removeItem("token");
-            setToken(null);
-            setUser(null);
-            setAuthMethod(null);
-            
-            if (window.location.pathname !== "/login") {
-              navigate("/login");
-            }
-          }
-        } else if (event === "TOKEN_REFRESHED" && session?.user) {
-          console.log("🔄 Token refreshed for:", session.user.email);
-          if (mountedRef.current && authMethod === 'supabase') {
-            setUser(session.user);
-          }
+        }
+      } else if (event === "TOKEN_REFRESHED" && session?.user) {
+        console.log("🔄 Token refreshed for:", session.user.email);
+        if (mountedRef.current && authMethod === "supabase") {
+          setUser(session.user);
         }
       }
-    );
+    });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, authMethod, user]); 
+  }, [navigate, authMethod, user]);
 
   const isAuthenticated = !!user;
   const getAuthMethod = () => authMethod;
@@ -258,14 +268,10 @@ export const AuthProvider = ({ children }) => {
     loading,
     authMethod,
     getAuthMethod,
-    setUser
+    setUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

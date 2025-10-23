@@ -1,34 +1,41 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Discover from "./pages/Discover";
-import LandingPage from "./pages/landingPage";
-import DetailPage from "./pages/AnimeDetails.jsx";
-import SignUpPage from "./pages/login/signuppage.jsx";
+import { lazy, Suspense } from "react";
 import { ProtectedLayout } from "./components/protectedroutes/ProtectedRoutes.js";
-import ProfilePage2 from "./pages/ProfilePage2.jsx";
 import { PublicOnlyRoute } from "./components/protectedroutes/PublicOnlyRoute.jsx";
-import { TopAnime } from "./pages/TopAnime.jsx";
-import { Trending } from "./pages/Trending.jsx";
-import Library from "./pages/Library.jsx";
-import Login from "./pages/login/loginPage.jsx";
 import PageLoader from "./components/Preloader/loader.jsx";
-import { usePageLoader } from "./context/PageLoader.jsx";
-import Community from "./pages/Community.jsx";
-import ResetPassword from "./pages/login/ResetPassword.jsx";
 import { SocketProvider } from "./context/SocketContext.jsx";
+
+// Lazy load pages for better performance
+const Home = lazy(() => import("./pages/Home"));
+const Discover = lazy(() => import("./pages/Discover"));
+const LandingPage = lazy(() => import("./pages/landingPage"));
+const DetailPage = lazy(() => import("./pages/AnimeDetails.jsx"));
+const SignUpPage = lazy(() => import("./pages/login/signuppage.jsx"));
+const ProfilePage2 = lazy(() => import("./pages/ProfilePage2.jsx"));
+const TopAnime = lazy(() => import("./pages/TopAnime.jsx"));
+const Trending = lazy(() => import("./pages/Trending.jsx"));
+const Library = lazy(() => import("./pages/Library.jsx"));
+const Login = lazy(() => import("./pages/login/loginPage.jsx"));
+const Community = lazy(() => import("./pages/Community.jsx"));
+const ResetPassword = lazy(() => import("./pages/login/ResetPassword.jsx"));
+
 function App() {
-  const isLoading = usePageLoader();
-  if (isLoading) {
-    return <PageLoader />;
-  }
   return (
     <>
       <SocketProvider>
+        <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<LandingPage />}></Route>
-            <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>}></Route>
+            <Route
+              path="/login"
+              element={
+                <PublicOnlyRoute>
+                  <Login />
+                </PublicOnlyRoute>
+              }
+            ></Route>
             <Route path="/login/:token" element={<ResetPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route
               path="/register"
               element={
@@ -45,9 +52,10 @@ function App() {
               <Route path="/top" element={<TopAnime />}></Route>
               <Route path="/trending" element={<Trending />}></Route>
               <Route path="/library" element={<Library />}></Route>
-              <Route path="/Community" element={<Community/>}></Route>
+              <Route path="/Community" element={<Community />}></Route>
             </Route>
           </Routes>
+        </Suspense>
       </SocketProvider>
     </>
   );

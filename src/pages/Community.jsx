@@ -26,6 +26,8 @@ import {
 
 const Community = () => {
   const { token, user } = useAuth();
+  const socketContext = useSocket();
+  const { socket, emit, on, off } = socketContext || {};
   const [activeGroup, setActiveGroup] = useState(null);
   const [groups, setGroups] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -48,25 +50,29 @@ const Community = () => {
   const [typingUsers, setTypingUsers] = useState({});
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
-  const socket = useSocket();
   const typingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Socket.IO event handlers
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !on) return;
 
     // Handle new post
     const handleNewPost = (post) => {
-      setPosts(prevPosts => [post, ...prevPosts]);
+      setPosts((prevPosts) => [post, ...prevPosts]);
+    };
+
+    // Handle delete post
+    const handleDeletePost = ({ postId }) => {
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     };
 
     // Handle new comment
     const handleNewComment = ({ postId, comment }) => {
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post._id === postId 
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId
             ? { ...post, comments: [...(post.comments || []), comment] }
             : post
         )
@@ -75,11 +81,11 @@ const Community = () => {
 
     // Handle reaction
     const handleReaction = ({ postId, userId, reactionType, action }) => {
-      setPosts(prevPosts => 
-        prevPosts.map(post => {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
           if (post._id === postId) {
             const updatedReactions = { ...post.reactions };
-            if (action === 'add') {
+            if (action === "add") {
               updatedReactions[userId] = reactionType;
             } else {
               delete updatedReactions[userId];
@@ -94,8 +100,8 @@ const Community = () => {
     // Handle typing indicator
     const handleUserTyping = ({ userId, isTyping, groupId }) => {
       if (activeGroup?._id !== groupId) return;
-      
-      setTypingUsers(prev => {
+
+      setTypingUsers((prev) => {
         const newTypingUsers = { ...prev };
         if (isTyping) {
           newTypingUsers[userId] = true;
@@ -108,50 +114,50 @@ const Community = () => {
 
     // Handle online status
     const handleUserOnline = ({ userId }) => {
-      setOnlineUsers(prev => new Set([...prev, userId]));
+      setOnlineUsers((prev) => new Set([...prev, userId]));
     };
 
     const handleUserOffline = ({ userId }) => {
-      setOnlineUsers(prev => {
+      setOnlineUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(userId);
         return newSet;
       });
     };
 
-    // Set up event listeners
-    socket.on('new-post', handleNewPost);
-    socket.on('new-comment', handleNewComment);
-    socket.on('reaction', handleReaction);
-    socket.on('user-typing', handleUserTyping);
-    socket.on('user-online', handleUserOnline);
-    socket.on('user-offline', handleUserOffline);
+    // Set up event listeners using the context's 'on' function
+    const cleanupFunctions = [
+      on("new-post", handleNewPost),
+      on("delete-post", handleDeletePost),
+      on("new-comment", handleNewComment),
+      on("reaction", handleReaction),
+      on("user-typing", handleUserTyping),
+      on("user-online", handleUserOnline),
+      on("user-offline", handleUserOffline),
+    ];
 
     // Clean up event listeners
     return () => {
-      socket.off('new-post', handleNewPost);
-      socket.off('new-comment', handleNewComment);
-      socket.off('reaction', handleReaction);
-      socket.off('user-typing', handleUserTyping);
-      socket.off('user-online', handleUserOnline);
-      socket.off('user-offline', handleUserOffline);
+      cleanupFunctions.forEach((cleanup) => {
+        if (typeof cleanup === "function") cleanup();
+      });
     };
-  }, [socket, activeGroup]);
+  }, [socket, activeGroup, on]);
 
   // Handle typing indicator
   const handleTyping = useCallback(() => {
     // Skip if socket is not properly initialized
-    if (!socket || typeof socket.emit !== 'function' || !activeGroup?._id) return;
+    if (!emit || !activeGroup?._id) return;
 
     if (!isTyping) {
       setIsTyping(true);
       try {
-        socket.emit('typing', { 
-          groupId: activeGroup._id, 
-          isTyping: true 
+        emit("typing", {
+          groupId: activeGroup._id,
+          isTyping: true,
         });
       } catch (error) {
-        console.error('Error emitting typing event:', error);
+        console.error("Error emitting typing event:", error);
       }
     }
 
@@ -162,20 +168,36 @@ const Community = () => {
 
     // Set a new timeout
     typingTimeoutRef.current = setTimeout(() => {
-      if (socket && socket.emit) {
-        socket.emit('typing', { 
-          groupId: activeGroup._id, 
-          isTyping: false 
+      if (emit) {
+        emit("typing", {
+          groupId: activeGroup._id,
+          isTyping: false,
         });
       }
       setIsTyping(false);
     }, 2000); // 2 seconds of inactivity
-  }, [socket, activeGroup?._id, isTyping]);
+  }, [emit, activeGroup?._id, isTyping]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [posts]);
+
+  // Join/leave socket room when active group changes
+  useEffect(() => {
+    if (!socket || !activeGroup?._id) return;
+
+    console.log("🔌 Joining group room:", activeGroup._id);
+
+    // Join the group room
+    socket.emit("join-group", activeGroup._id);
+
+    // Leave the room when component unmounts or group changes
+    return () => {
+      console.log("🔌 Leaving group room:", activeGroup._id);
+      socket.emit("leave-group", activeGroup._id);
+    };
+  }, [socket, activeGroup?._id]);
 
   // Emoji categories and data
   const emojiCategories = {
@@ -201,31 +223,38 @@ const Community = () => {
   // Handle image upload with progress tracking
   const handleImageUpload = async (files) => {
     if (!files || files.length === 0) return;
-    
+
     // Check total number of images (max 4)
     if (selectedImages.length + files.length > 4) {
-      alert('You can upload a maximum of 4 images per post');
+      alert("You can upload a maximum of 4 images per post");
       return;
     }
 
     setUploadingImage(true);
     const uploadedImages = [];
-    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const validImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
 
     // First, create previews for all files
     for (const file of files) {
       // Validate file type
       if (!validImageTypes.includes(file.type)) {
-        alert(`${file.name} is not a valid image file. Please upload a JPEG, PNG, GIF, or WebP image.`);
+        alert(
+          `${file.name} is not a valid image file. Please upload a JPEG, PNG, GIF, or WebP image.`
+        );
         continue;
       }
-      
+
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         alert(`${file.name} is too large. Maximum file size is 5MB.`);
         continue;
       }
-      
+
       // Create preview URL for immediate display
       const previewUrl = URL.createObjectURL(file);
       uploadedImages.push({
@@ -234,46 +263,49 @@ const Community = () => {
         name: file.name,
         file: file, // Keep the file reference for upload
         isUploading: true,
-        uploadProgress: 0
+        uploadProgress: 0,
       });
     }
-    
+
     // Update UI with previews immediately
-    setSelectedImages(prev => [...prev, ...uploadedImages]);
-    
+    setSelectedImages((prev) => [...prev, ...uploadedImages]);
+
     // Process uploads
     for (const img of uploadedImages) {
       try {
         const formData = new FormData();
-        formData.append('image', img.file);
-        
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+        formData.append("image", img.file);
+
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
         const xhr = new XMLHttpRequest();
-        
+
         // Track upload progress
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
-            setSelectedImages(prev => 
-              prev.map(i => 
-                i.id === img.id 
-                  ? { ...i, uploadProgress: progress } 
-                  : i
+            setSelectedImages((prev) =>
+              prev.map((i) =>
+                i.id === img.id ? { ...i, uploadProgress: progress } : i
               )
             );
           }
         };
-        
-        xhr.open('POST', `${apiUrl}/api/upload/image`, true);
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        
+
+        xhr.open("POST", `${apiUrl}/api/upload/image`, true);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
         xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             const response = JSON.parse(xhr.responseText);
-            setSelectedImages(prev => 
-              prev.map(i => 
-                i.id === img.id 
-                  ? { ...i, url: response.imageUrl, isUploading: false, uploadProgress: 100 }
+            setSelectedImages((prev) =>
+              prev.map((i) =>
+                i.id === img.id
+                  ? {
+                      ...i,
+                      url: response.imageUrl,
+                      isUploading: false,
+                      uploadProgress: 100,
+                    }
                   : i
               )
             );
@@ -281,20 +313,20 @@ const Community = () => {
             throw new Error(`Upload failed: ${xhr.statusText}`);
           }
         };
-        
+
         xhr.onerror = () => {
-          setSelectedImages(prev => prev.filter(i => i.id !== img.id));
+          setSelectedImages((prev) => prev.filter((i) => i.id !== img.id));
           alert(`Failed to upload ${img.name}. Please try again.`);
         };
-        
+
         xhr.send(formData);
       } catch (error) {
-        console.error('Upload error:', error);
-        setSelectedImages(prev => prev.filter(i => i.id !== img.id));
+        console.error("Upload error:", error);
+        setSelectedImages((prev) => prev.filter((i) => i.id !== img.id));
         alert(`Error uploading ${img.name}: ${error.message}`);
       }
     }
-    
+
     setUploadingImage(false);
   };
 
@@ -454,29 +486,41 @@ const Community = () => {
     }
   };
   const handlePost = async () => {
-    if ((!newPost.trim() && selectedImages.length === 0) || !activeGroup || !token) {
+    console.log("📝 handlePost called");
+    console.log("newPost:", newPost);
+    console.log("activeGroup:", activeGroup);
+    console.log("token:", token ? "exists" : "missing");
+
+    if (
+      (!newPost.trim() && selectedImages.length === 0) ||
+      !activeGroup ||
+      !token
+    ) {
+      console.log("❌ Validation failed - returning early");
       return;
     }
-  
+
     try {
       setUploadingImage(true);
-      
+
       // Filter out any images that are still uploading
-      const readyImages = selectedImages.filter(img => !img.isUploading);
-      
+      const readyImages = selectedImages.filter((img) => !img.isUploading);
+
       // Check if there are any images still uploading
-      const hasUploadingImages = selectedImages.some(img => img.isUploading);
+      const hasUploadingImages = selectedImages.some((img) => img.isUploading);
       if (hasUploadingImages) {
-        alert('Please wait for all images to finish uploading before posting');
+        alert("Please wait for all images to finish uploading before posting");
         return;
       }
-      
+
       const postData = {
         content: newPost.trim(),
         groupId: activeGroup._id,
-        images: readyImages.map(img => img.url)
+        images: readyImages.map((img) => img.url),
       };
-  
+
+      console.log("📤 Sending post data:", postData);
+
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const res = await fetch(`${apiUrl}/api/posts/create`, {
         method: "POST",
@@ -486,28 +530,47 @@ const Community = () => {
         },
         body: JSON.stringify(postData),
       });
-  
+
+      console.log("📥 Response status:", res.status);
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${res.status}`
+        );
       }
-  
+
+      // Get the new post data from response
+      const newPostData = await res.json();
+      console.log("✅ Post created successfully:", newPostData);
+      console.log("📊 Post author field:", newPostData.author);
+      console.log("👤 Current user ID:", user?._id);
+      console.log("Current posts count:", posts.length);
+
+      // Add the new post to the UI immediately (optimistic update)
+      setPosts((prevPosts) => {
+        console.log("📌 Adding post to UI, previous count:", prevPosts.length);
+        return [newPostData, ...prevPosts];
+      });
+
       // Reset form
       setNewPost("");
       setSelectedImages([]);
-      
-      // Refresh posts
-      await fetchPosts(activeGroup._id);
-      
-      // Emit socket event for new post
-      if (socket) {
-        const newPostData = await res.json();
-        socket.emit('new-post', newPostData);
+
+      // Emit socket event for new post to notify other users
+      if (emit && newPostData) {
+        console.log("🔌 Emitting new-post event");
+        emit("new-post", newPostData);
+      } else {
+        console.log("⚠️ Socket emit not available:", {
+          emit: !!emit,
+          newPostData: !!newPostData,
+        });
       }
-      
+
       // Scroll to the top of the posts list
       if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
       console.error("❌ Post creation failed:", error);
@@ -517,7 +580,7 @@ const Community = () => {
     }
   };
   const handleReaction = async (postId, reactionType) => {
-    if (!postId || !reactionType || !token || !socket) return;
+    if (!postId || !reactionType || !token || !emit) return;
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
@@ -538,34 +601,34 @@ const Community = () => {
     }
   };
   const addComment = async (postId) => {
-    if (!newComment[postId]?.trim() || !token || !socket) return;
-    
+    if (!newComment[postId]?.trim() || !token || !emit) return;
+
     const content = newComment[postId].trim();
-    
+
     try {
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const response = await fetch(`${apiUrl}/api/posts/${postId}/comment`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ content })
+        body: JSON.stringify({ content }),
       });
 
-      if (!response.ok) throw new Error('Failed to add comment');
-      
+      if (!response.ok) throw new Error("Failed to add comment");
+
       const data = await response.json();
-      
+
       // Emit socket event for new comment
-      socket.emit('new-comment', {
+      emit("new-comment", {
         postId,
-        comment: data.comment
+        comment: data.comment,
       });
-      
-      setNewComment(prev => ({ ...prev, [postId]: '' }));
+
+      setNewComment((prev) => ({ ...prev, [postId]: "" }));
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error("Error adding comment:", error);
     }
 
     try {
@@ -648,23 +711,21 @@ const Community = () => {
 
   const renderTypingIndicator = () => {
     if (Object.keys(typingUsers).length === 0) return null;
-    
+
     const typingUserIds = Object.keys(typingUsers);
     const typingUserNames = typingUserIds
-      .filter(id => id !== user?._id) // Don't show current user in typing indicator
-      .map(id => {
-        const user = groups
-          .flatMap(g => g.members)
-          .find(m => m._id === id);
-        return user?.username || 'Someone';
+      .filter((id) => id !== user?._id) // Don't show current user in typing indicator
+      .map((id) => {
+        const user = groups.flatMap((g) => g.members).find((m) => m._id === id);
+        return user?.username || "Someone";
       });
 
     if (typingUserNames.length === 0) return null;
 
     return (
       <div className="text-xs text-gray-400 mt-1 ml-2">
-        {typingUserNames.join(', ')}
-        {typingUserNames.length === 1 ? ' is ' : ' are '}
+        {typingUserNames.join(", ")}
+        {typingUserNames.length === 1 ? " is " : " are "}
         typing...
       </div>
     );
@@ -673,10 +734,10 @@ const Community = () => {
   const renderOnlineUsers = () => {
     const onlineCount = onlineUsers.size;
     if (onlineCount === 0) return null;
-    
+
     return (
       <div className="text-xs text-green-400 mt-1 ml-2">
-        {onlineCount} {onlineCount === 1 ? 'user' : 'users'} online
+        {onlineCount} {onlineCount === 1 ? "user" : "users"} online
       </div>
     );
   };
@@ -691,10 +752,10 @@ const Community = () => {
   useEffect(() => {
     // Store the current selected images to clean up later
     const currentImages = [...selectedImages];
-    
+
     return () => {
-      currentImages.forEach(img => {
-        if (img.url && img.url.startsWith('blob:')) {
+      currentImages.forEach((img) => {
+        if (img.url && img.url.startsWith("blob:")) {
           URL.revokeObjectURL(img.url);
         }
       });
@@ -704,9 +765,9 @@ const Community = () => {
   const renderPostForm = () => (
     <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 mb-6 border border-white/10 shadow-2xl">
       <div className="flex items-start space-x-4">
-        <img 
-          src={user?.avatar || '/default-avatar.png'} 
-          alt={user?.username} 
+        <img
+          src={user?.avatar || "/default-avatar.png"}
+          alt={user?.username}
           className="w-12 h-12 rounded-full object-cover border-2 border-purple-400/50"
         />
         <div className="flex-1">
@@ -715,23 +776,28 @@ const Community = () => {
               value={newPost}
               onChange={handlePostInputChange}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handlePost();
                 }
               }}
-              placeholder={`What's on your mind, ${user?.username || 'friend'}?`}
+              placeholder={`What's on your mind, ${
+                user?.username || "friend"
+              }?`}
               className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent resize-none transition-all duration-200"
               rows={3}
             />
             {renderTypingIndicator()}
           </div>
-          
+
           {/* Image Previews */}
           {selectedImages.length > 0 && (
             <div className="mt-3 grid grid-cols-2 gap-3">
               {selectedImages.map((img) => (
-                <div key={img.id} className="relative group rounded-xl overflow-hidden border border-white/10 bg-black/20">
+                <div
+                  key={img.id}
+                  className="relative group rounded-xl overflow-hidden border border-white/10 bg-black/20"
+                >
                   <div className="relative w-full aspect-square">
                     <img
                       src={img.url}
@@ -739,13 +805,13 @@ const Community = () => {
                       className="w-full h-full object-contain p-1"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = '/image-placeholder.png';
+                        e.target.src = "/image-placeholder.png";
                       }}
                     />
                   </div>
                   {img.isUploading && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 h-1.5">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-300"
                         style={{ width: `${img.uploadProgress}%` }}
                       />
@@ -754,7 +820,9 @@ const Community = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedImages(prev => prev.filter(i => i.id !== img.id));
+                      setSelectedImages((prev) =>
+                        prev.filter((i) => i.id !== img.id)
+                      );
                     }}
                     className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
                   >
@@ -764,7 +832,7 @@ const Community = () => {
               ))}
             </div>
           )}
-          
+
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
             <div className="flex space-x-1">
               {/* Image Upload Button */}
@@ -776,7 +844,7 @@ const Community = () => {
                   multiple
                   onChange={(e) => {
                     handleImageUpload(e.target.files);
-                    e.target.value = ''; // Reset input to allow selecting same file again
+                    e.target.value = ""; // Reset input to allow selecting same file again
                   }}
                 />
                 <div className="flex items-center space-x-1">
@@ -789,7 +857,12 @@ const Community = () => {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setShowEmojiPicker(prev => ({ ...prev, post: !prev.post }))}
+                  onClick={() =>
+                    setShowEmojiPicker((prev) => ({
+                      ...prev,
+                      post: !prev.post,
+                    }))
+                  }
                   className="p-2 text-white/70 hover:text-yellow-300 hover:bg-white/10 rounded-xl transition-colors"
                 >
                   <Smile size={20} />
@@ -797,43 +870,72 @@ const Community = () => {
                 {showEmojiPicker.post && (
                   <div className="absolute bottom-12 left-0 bg-gray-800/95 backdrop-blur-lg rounded-xl shadow-2xl p-3 z-10 w-64 border border-white/10">
                     <div className="grid grid-cols-8 gap-1">
-                      {Object.values(emojiCategories).flat().map((emoji, idx) => (
-                        <button
-                          key={idx}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setNewPost(prev => prev + emoji);
-                            setShowEmojiPicker(prev => ({ ...prev, post: false }));
-                          }}
-                          className="text-xl hover:bg-white/10 p-1 rounded-lg transition-colors hover:scale-110 transform"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
+                      {Object.values(emojiCategories)
+                        .flat()
+                        .map((emoji, idx) => (
+                          <button
+                            key={idx}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setNewPost((prev) => prev + emoji);
+                              setShowEmojiPicker((prev) => ({
+                                ...prev,
+                                post: false,
+                              }));
+                            }}
+                            className="text-xl hover:bg-white/10 p-1 rounded-lg transition-colors hover:scale-110 transform"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
                     </div>
                   </div>
                 )}
               </div>
             </div>
-            
+
             <button
               onClick={handlePost}
-              disabled={(!newPost.trim() && selectedImages.length === 0) || uploadingImage}
+              disabled={
+                (!newPost.trim() && selectedImages.length === 0) ||
+                uploadingImage
+              }
               className={`px-5 py-2 rounded-xl font-medium transition-all duration-200 ${
-                (!newPost.trim() && selectedImages.length === 0) || uploadingImage
-                  ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg hover:shadow-purple-500/20'
+                (!newPost.trim() && selectedImages.length === 0) ||
+                uploadingImage
+                  ? "bg-gray-600/50 text-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg hover:shadow-purple-500/20"
               }`}
             >
               {uploadingImage ? (
                 <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
-                  {selectedImages.some(img => img.isUploading) ? 'Uploading...' : 'Posting...'}
+                  {selectedImages.some((img) => img.isUploading)
+                    ? "Uploading..."
+                    : "Posting..."}
                 </span>
-              ) : 'Post'}
+              ) : (
+                "Post"
+              )}
             </button>
           </div>
         </div>
@@ -844,10 +946,11 @@ const Community = () => {
   // Add delete post function
   const deletePost = async (postId) => {
     if (!postId || !token) return;
-    
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
 
     try {
+      console.log("🗑️ Deleting post:", postId);
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
       const res = await fetch(`${apiUrl}/api/posts/${postId}`, {
         method: "DELETE",
@@ -858,15 +961,21 @@ const Community = () => {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to delete post');
+        throw new Error("Failed to delete post");
       }
 
+      console.log("✅ Post deleted successfully");
+
       // Update UI by removing the deleted post
-      setPosts(prev => prev.filter(post => post._id !== postId));
-      
+      setPosts((prev) => prev.filter((post) => post._id !== postId));
+
+      // Emit socket event to notify other users
+      if (emit) {
+        emit("delete-post", { postId });
+      }
     } catch (error) {
-      console.error('Error deleting post:', error);
-      alert('Failed to delete post. Please try again.');
+      console.error("❌ Error deleting post:", error);
+      alert("Failed to delete post. Please try again.");
     }
   };
 
@@ -876,33 +985,37 @@ const Community = () => {
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/api/posts/${postId}/comments/${commentId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${apiUrl}/api/posts/${postId}/comments/${commentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!res.ok) {
-        throw new Error('Failed to delete comment');
+        throw new Error("Failed to delete comment");
       }
 
       // Update UI by removing the deleted comment
-      setPosts(prev => 
-        prev.map(post => 
+      setPosts((prev) =>
+        prev.map((post) =>
           post._id === postId
             ? {
                 ...post,
-                comments: post.comments.filter(comment => comment._id !== commentId)
+                comments: post.comments.filter(
+                  (comment) => comment._id !== commentId
+                ),
               }
             : post
         )
       );
-      
     } catch (error) {
-      console.error('Error deleting comment:', error);
-      alert('Failed to delete comment. Please try again.');
+      console.error("Error deleting comment:", error);
+      alert("Failed to delete comment. Please try again.");
     }
   };
 
@@ -1215,9 +1328,7 @@ const Community = () => {
 
             {/* Post Composer */}
             <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 lg:p-4">
-              <div className="max-w-4xl mx-auto">
-                {renderPostForm()}
-              </div>
+              <div className="max-w-4xl mx-auto">{renderPostForm()}</div>
             </div>
 
             {/* Posts Feed */}
@@ -1295,13 +1406,14 @@ const Community = () => {
                                   <span className="font-semibold text-white">
                                     {post.username}
                                   </span>
-                                  {post.user && post.user._id === user?._id && (
+                                  {/* Show delete button if user is the post author */}
+                                  {(post.author?._id === user?._id ||
+                                    post.author === user?._id ||
+                                    post.user?._id === user?._id) && (
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        if (window.confirm('Are you sure you want to delete this post?')) {
-                                          deletePost(post._id);
-                                        }
+                                        deletePost(post._id);
                                       }}
                                       className="text-gray-400 hover:text-red-400 p-1 transition-colors"
                                       title="Delete post"
@@ -1313,41 +1425,44 @@ const Community = () => {
                                 <p className="text-gray-400 text-xs">
                                   {new Date(post.createdAt).toLocaleString()}
                                 </p>
-                                {post.images && post.images.length > 0 && (
-                                  <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl overflow-hidden">
-                                    {post.images
-                                      .slice(0, 4)
-                                      .map((image, index) => (
-                                        <div
-                                          key={index}
-                                          className="relative group"
-                                        >
-                                          <img
-                                            src={image}
-                                            alt="Post content"
-                                            className="w-full h-32 object-contain hover:scale-105 transition-transform duration-200 cursor-pointer"
-                                            onClick={() =>
-                                              window.open(image, "_blank")
-                                            }
-                                          />
-                                          {index === 3 &&
-                                            post.images.length > 4 && (
-                                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                                <span className="text-white font-bold">
-                                                  +{post.images.length - 4}
-                                                </span>
-                                              </div>
-                                            )}
-                                        </div>
-                                      ))}
-                                  </div>
-                                )}
                               </div>
                             </div>
                             <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/10 text-white/60">
                               <MoreHorizontal size={16} />
                             </button>
                           </div>
+
+                          {/* Post Content */}
+                          {post.content && (
+                            <div className="mb-4 mt-3">
+                              <p className="text-white/90 whitespace-pre-wrap break-words leading-relaxed">
+                                {post.content}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Post Images */}
+                          {post.images && post.images.length > 0 && (
+                            <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl overflow-hidden">
+                              {post.images.slice(0, 4).map((image, index) => (
+                                <div key={index} className="relative group">
+                                  <img
+                                    src={image}
+                                    alt="Post content"
+                                    className="w-full h-32 object-contain hover:scale-105 transition-transform duration-200 cursor-pointer"
+                                    onClick={() => window.open(image, "_blank")}
+                                  />
+                                  {index === 3 && post.images.length > 4 && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                      <span className="text-white font-bold">
+                                        +{post.images.length - 4}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
                           {/* Post Actions */}
                           <div className="flex items-center justify-between pt-4 border-t border-white/10">
@@ -1429,16 +1544,19 @@ const Community = () => {
                                     className="flex items-start gap-2 group/comment"
                                   >
                                     <div className="w-7 h-7 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                                      {comment.user?.username?.[0]?.toUpperCase() || "👤"}
+                                      {comment.user?.username?.[0]?.toUpperCase() ||
+                                        "👤"}
                                     </div>
                                     <div className="flex-1 bg-white/5 rounded-xl p-3 min-w-0 hover:bg-white/10 transition-colors relative">
                                       <div className="flex items-center justify-between mb-1">
                                         <span className="font-medium text-white/90 text-sm">
-                                          {comment.user?.username || 'User'}
+                                          {comment.user?.username || "User"}
                                         </span>
                                         <div className="flex items-center gap-2">
                                           <span className="text-xs text-gray-400">
-                                            {new Date(comment.createdAt).toLocaleTimeString([], {
+                                            {new Date(
+                                              comment.createdAt
+                                            ).toLocaleTimeString([], {
                                               hour: "2-digit",
                                               minute: "2-digit",
                                             })}
@@ -1447,8 +1565,15 @@ const Community = () => {
                                             <button
                                               onClick={(e) => {
                                                 e.stopPropagation();
-                                                if (window.confirm('Delete this comment?')) {
-                                                  deleteComment(post._id, comment._id);
+                                                if (
+                                                  window.confirm(
+                                                    "Delete this comment?"
+                                                  )
+                                                ) {
+                                                  deleteComment(
+                                                    post._id,
+                                                    comment._id
+                                                  );
                                                 }
                                               }}
                                               className="text-gray-400 hover:text-red-400 p-1 transition-colors"
