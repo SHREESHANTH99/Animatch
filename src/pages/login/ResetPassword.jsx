@@ -29,30 +29,39 @@ export default function ResetPassword() {
 
   const verifyToken = async () => {
     try {
-      console.log('=== FRONTEND TOKEN VERIFICATION ===');
-      console.log('1. Token from URL:', token);
-      console.log('2. Token length:', token ? token.length : 'null');
-      console.log('3. API URL:', process.env.REACT_APP_API_URL);
-      console.log('4. Full request URL:', `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/reset-password/${token}`);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/reset-password/${token}`);
-      
-      console.log('5. Token verification successful:', response.data);
+      console.log("=== FRONTEND TOKEN VERIFICATION ===");
+      console.log("1. Token from URL:", token);
+      console.log("2. Token length:", token ? token.length : "null");
+      console.log("3. API URL:", process.env.REACT_APP_API_URL);
+      console.log(
+        "4. Full request URL:",
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+        }/auth/reset-password/${token}`
+      );
+      const response = await axios.get(
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+        }/auth/reset-password/${token}`
+      );
+
+      console.log("5. Token verification successful:", response.data);
       setIsValidToken(true);
       setUserEmail(response.data.email || "");
-      
     } catch (err) {
-      console.error('=== FRONTEND TOKEN VERIFICATION ERROR ===');
-      console.error('1. Error:', err);
-      console.error('2. Response status:', err.response?.status);
-      console.error('3. Response data:', err.response?.data);
-      console.error('4. Response headers:', err.response?.headers);
-      console.error('5. Request config:', err.config);
-      
+      console.error("=== FRONTEND TOKEN VERIFICATION ERROR ===");
+      console.error("1. Error:", err);
+      console.error("2. Response status:", err.response?.status);
+      console.error("3. Response data:", err.response?.data);
+      console.error("4. Response headers:", err.response?.headers);
+      console.error("5. Request config:", err.config);
+
       setIsValidToken(false);
-      const errorMessage = err.response?.data?.message || "Invalid or expired reset token";
+      const errorMessage =
+        err.response?.data?.message || "Invalid or expired reset token";
       setMessage(errorMessage);
       if (err.response?.data?.debug) {
-        console.error('6. Debug info from server:', err.response.data.debug);
+        console.error("6. Debug info from server:", err.response.data.debug);
       }
     }
   };
@@ -65,7 +74,8 @@ export default function ResetPassword() {
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number";
+      newErrors.password =
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number";
     }
 
     if (!confirmPassword) {
@@ -88,26 +98,34 @@ export default function ResetPassword() {
     setMessage("");
 
     try {
-      console.log('Attempting password reset for token:', token);
-      
-      const response = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/reset-password`, {
-        token,
-        password
-      });
+      console.log("Attempting password reset for token:", token);
 
-      console.log('Password reset successful:', response.data);
+      const response = await axios.post(
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+        }/auth/reset-password`,
+        {
+          token,
+          password,
+        }
+      );
+
+      console.log("Password reset successful:", response.data);
       setIsSuccess(true);
       setMessage("Password reset successful! Redirecting to login...");
       setTimeout(() => {
         navigate("/login");
       }, 3000);
-
     } catch (err) {
-      console.error('Password reset error:', err);
-      const errorMessage = err.response?.data?.message || "Failed to reset password";
+      console.error("Password reset error:", err);
+      const errorMessage =
+        err.response?.data?.message || "Failed to reset password";
       setMessage(errorMessage);
-      if (errorMessage.toLowerCase().includes('token') && 
-          (errorMessage.toLowerCase().includes('invalid') || errorMessage.toLowerCase().includes('expired'))) {
+      if (
+        errorMessage.toLowerCase().includes("token") &&
+        (errorMessage.toLowerCase().includes("invalid") ||
+          errorMessage.toLowerCase().includes("expired"))
+      ) {
         setIsValidToken(false);
       }
     } finally {
@@ -178,12 +196,11 @@ export default function ResetPassword() {
               {isSuccess ? "Success!" : "Reset Password"}
             </h1>
             <p className="text-gray-400 text-sm">
-              {isSuccess 
+              {isSuccess
                 ? "Your password has been reset successfully"
-                : userEmail 
-                  ? `Reset password for ${userEmail}`
-                  : "Enter your new password below"
-              }
+                : userEmail
+                ? `Reset password for ${userEmail}`
+                : "Enter your new password below"}
             </p>
           </div>
 
@@ -299,7 +316,9 @@ export default function ResetPassword() {
           {message && (
             <div
               className={`text-center p-3 rounded-xl mt-6 ${
-                message.includes("failed") || message.includes("error") || message.includes("Invalid")
+                message.includes("failed") ||
+                message.includes("error") ||
+                message.includes("Invalid")
                   ? "bg-red-500/20 text-red-400 border border-red-500/30"
                   : "bg-green-500/20 text-green-400 border border-green-500/30"
               }`}

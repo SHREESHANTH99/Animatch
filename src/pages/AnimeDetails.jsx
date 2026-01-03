@@ -59,7 +59,7 @@ const DetailPage = () => {
     setAddToLibrarySuccess(false);
 
     try {
-      await apiInstance.post("/api/library", {
+      await apiInstance.post("/library", {
         animeId: anime.mal_id,
         title: anime.title,
         status: status,

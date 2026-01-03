@@ -25,7 +25,7 @@ const AIRecommendations = () => {
       setLoading(true);
       setError(null);
 
-      const response = await api.get(`/api/recommendations/user/${user._id}`, {
+      const response = await api.get(`/recommendations/user/${user._id}`, {
         params: {
           top_n: filters.topN,
           min_score: filters.minScore,

@@ -85,7 +85,9 @@ export const AuthProvider = ({ children }) => {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/user/profile`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+        }/user/profile`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -123,7 +125,9 @@ export const AuthProvider = ({ children }) => {
   const exchangeToken = async (supabaseUser) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/exchange-token`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+        }/auth/exchange-token`,
         {
           method: "POST",
           headers: {

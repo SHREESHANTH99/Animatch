@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Lock, User, EyeOff, Eye, AlertCircle, ArrowLeft, Mail } from "lucide-react";
+import {
+  Lock,
+  User,
+  EyeOff,
+  Eye,
+  AlertCircle,
+  ArrowLeft,
+  Mail,
+} from "lucide-react";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +70,9 @@ export default function LoginPage() {
       setTimeout(async () => {
         try {
           const res = await axios.post(
-            `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/login`,
+            `${
+              process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+            }/auth/login`,
             {
               username,
               password,
@@ -107,10 +117,12 @@ export default function LoginPage() {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/forgot-password`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5001/api"
+        }/auth/forgot-password`,
         { email }
       );
-      
+
       setMessage("Password reset link sent to your email!");
       setEmail("");
       setTimeout(() => {
@@ -174,10 +186,9 @@ export default function LoginPage() {
               AniMatch
             </h1>
             <p className="text-gray-400 text-sm">
-              {showForgotPassword 
+              {showForgotPassword
                 ? "Enter your email to reset your password"
-                : "Welcome back! Please sign in to your account"
-              }
+                : "Welcome back! Please sign in to your account"}
             </p>
           </div>
 

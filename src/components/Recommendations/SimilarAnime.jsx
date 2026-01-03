@@ -21,7 +21,7 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       setError(null);
 
       const response = await api.get(
-        `/api/recommendations/similar/${animeId}`,
+        `/recommendations/similar/${animeId}`,
         {
           params: { top_n: 6 },
         }
