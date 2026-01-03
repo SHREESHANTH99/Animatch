@@ -4,7 +4,7 @@ import axios from "axios"
 //   withCredentials: true,
 // });
 const apiInstance = axios.create({
-  baseURL: `${process.env.REACT_APP_API_URL}/api`,
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5001",
   withCredentials: true,
 });
 apiInstance.interceptors.request.use((config)=>{

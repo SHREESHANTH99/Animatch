@@ -102,7 +102,7 @@ export const Trending = () => {
                   <div className="flex flex-wrap gap-1 mb-2">
                     {item.genres.slice(0, 3).map((genre) => (
                       <span
-                        key={item.mal_id}
+                        key={genre.mal_id}
                         className="px-2 py-1 bg-purple-500/30 text-purple-200 text-xs rounded-full"
                       >
                         {genre.name}
