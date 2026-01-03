@@ -13,6 +13,7 @@ import path from "path";
 import forgotPasswordRoutes from "./src/routes/forgotPasswordRoutes.js";
 import uploadRoutes from "./src/routes/upload.js";
 import notificationRoute from "./src/routes/Notification.routes.js";
+import recommendationRoutes from "./src/routes/recommendationRoutes.js";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import NotificationHelper from "./src/utils/NotificationHelper.js";
@@ -148,6 +149,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/auth", forgotPasswordRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/notifications", notificationRoute);
+app.use("/api/recommendations", recommendationRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -161,7 +163,7 @@ setInterval(async () => {
   }
 }, 24 * 60 * 60 * 1000);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log(`WebSocket server is running on ws://localhost:${PORT}`);

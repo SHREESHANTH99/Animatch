@@ -19,6 +19,7 @@ const Library = lazy(() => import("./pages/Library.jsx"));
 const Login = lazy(() => import("./pages/login/loginPage.jsx"));
 const Community = lazy(() => import("./pages/Community.jsx"));
 const ResetPassword = lazy(() => import("./pages/login/ResetPassword.jsx"));
+const AIRecommendations = lazy(() => import("./pages/AIRecommendations.jsx"));
 
 function App() {
   const { loading } = useAuth();
@@ -61,6 +62,10 @@ function App() {
               <Route path="/trending" element={<Trending />}></Route>
               <Route path="/library" element={<Library />}></Route>
               <Route path="/Community" element={<Community />}></Route>
+              <Route
+                path="/ai-recommendations"
+                element={<AIRecommendations />}
+              ></Route>
             </Route>
           </Routes>
         </Suspense>

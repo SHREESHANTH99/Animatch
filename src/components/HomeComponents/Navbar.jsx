@@ -10,9 +10,10 @@ import {
   Star,
   TrendingUp,
   Settings,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import {logo} from "../../assets/animePosters.js"
+import { logo } from "../../assets/animePosters.js";
 export default function AniMatchNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -34,6 +35,7 @@ export default function AniMatchNavbar() {
     { name: "My List", icon: BookOpen, href: "library" },
     { name: "Top Rated", icon: Star, href: "/top" },
     { name: "Trending", icon: TrendingUp, href: "/trending" },
+    { name: "AI Picks", icon: Sparkles, href: "/ai-recommendations" },
   ];
 
   return (
@@ -51,11 +53,13 @@ export default function AniMatchNavbar() {
               <div className="flex items-center space-x-2">
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200 shadow-lg ">
-                    <span className="text-white font-bold text-lg"><img src={logo.img} className="rounded-lg" /></span>
+                    <span className="text-white font-bold text-lg">
+                      <img src={logo.img} className="rounded-lg" />
+                    </span>
                   </div>
                 </div>
                 <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg">
-                 <a href="/"> AniMatch</a>
+                  <a href="/"> AniMatch</a>
                 </div>
               </div>
             </div>
@@ -94,23 +98,37 @@ export default function AniMatchNavbar() {
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-gradient-to-br from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg rounded-lg shadow-lg shadow-cyan-500/20 border border-cyan-400/20 overflow-hidden">
                   <div className="px-4 py-3 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 border-b border-cyan-400/20">
-                    <p className="text-sm text-white font-medium">{user.user_metadata?.full_name || user?.username}</p>
-                    <p className="text-xs text-cyan-300">Premium Member</p> 
+                    <p className="text-sm text-white font-medium">
+                      {user.user_metadata?.full_name || user?.username}
+                    </p>
+                    <p className="text-xs text-cyan-300">Premium Member</p>
                   </div>
                   <div className="py-1">
-                    <a href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors">
+                    <a
+                      href="/profile"
+                      className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors"
+                    >
                       <User className="h-4 w-4 mr-2" />
                       My Profile
                     </a>
-                    <a href="/library" className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors">
+                    <a
+                      href="/library"
+                      className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors"
+                    >
                       <BookOpen className="h-4 w-4 mr-2" />
                       My Watchlist
                     </a>
                     <hr className="my-1 border-cyan-400/20" />
-                    {user && <a href onClick={logout} className="flex items-center px-4 py-2 text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors">
-                      <X className="h-4 w-4 mr-2" />
-                      Sign Out
-                    </a>}
+                    {user && (
+                      <a
+                        href
+                        onClick={logout}
+                        className="flex items-center px-4 py-2 text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </a>
+                    )}
                   </div>
                 </div>
               )}

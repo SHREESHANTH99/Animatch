@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import apiInstance from "../utils/api.js";
+import SimilarAnime from "../components/Recommendations/SimilarAnime.jsx";
 
 const DetailPage = () => {
   const { id } = useParams();
@@ -405,6 +406,11 @@ const DetailPage = () => {
           <div className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gradient-to-r from-slate-900 to-transparent w-8 h-full pointer-events-none" />
           <div className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gradient-to-l from-slate-900 to-transparent w-8 h-full pointer-events-none" />
         </div>
+      </div>
+
+      {/* Similar Anime Section */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <SimilarAnime animeId={id} currentAnimeTitle={anime?.title} />
       </div>
     </div>
   );

@@ -1,0 +1,27 @@
+# Anime Recommendation System Requirements
+# Install with: pip install -r requirements.txt
+
+# Core ML libraries
+scikit-learn>=1.3.0
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# API framework
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Optional: For production deployment
+gunicorn>=21.2.0
+
+# Optional: For database connectivity (uncomment as needed)
+# pymongo>=4.5.0  # For MongoDB
+# psycopg2-binary>=2.9.0  # For PostgreSQL
+# mysql-connector-python>=8.1.0  # For MySQL
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Testing (optional)
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
