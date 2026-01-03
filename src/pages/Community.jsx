@@ -1266,7 +1266,10 @@ const Community = () => {
                         {activeGroup.name}
                       </h1>
                       {activeGroup.isPrivate && (
-                        <Crown className="text-yellow-400 flex-shrink-0" size={16} />
+                        <Crown
+                          className="text-yellow-400 flex-shrink-0"
+                          size={16}
+                        />
                       )}
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
@@ -1289,7 +1292,9 @@ const Community = () => {
                   <div className="text-sm">
                     <div className="flex items-center gap-2 text-white/70">
                       <Users size={14} />
-                      <span className="text-xs sm:text-sm">{activeGroup.memberCount || 0} members</span>
+                      <span className="text-xs sm:text-sm">
+                        {activeGroup.memberCount || 0} members
+                      </span>
                     </div>
                     <div className="text-xs text-green-400 mt-0.5">
                       🟢 {activeGroup.onlineCount || 0} online
@@ -1391,7 +1396,9 @@ const Community = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2">
                     <Filter size={14} className="text-white/60" />
-                    <span className="text-xs sm:text-sm text-white/60">Sort by:</span>
+                    <span className="text-xs sm:text-sm text-white/60">
+                      Sort by:
+                    </span>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}

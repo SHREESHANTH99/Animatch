@@ -125,7 +125,7 @@ class RecommenderAPI:
 api = RecommenderAPI()
 
 
-@app.route('/api/recommendations/health', methods=['GET'])
+@app.route('/api/recommend/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
     return jsonify({
@@ -134,7 +134,7 @@ def health_check():
     })
 
 
-@app.route('/api/recommendations/user/<int:user_id>', methods=['GET'])
+@app.route('/api/recommend/user/<int:user_id>', methods=['GET'])
 def get_user_recommendations(user_id: int):
     """
     Get personalized recommendations for a user.
@@ -174,7 +174,7 @@ def get_user_recommendations(user_id: int):
         }), 500
 
 
-@app.route('/api/recommendations/similar/<int:anime_id>', methods=['GET'])
+@app.route('/api/recommend/similar/<int:anime_id>', methods=['GET'])
 def get_similar_anime(anime_id: int):
     """
     Get anime similar to a specific anime.
@@ -223,7 +223,7 @@ def get_similar_anime(anime_id: int):
         }), 500
 
 
-@app.route('/api/recommendations/initialize', methods=['POST'])
+@app.route('/api/recommend/initialize', methods=['POST'])
 def initialize_system():
     """
     Initialize or reinitialize the recommendation system.
@@ -266,7 +266,7 @@ def initialize_system():
         }), 500
 
 
-@app.route('/api/recommendations/reload', methods=['POST'])
+@app.route('/api/recommend/reload', methods=['POST'])
 def reload_model():
     """
     Reload the model from saved file.
