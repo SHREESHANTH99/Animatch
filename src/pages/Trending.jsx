@@ -74,18 +74,20 @@ export const Trending = () => {
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {anime.map((item, index) => (
-            <Link 
+            <Link
               key={`${item.mal_id}-${index}`}
-              to={`/anime/${item.mal_id}`} 
+              to={`/anime/${item.mal_id}`}
               className="block"
             >
-              <div
-                className="group relative bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25"
-              >
+              <div className="group relative bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25">
                 <div className="relative h-96 overflow-hidden">
                   <img
-                    src={item.images.webp.large_image_url}
-                    alt={item.title}
+                    src={
+                      item.images?.webp?.large_image_url ||
+                      item.images?.jpg?.large_image_url ||
+                      ""
+                    }
+                    alt={item.title || "Anime"}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />
