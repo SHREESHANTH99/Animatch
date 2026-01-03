@@ -62,7 +62,7 @@ export default function LoginPage() {
       setTimeout(async () => {
         try {
           const res = await axios.post(
-            `${process.env.REACT_APP_API_URL}/api/auth/login`,
+            `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/login`,
             {
               username,
               password,
@@ -107,7 +107,7 @@ export default function LoginPage() {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/auth/forgot-password`,
+        `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/forgot-password`,
         { email }
       );
       

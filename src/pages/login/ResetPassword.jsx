@@ -33,8 +33,8 @@ export default function ResetPassword() {
       console.log('1. Token from URL:', token);
       console.log('2. Token length:', token ? token.length : 'null');
       console.log('3. API URL:', process.env.REACT_APP_API_URL);
-      console.log('4. Full request URL:', `${process.env.REACT_APP_API_URL}/api/auth/reset-password/${token}`);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/reset-password/${token}`);
+      console.log('4. Full request URL:', `${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/reset-password/${token}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/reset-password/${token}`);
       
       console.log('5. Token verification successful:', response.data);
       setIsValidToken(true);
@@ -90,7 +90,7 @@ export default function ResetPassword() {
     try {
       console.log('Attempting password reset for token:', token);
       
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5001/api"}/auth/reset-password`, {
         token,
         password
       });
