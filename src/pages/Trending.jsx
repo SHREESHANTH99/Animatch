@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AniMatchNavbar from "../components/HomeComponents/Navbar";
 
-export const Trending = () => {
+const Trending = () => {
   const [anime, setAnime] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -147,3 +147,5 @@ export const Trending = () => {
     </div>
   );
 };
+
+export default Trending;

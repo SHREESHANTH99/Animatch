@@ -2,7 +2,8 @@ import { AlertCircle, Loader2, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AniMatchNavbar from "../components/HomeComponents/Navbar";
-export const TopAnime = () => {
+
+const TopAnime = () => {
   const [animeData, setAnimeData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -166,3 +167,5 @@ export const TopAnime = () => {
     </div>
   );
 };
+
+export default TopAnime;
