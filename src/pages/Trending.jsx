@@ -24,7 +24,7 @@ export const Trending = () => {
         setAnime(newAnime);
       } else {
         setAnime((prev) => {
-          const existingIds = new Set((item) => item.mal_id);
+          const existingIds = new Set(prev.map((item) => item.mal_id));
           const filtered = newAnime.filter(
             (item) => !existingIds.has(item.mal_id)
           );
@@ -74,9 +74,12 @@ export const Trending = () => {
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {anime.map((item, index) => (
-            <Link to={`/anime/${item.mal_id}`} className="block">
+            <Link 
+              key={`${item.mal_id}-${index}`}
+              to={`/anime/${item.mal_id}`} 
+              className="block"
+            >
               <div
-                key={`${item.mal_id}-${index}`}
                 className="group relative bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25"
               >
                 <div className="relative h-96 overflow-hidden">
