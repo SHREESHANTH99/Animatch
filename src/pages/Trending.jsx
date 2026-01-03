@@ -49,7 +49,7 @@ export const Trending = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-       <AniMatchNavbar/>
+      <AniMatchNavbar />
       <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-purple-900/30 to-pink-900/20"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.3),transparent_50%)]"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,75,178,0.2),transparent_50%)]"></div>
@@ -74,48 +74,49 @@ export const Trending = () => {
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {anime.map((item, index) => (
-             <Link to={`/anime/${item.mal_id}`} className="block">
-            <div
-              key={`${item.mal_id}-${index}`}
-              className="group relative bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25"
-            >
-              <div className="relative h-96 overflow-hidden">
-                <img
-                  src={item.images.webp.large_image_url}
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                {item.score && (
-                  <div className="absolute top-3 right-3 bg-yellow-400/90 text-gray-800 px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
-                    <Star className="h-3 w-3 fill-current" />
-                    <span className="text-sm font-medium">{item.score}</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-pink-300 transition-colors">
-                  {item.title}
-                </h3>
+            <Link to={`/anime/${item.mal_id}`} className="block">
+              <div
+                key={`${item.mal_id}-${index}`}
+                className="group relative bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25"
+              >
+                <div className="relative h-96 overflow-hidden">
+                  <img
+                    src={item.images.webp.large_image_url}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  {item.score && (
+                    <div className="absolute top-3 right-3 bg-yellow-400/90 text-gray-800 px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                      <Star className="h-3 w-3 fill-current" />
+                      <span className="text-sm font-medium">{item.score}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-pink-300 transition-colors">
+                    {item.title}
+                  </h3>
 
-                {item.genres && item.genres.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {item.genres.slice(0, 3).map((genre) => (
-                      <span
-                        key={genre.mal_id}
-                        className="px-2 py-1 bg-purple-500/30 text-purple-200 text-xs rounded-full"
-                      >
-                        {genre.name}
-                      </span>
-                    ))}
+                  {item.genres && item.genres.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {item.genres.slice(0, 3).map((genre) => (
+                        <span
+                          key={genre.mal_id}
+                          className="px-2 py-1 bg-purple-500/30 text-purple-200 text-xs rounded-full"
+                        >
+                          {genre.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-sm text-gray-300">
+                    <span>Episodes: {item.episodes || "N/A"}</span>
+                    <span>{item.year || "N/A"}</span>
                   </div>
-                )}
-                <div className="flex justify-between items-center text-sm text-gray-300">
-                  <span>Episodes: {item.episodes || "N/A"}</span>
-                  <span>{item.year || "N/A"}</span>
                 </div>
               </div>
-            </div></Link>
+            </Link>
           ))}
         </div>
         {anime.length > 0 && !loading && (
@@ -128,7 +129,7 @@ export const Trending = () => {
             </button>
           </div>
         )}
-        
+
         {loading && anime.length > 0 && (
           <div className="flex justify-center mt-12">
             <div className="flex items-center gap-2 text-gray-300">
