@@ -14,8 +14,10 @@ flask-cors>=4.0.0
 # Optional: For production deployment
 gunicorn>=21.2.0
 
-# Optional: For database connectivity (uncomment as needed)
-# pymongo>=4.5.0  # For MongoDB
+# Database connectivity
+pymongo>=4.5.0  # For MongoDB
+
+# Optional: For other databases (uncomment as needed)
 # psycopg2-binary>=2.9.0  # For PostgreSQL
 # mysql-connector-python>=8.1.0  # For MySQL
 
