@@ -1020,7 +1020,7 @@ const Community = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 relative overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 relative overflow-hidden">
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -1029,10 +1029,34 @@ const Community = () => {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-3000"></div>
       </div>
 
+      {/* Mobile Header with Menu Toggle */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-black/30 backdrop-blur-xl border-b border-white/10 p-3">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="p-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all shadow-lg"
+          >
+            {showSidebar ? <X size={20} /> : <Hash size={20} />}
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+              <Star className="text-white" size={12} />
+            </div>
+            <h1 className="text-white font-bold text-lg">Anime Hub</h1>
+          </div>
+          <button
+            onClick={() => setShowCreateGroup(true)}
+            className="p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-all"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
+      </div>
+
       {/* Mobile Sidebar Overlay */}
       {showSidebar && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
           onClick={() => setShowSidebar(false)}
         />
       )}
@@ -1041,10 +1065,10 @@ const Community = () => {
       <div
         className={`${
           showSidebar ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 fixed lg:relative w-80 h-full bg-black/20 backdrop-blur-xl border-r border-white/10 shadow-2xl z-50 lg:z-auto transition-transform duration-300 ease-in-out`}
+        } lg:translate-x-0 fixed lg:relative w-80 h-full bg-black/20 backdrop-blur-xl border-r border-white/10 shadow-2xl z-50 lg:z-auto transition-transform duration-300 ease-in-out mt-14 lg:mt-0`}
       >
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-white/10">
+        {/* Sidebar Header - Hidden on mobile since we have top bar */}
+        <div className="hidden lg:block p-4 border-b border-white/10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -1066,12 +1090,6 @@ const Community = () => {
               >
                 <Plus size={16} />
               </button>
-              <button
-                onClick={() => setShowSidebar(false)}
-                className="lg:hidden p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <X size={16} />
-              </button>
             </div>
           </div>
 
@@ -1091,7 +1109,7 @@ const Community = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-1 bg-white/10 rounded-full p-1 mb-4">
+          <div className="flex gap-1 bg-white/10 rounded-full p-1">
             {["all", "joined", "trending"].map((tab) => (
               <button
                 key={tab}
@@ -1105,6 +1123,41 @@ const Community = () => {
                 {tab === "all" && "All"}
                 {tab === "joined" && "Joined"}
                 {tab === "trending" && "🔥 Hot"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Search & Filter - Visible only on mobile */}
+        <div className="lg:hidden p-4 border-b border-white/10 space-y-3">
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60"
+              size={16}
+            />
+            <input
+              type="text"
+              placeholder="Search communities..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-white/20 rounded-full focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
+            />
+          </div>
+
+          <div className="flex gap-2 bg-white/10 rounded-full p-1">
+            {["all", "joined", "trending"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2 px-3 rounded-full text-xs font-medium transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {tab === "all" && "All"}
+                {tab === "joined" && "Joined"}
+                {tab === "trending" && "🔥"}
               </button>
             ))}
           </div>
@@ -1196,34 +1249,34 @@ const Community = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 mt-14 lg:mt-0">
         {activeGroup ? (
           <>
             {/* Enhanced Group Header */}
-            <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-4 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <Star className="text-white" size={20} />
+            <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 sm:p-4 shadow-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Star className="text-white" size={16} />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <Hash className="text-pink-400 flex-shrink-0" size={20} />
-                      <h1 className="text-xl lg:text-2xl font-bold text-white truncate">
+                      <Hash className="text-pink-400 flex-shrink-0" size={18} />
+                      <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate">
                         {activeGroup.name}
                       </h1>
                       {activeGroup.isPrivate && (
-                        <Crown className="text-yellow-400" size={18} />
+                        <Crown className="text-yellow-400 flex-shrink-0" size={16} />
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
                       {activeGroup.anime && (
                         <span className="text-pink-300 font-medium">
                           📺 {activeGroup.anime}
                         </span>
                       )}
                       {activeGroup.description && (
-                        <span className="text-white/60 hidden sm:block">
+                        <span className="text-white/60 hidden sm:block truncate">
                           {activeGroup.description}
                         </span>
                       )}
@@ -1232,13 +1285,13 @@ const Community = () => {
                 </div>
 
                 {/* Group Stats & Actions */}
-                <div className="flex items-center gap-4">
-                  <div className="text-right text-sm">
+                <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                  <div className="text-sm">
                     <div className="flex items-center gap-2 text-white/70">
-                      <Users size={16} />
-                      <span>{activeGroup.memberCount || 0}</span>
+                      <Users size={14} />
+                      <span className="text-xs sm:text-sm">{activeGroup.memberCount || 0} members</span>
                     </div>
-                    <div className="text-xs text-green-400 mt-1">
+                    <div className="text-xs text-green-400 mt-0.5">
                       🟢 {activeGroup.onlineCount || 0} online
                     </div>
                   </div>
@@ -1250,7 +1303,7 @@ const Community = () => {
                     >
                       <Bell size={16} />
                       {notifications.filter((n) => !n.read).length > 0 && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
                           <span className="text-xs text-white font-bold">
                             {notifications.filter((n) => !n.read).length}
                           </span>
@@ -1332,17 +1385,17 @@ const Community = () => {
             </div>
 
             {/* Posts Feed */}
-            <div className="flex-1 overflow-y-auto p-3 lg:p-4">
+            <div className="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4">
               <div className="max-w-4xl mx-auto">
                 {/* Sort Options */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2">
-                    <Filter size={16} className="text-white/60" />
-                    <span className="text-sm text-white/60">Sort by:</span>
+                    <Filter size={14} className="text-white/60" />
+                    <span className="text-xs sm:text-sm text-white/60">Sort by:</span>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-sm text-white backdrop-blur-sm"
+                      className="bg-white/10 border border-white/20 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm text-white backdrop-blur-sm"
                     >
                       <option value="recent" className="bg-gray-800">
                         Most Recent
@@ -1693,35 +1746,35 @@ const Community = () => {
           </>
         ) : (
           // Welcome Screen
-          <div className="flex-1 flex items-center justify-center p-4">
-            <div className="text-center max-w-md">
-              <div className="relative mb-6">
-                <div className="text-8xl mb-4 animate-bounce">🌸</div>
-                <div className="absolute -top-4 -right-4 text-3xl animate-spin">
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
+            <div className="text-center max-w-md mx-auto">
+              <div className="mb-6 relative inline-block">
+                <div className="text-7xl sm:text-8xl animate-bounce">🎌</div>
+                <div className="absolute -top-4 -right-4 text-2xl sm:text-3xl animate-spin">
                   ⭐
                 </div>
-                <div className="absolute -bottom-2 -left-4 text-2xl animate-pulse">
+                <div className="absolute -bottom-2 -left-4 text-xl sm:text-2xl animate-pulse">
                   ✨
                 </div>
               </div>
-              <h2 className="text-2xl lg:text-3xl font-bold text-white mb-3 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
                 Welcome to Anime Hub!
               </h2>
-              <p className="text-white/70 mb-6 leading-relaxed">
+              <p className="text-sm sm:text-base text-white/70 mb-6 leading-relaxed px-4">
                 Connect with fellow anime enthusiasts, share your thoughts,
                 theories, and reactions. Join communities dedicated to your
                 favorite series!
               </p>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 px-4">
                 <button
                   onClick={() => setShowSidebar(true)}
-                  className="lg:hidden px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg font-medium"
+                  className="w-full sm:w-auto sm:mx-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg font-medium"
                 >
                   Browse Communities
                 </button>
                 <button
                   onClick={() => setShowCreateGroup(true)}
-                  className="px-8 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full hover:bg-white/20 transition-all duration-200 font-medium"
+                  className="w-full sm:w-auto sm:mx-auto px-6 sm:px-8 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full hover:bg-white/20 transition-all duration-200 font-medium"
                 >
                   Create New Community
                 </button>
@@ -1734,32 +1787,32 @@ const Community = () => {
       {/* Enhanced Create Group Modal */}
       {showCreateGroup && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 w-full max-w-lg shadow-2xl border border-white/20">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <Plus className="text-white" size={20} />
+          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <Plus className="text-white" size={18} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-lg sm:text-xl font-bold text-white">
                     Create New Community
                   </h3>
-                  <p className="text-sm text-white/60">
+                  <p className="text-xs sm:text-sm text-white/60">
                     Build a space for anime discussions
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCreateGroup(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white flex-shrink-0"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2">
                   Community Name
                 </label>
                 <input
@@ -1767,18 +1820,18 @@ const Community = () => {
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                   placeholder="e.g., Naruto Shinobi Academy"
-                  className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200 text-sm sm:text-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2">
                   Description
                 </label>
                 <textarea
                   value={newGroupDescription}
                   onChange={(e) => setNewGroupDescription(e.target.value)}
                   placeholder="What makes this community special? What will members discuss here?"
-                  className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 resize-none bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 resize-none bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200 text-sm sm:text-base"
                   rows="3"
                 />
                 <p className="text-xs text-white/50 mt-1">
@@ -1786,13 +1839,13 @@ const Community = () => {
                 </p>
               </div>
 
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Eye size={16} className="text-blue-400" />
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Eye size={14} className="text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-white mb-1">
+                    <h4 className="text-xs sm:text-sm font-medium text-white mb-1">
                       Community Guidelines
                     </h4>
                     <p className="text-xs text-white/60 leading-relaxed">
@@ -1805,7 +1858,7 @@ const Community = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-8">
+            <div className="flex flex-col sm:flex-row gap-3 mt-6 sm:mt-8">
               <button
                 onClick={() => setShowCreateGroup(false)}
                 className="flex-1 px-4 py-3 border border-white/20 text-white rounded-xl hover:bg-white/10 transition-all duration-200 font-medium"
