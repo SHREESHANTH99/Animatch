@@ -16,20 +16,28 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (newToken) => {
     try {
-      setLoading(true); // Show loading during login
       localStorage.setItem("token", newToken);
       setToken(newToken);
       setAuthMethod("jwt");
 
-      await fetchUserProfile(newToken);
-      setLoading(false); // Hide loading before navigation
+      // Navigate immediately and load profile in background
       navigate("/home");
+
+      // Fetch profile async without blocking navigation
+      fetchUserProfile(newToken).catch((error) => {
+        console.error("Profile fetch error:", error);
+        localStorage.removeItem("token");
+        setToken(null);
+        setAuthMethod(null);
+        navigate("/login");
+      });
     } catch (error) {
       localStorage.removeItem("token");
       setToken(null);
       setAuthMethod(null);
-      setLoading(false);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,14 +80,21 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (authToken) => {
     try {
+      // Add timeout to prevent indefinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/user/profile`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
+          signal: controller.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       const contentType = res.headers.get("content-type");
       if (!res.ok || !contentType?.includes("application/json")) {
@@ -92,9 +107,15 @@ export const AuthProvider = ({ children }) => {
       }
       return data;
     } catch (err) {
+      if (err.name === "AbortError") {
+        console.error("Profile fetch timeout - check your internet connection");
+      }
       localStorage.removeItem("token");
       setToken(null);
       setAuthMethod(null);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
       throw err;
     }
   };
@@ -169,6 +190,28 @@ export const AuthProvider = ({ children }) => {
       try {
         console.log("🚀 Initializing auth...");
 
+        // Check JWT token first (faster)
+        const existingToken = localStorage.getItem("token");
+        if (existingToken && mounted) {
+          console.log("📦 JWT token found, validating...");
+          setToken(existingToken);
+          try {
+            await fetchUserProfile(existingToken);
+            if (mounted) {
+              setAuthMethod("jwt");
+              setLoading(false);
+            }
+            return; // Exit early on success
+          } catch (error) {
+            console.error("❌ JWT validation failed:", error.message);
+            localStorage.removeItem("token");
+            if (mounted) {
+              setToken(null);
+            }
+          }
+        }
+
+        // Only check Supabase if JWT not found or failed
         const {
           data: { session },
           error,
@@ -182,22 +225,6 @@ export const AuthProvider = ({ children }) => {
           console.log("🧠 Supabase session found:", session.user.email);
           await handleSupabaseAuth(session);
           return;
-        }
-        const existingToken = localStorage.getItem("token");
-        if (existingToken && mounted) {
-          console.log("📦 JWT token found, validating...");
-          try {
-            await fetchUserProfile(existingToken);
-            if (mounted) {
-              setAuthMethod("jwt");
-            }
-          } catch (error) {
-            console.error("❌ JWT validation failed:", error.message);
-            localStorage.removeItem("token");
-            if (mounted) {
-              setToken(null);
-            }
-          }
         }
       } catch (error) {
         console.error("❌ Auth initialization error:", error.message);

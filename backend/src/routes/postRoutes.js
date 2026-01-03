@@ -273,9 +273,132 @@ router.put("/:postId", verifyToken, async (req, res) => {
     post.isEdited = true;
     await post.save();
 
-    res.json({ message: "Post updated successfully" });
+    res.json({ message: "Post updated successfully", post });
   } catch (error) {
     console.error("Error editing post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/**
+ * ✅ Pin/Unpin post (admin only)
+ */
+router.patch("/:postId/pin", verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const group = await Group.findById(post.group);
+
+    const isAdmin =
+      group.admins.includes(req.user.id) ||
+      group.creator.toString() === req.user.id;
+
+    if (!isAdmin) {
+      return res.status(403).json({ message: "Only admins can pin posts" });
+    }
+
+    post.isPinned = !post.isPinned;
+    await post.save();
+
+    res.json({
+      message: post.isPinned
+        ? "Post pinned successfully"
+        : "Post unpinned successfully",
+      post,
+    });
+  } catch (error) {
+    console.error("Error pinning post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/**
+ * ✅ Save/Unsave post
+ */
+router.patch("/:postId/save", verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user.id;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const savedIndex = post.savedBy?.indexOf(userId) ?? -1;
+
+    if (savedIndex === -1) {
+      post.savedBy = post.savedBy || [];
+      post.savedBy.push(userId);
+    } else {
+      post.savedBy.splice(savedIndex, 1);
+    }
+
+    await post.save();
+
+    res.json({
+      message:
+        savedIndex === -1
+          ? "Post saved successfully"
+          : "Post unsaved successfully",
+      isSaved: savedIndex === -1,
+    });
+  } catch (error) {
+    console.error("Error saving post:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/**
+ * ✅ Get saved posts
+ */
+router.get("/saved", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const posts = await Post.find({ savedBy: userId })
+      .populate("author", "username")
+      .sort({ createdAt: -1 });
+
+    res.json({ posts });
+  } catch (error) {
+    console.error("Error fetching saved posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/**
+ * ✅ Delete comment
+ */
+router.delete("/:postId/comments/:commentId", verifyToken, async (req, res) => {
+  try {
+    const { postId, commentId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const comment = post.comments.id(commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    const group = await Group.findById(post.group);
+    const canDelete =
+      comment.author.toString() === req.user.id ||
+      group.admins.includes(req.user.id) ||
+      group.creator.toString() === req.user.id;
+
+    if (!canDelete) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this comment" });
+    }
+
+    post.comments.pull(commentId);
+    await post.save();
+
+    res.json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

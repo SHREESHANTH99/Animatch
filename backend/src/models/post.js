@@ -35,8 +35,14 @@ const postSchema = new mongoose.Schema(
     images: [String],
     isEdited: { type: Boolean, default: false },
     isPinned: { type: Boolean, default: false },
+    savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
+
+// Index for better search performance
+postSchema.index({ content: "text", username: "text" });
+postSchema.index({ group: 1, createdAt: -1 });
+postSchema.index({ isPinned: -1, createdAt: -1 });
 
 export const Post = mongoose.model("Post", postSchema);

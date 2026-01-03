@@ -4,6 +4,7 @@ import { ProtectedLayout } from "./components/protectedroutes/ProtectedRoutes.js
 import { PublicOnlyRoute } from "./components/protectedroutes/PublicOnlyRoute.jsx";
 import PageLoader from "./components/Preloader/loader.jsx";
 import { SocketProvider } from "./context/SocketContext.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 
 // Lazy load pages for better performance
 const Home = lazy(() => import("./pages/Home"));
@@ -20,6 +21,13 @@ const Community = lazy(() => import("./pages/Community.jsx"));
 const ResetPassword = lazy(() => import("./pages/login/ResetPassword.jsx"));
 
 function App() {
+  const { loading } = useAuth();
+
+  // Show loader while initial auth is being verified
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <>
       <SocketProvider>
