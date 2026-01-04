@@ -15,34 +15,45 @@ const AIRecommendations = () => {
   });
 
   useEffect(() => {
-    // Wait for auth to complete AND user._id to be available
-    if (!authLoading && user && user._id) {
-      console.log("✅ Auth ready, user._id:", user._id);
-      fetchRecommendations();
+    console.log("🔍 AIRecommendations useEffect:", { 
+      authLoading, 
+      hasUser: !!user, 
+      userId: user?._id || user?.id,
+      userKeys: user ? Object.keys(user) : []
+    });
+
+    // Wait for auth to complete and user to exist
+    if (!authLoading && user) {
+      // Use _id if available, otherwise try id field
+      const userId = user._id || user.id;
+      if (userId) {
+        console.log("✅ Auth ready, fetching recommendations for:", userId);
+        fetchRecommendations();
+      } else {
+        console.warn("⚠️ User object exists but has no _id or id field:", user);
+        setLoading(false);
+        setError("User ID not found. Please refresh the page.");
+      }
     } else if (!authLoading && !user) {
-      // Auth completed but no user - not logged in
       console.log("ℹ️ No user logged in");
       setLoading(false);
-    } else if (!authLoading && user && !user._id) {
-      console.warn("⚠️ User exists but no _id yet, waiting...");
-      // Keep loading, useEffect will re-run when user._id is set
-    } else {
-      console.log("⏳ Auth still loading...");
     }
-  }, [user?._id, authLoading, filters]);
+  }, [user?._id, user?.id, authLoading, filters]);
 
   const fetchRecommendations = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log("🤖 Fetching AI recommendations for user:", user._id);
+      const userId = user._id || user.id;
+      console.log("🤖 Fetching AI recommendations for user:", userId);
 
       // Add timeout to prevent infinite loading
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const response = await api.get(`/recommendations/user/${user._id}`, {
+      const userId = user._id || user.id;
+      const response = await api.get(`/recommendations/user/${userId}`, {
         params: {
           top_n: filters.topN,
           min_score: filters.minScore,

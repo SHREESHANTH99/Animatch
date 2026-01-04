@@ -195,12 +195,18 @@ class HybridRecommender:
                     candidate['content_similarity']
                 )
 
+                # Get image URL, fix if it's just a filename
+                image_url = anime.get('image_url', '')
+                if image_url and not image_url.startswith('http'):
+                    # If it's just a filename like "87473.jpg", construct a placeholder
+                    image_url = f"https://via.placeholder.com/225x318/6366f1/ffffff?text={anime['title'][:20]}"
+
                 recommendations.append({
                     'anime_id': int(anime_id),
                     'title': anime['title'],
                     'genres': anime.get('genres', ''),
                     'themes': anime.get('themes', ''),
-                    'image_url': anime.get('image_url', ''),
+                    'image_url': image_url,
                     'popularity_score': float(anime.get('popularity_score', 0)),
                     'content_similarity': round(candidate['content_similarity'], 3),
                     'hybrid_score': round(candidate['hybrid_score'], 3),
@@ -238,12 +244,18 @@ class HybridRecommender:
             if len(anime_data) > 0:
                 anime = anime_data.iloc[0]
 
+                # Get image URL, fix if it's just a filename
+                image_url = anime.get('image_url', '')
+                if image_url and not image_url.startswith('http'):
+                    # If it's just a filename like "87473.jpg", construct a placeholder
+                    image_url = f"https://via.placeholder.com/225x318/6366f1/ffffff?text={anime['title'][:20]}"
+
                 recommendations.append({
                     'anime_id': int(anime_id),
                     'title': anime['title'],
                     'genres': anime.get('genres', ''),
                     'themes': anime.get('themes', ''),
-                    'image_url': anime.get('image_url', ''),
+                    'image_url': image_url,
                     'popularity_score': float(anime.get('popularity_score', 0)),
                     'content_similarity': 0.0,  # Not applicable for cold-start
                     'hybrid_score': float(anime['normalized_popularity']),
@@ -364,12 +376,18 @@ class HybridRecommender:
                 else:
                     reason = "Similar content and style"
 
+                # Get image URL, fix if it's just a filename
+                image_url = anime.get('image_url', '')
+                if image_url and not image_url.startswith('http'):
+                    # If it's just a filename like "87473.jpg", construct a placeholder
+                    image_url = f"https://via.placeholder.com/225x318/6366f1/ffffff?text={anime['title'][:20]}"
+
                 recommendations.append({
                     'anime_id': int(similar_anime_id),
                     'title': anime['title'],
                     'genres': anime.get('genres', ''),
                     'themes': anime.get('themes', ''),
-                    'image_url': anime.get('image_url', ''),
+                    'image_url': image_url,
                     'popularity_score': float(anime.get('popularity_score', 0)),
                     'content_similarity': round(content_sim, 3),
                     'hybrid_score': round(hybrid_score, 3),
