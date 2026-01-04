@@ -62,6 +62,10 @@ const AIRecommendations = () => {
 
       clearTimeout(timeoutId);
       console.log("📦 API Response:", response.data);
+      console.log(
+        "🖼️ First recommendation image_url:",
+        response.data.recommendations?.[0]?.image_url
+      );
 
       if (response.data.success) {
         console.log(
