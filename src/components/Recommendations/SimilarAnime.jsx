@@ -35,7 +35,10 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
         console.log("ℹ️ No similar anime found for this title");
         setSimilar([]);
       } else {
-        console.warn("⚠️ API returned unsuccessful or invalid response:", response.data);
+        console.warn(
+          "⚠️ API returned unsuccessful or invalid response:",
+          response.data
+        );
         setSimilar([]);
       }
     } catch (err) {

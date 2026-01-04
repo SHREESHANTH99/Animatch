@@ -200,6 +200,7 @@ class HybridRecommender:
                     'title': anime['title'],
                     'genres': anime.get('genres', ''),
                     'themes': anime.get('themes', ''),
+                    'image_url': anime.get('image_url', ''),
                     'popularity_score': float(anime.get('popularity_score', 0)),
                     'content_similarity': round(candidate['content_similarity'], 3),
                     'hybrid_score': round(candidate['hybrid_score'], 3),
@@ -242,6 +243,7 @@ class HybridRecommender:
                     'title': anime['title'],
                     'genres': anime.get('genres', ''),
                     'themes': anime.get('themes', ''),
+                    'image_url': anime.get('image_url', ''),
                     'popularity_score': float(anime.get('popularity_score', 0)),
                     'content_similarity': 0.0,  # Not applicable for cold-start
                     'hybrid_score': float(anime['normalized_popularity']),
@@ -367,6 +369,7 @@ class HybridRecommender:
                     'title': anime['title'],
                     'genres': anime.get('genres', ''),
                     'themes': anime.get('themes', ''),
+                    'image_url': anime.get('image_url', ''),
                     'popularity_score': float(anime.get('popularity_score', 0)),
                     'content_similarity': round(content_sim, 3),
                     'hybrid_score': round(hybrid_score, 3),

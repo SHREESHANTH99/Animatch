@@ -38,13 +38,19 @@ const AIRecommendations = () => {
 
       console.log("🤖 Fetching AI recommendations for user:", user._id);
 
+      // Add timeout to prevent infinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await api.get(`/recommendations/user/${user._id}`, {
         params: {
           top_n: filters.topN,
           min_score: filters.minScore,
         },
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       console.log("📦 API Response:", response.data);
 
       if (response.data.success) {
@@ -64,12 +70,20 @@ const AIRecommendations = () => {
     } catch (err) {
       console.error("❌ Error fetching recommendations:", err);
       console.error("Error details:", err.response?.data);
-      setError(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to load recommendations. Please try again later."
-      );
+
+      // Handle timeout
+      if (err.name === "AbortError" || err.code === "ECONNABORTED") {
+        setError(
+          "Request timed out. The recommendation system is taking too long. Please try again."
+        );
+      } else {
+        setError(
+          err.response?.data?.error ||
+            err.response?.data?.message ||
+            err.message ||
+            "Failed to load recommendations. Please try again later."
+        );
+      }
     } finally {
       setLoading(false);
     }
