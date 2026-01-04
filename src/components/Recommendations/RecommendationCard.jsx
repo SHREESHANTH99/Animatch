@@ -5,6 +5,14 @@ import { motion } from "framer-motion";
 const RecommendationCard = ({ anime, rank }) => {
   const navigate = useNavigate();
 
+  // Debug logging
+  console.log(`🎴 RecommendationCard #${rank}:`, {
+    title: anime.title,
+    image_url: anime.image_url,
+    image_url_type: typeof anime.image_url,
+    image_url_length: anime.image_url?.length,
+  });
+
   const handleClick = () => {
     navigate(`/anime/${anime.anime_id}`);
   };
