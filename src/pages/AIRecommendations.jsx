@@ -25,6 +25,11 @@ const AIRecommendations = () => {
       setLoading(true);
       setError(null);
 
+      // Check if user._id exists
+      if (!user?._id) {
+        throw new Error("User ID not found. Please log in again.");
+      }
+
       const response = await api.get(`/recommendations/user/${user._id}`, {
         params: {
           top_n: filters.topN,

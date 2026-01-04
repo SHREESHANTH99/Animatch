@@ -134,8 +134,31 @@ def health_check():
     })
 
 
+@app.route('/api/recommend/user/<user_id>', methods=['GET'])
+def get_user_recommendations_fallback(user_id: str):
+    """
+    Handle user recommendations with string user_id (for undefined/null cases).
+    """
+    # If user_id is invalid, return error
+    if user_id in ['undefined', 'null', 'None', '']:
+        return jsonify({
+            'error': 'Invalid user ID. Please log in.',
+            'recommendations': []
+        }), 400
+    
+    # Try to convert to int and call the main endpoint
+    try:
+        user_id_int = int(user_id)
+        return get_user_recommendations_int(user_id_int)
+    except ValueError:
+        return jsonify({
+            'error': 'User ID must be a number',
+            'recommendations': []
+        }), 400
+
+
 @app.route('/api/recommend/user/<int:user_id>', methods=['GET'])
-def get_user_recommendations(user_id: int):
+def get_user_recommendations_int(user_id: int):
     """
     Get personalized recommendations for a user.
 

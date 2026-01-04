@@ -33,7 +33,9 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       }
     } catch (err) {
       console.error("Error fetching similar anime:", err);
-      setError(err.response?.data?.message || "Failed to load similar anime");
+      // Don't set error, just fail silently for better UX
+      setError(null);
+      setSimilar([]);
     } finally {
       setLoading(false);
     }
