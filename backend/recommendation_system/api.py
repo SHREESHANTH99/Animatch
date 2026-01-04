@@ -137,24 +137,62 @@ def health_check():
 @app.route('/api/recommend/user/<user_id>', methods=['GET'])
 def get_user_recommendations_fallback(user_id: str):
     """
-    Handle user recommendations with string user_id (for undefined/null cases).
+    Handle user recommendations for MongoDB ObjectId strings or integer IDs.
     """
     # If user_id is invalid, return error
     if user_id in ['undefined', 'null', 'None', '']:
         return jsonify({
+            'success': False,
             'error': 'Invalid user ID. Please log in.',
             'recommendations': []
         }), 400
     
-    # Try to convert to int and call the main endpoint
+    # Try to handle as integer first, otherwise treat as MongoDB ObjectId string
     try:
         user_id_int = int(user_id)
         return get_user_recommendations_int(user_id_int)
     except ValueError:
+        # It's a MongoDB ObjectId string - return cold-start recommendations
+        return get_user_recommendations_mongodb(user_id)
+
+
+def get_user_recommendations_mongodb(user_id: str):
+    """
+    Get recommendations for MongoDB ObjectId user.
+    Since new users won't have interaction history, return popular anime.
+    """
+    try:
+        if not api.is_initialized:
+            return jsonify({
+                'success': False,
+                'error': 'Recommendation system not initialized'
+            }), 503
+
+        top_n = request.args.get('top_n', default=12, type=int)
+        top_n = min(top_n, 50)  # Cap at 50
+
+        # For MongoDB users, check if they have interactions
+        # Since interactions_df uses integer user_ids, MongoDB ObjectId won't match
+        # Return cold-start recommendations (popular anime)
+        recommendations = api.recommender._recommend_for_cold_start(top_n)
+
         return jsonify({
-            'error': 'User ID must be a number',
+            'success': True,
+            'user_id': user_id,
+            'recommendations': recommendations,
+            'count': len(recommendations),
+            'is_cold_start': True
+        })
+
+    except Exception as e:
+        print(f"❌ Error generating recommendations: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e),
             'recommendations': []
-        }), 400
+        }), 500
 
 
 @app.route('/api/recommend/user/<int:user_id>', methods=['GET'])
@@ -171,6 +209,7 @@ def get_user_recommendations_int(user_id: int):
     try:
         if not api.is_initialized:
             return jsonify({
+                'success': False,
                 'error': 'Recommendation system not initialized'
             }), 503
 
@@ -185,6 +224,7 @@ def get_user_recommendations_int(user_id: int):
         )
 
         return jsonify({
+            'success': True,
             'user_id': user_id,
             'recommendations': recommendations,
             'count': len(recommendations)
@@ -192,8 +232,12 @@ def get_user_recommendations_int(user_id: int):
 
     except Exception as e:
         print(f"❌ Error generating recommendations: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
-            'error': str(e)
+            'success': False,
+            'error': str(e),
+            'recommendations': []
         }), 500
 
 
