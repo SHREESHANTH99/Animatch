@@ -20,19 +20,27 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       setLoading(true);
       setError(null);
 
+      console.log(`🔍 Fetching similar anime for ID: ${animeId}`);
+
       const response = await api.get(`/recommendations/similar/${animeId}`, {
         params: { top_n: 6 },
       });
 
-      if (response.data.success) {
-        setSimilar(response.data.similar || []);
+      console.log("📦 Similar anime response:", response.data);
+
+      if (response.data.success && Array.isArray(response.data.similar)) {
+        console.log(`✅ Found ${response.data.similar.length} similar anime`);
+        setSimilar(response.data.similar);
+      } else if (response.data.success && response.data.count === 0) {
+        console.log("ℹ️ No similar anime found for this title");
+        setSimilar([]);
       } else {
-        throw new Error(
-          response.data.message || "Failed to fetch similar anime"
-        );
+        console.warn("⚠️ API returned unsuccessful or invalid response:", response.data);
+        setSimilar([]);
       }
     } catch (err) {
-      console.error("Error fetching similar anime:", err);
+      console.error("❌ Error fetching similar anime:", err);
+      console.error("Error details:", err.response?.data || err.message);
       // Don't set error, just fail silently for better UX
       setError(null);
       setSimilar([]);

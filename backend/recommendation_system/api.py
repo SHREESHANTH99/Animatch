@@ -278,15 +278,20 @@ def get_similar_anime(anime_id: int):
         )
 
         return jsonify({
+            'success': True,
             'anime_id': anime_id,
-            'similar_anime': similar_anime,
+            'similar': similar_anime,
             'count': len(similar_anime)
         })
 
     except Exception as e:
         print(f"❌ Error getting similar anime: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
-            'error': str(e)
+            'success': False,
+            'error': str(e),
+            'similar': []
         }), 500
 
 

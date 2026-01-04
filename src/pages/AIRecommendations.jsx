@@ -17,10 +17,17 @@ const AIRecommendations = () => {
   useEffect(() => {
     // Wait for auth to complete AND user._id to be available
     if (!authLoading && user && user._id) {
+      console.log("✅ Auth ready, user._id:", user._id);
       fetchRecommendations();
     } else if (!authLoading && !user) {
       // Auth completed but no user - not logged in
+      console.log("ℹ️ No user logged in");
       setLoading(false);
+    } else if (!authLoading && user && !user._id) {
+      console.warn("⚠️ User exists but no _id yet, waiting...");
+      // Keep loading, useEffect will re-run when user._id is set
+    } else {
+      console.log("⏳ Auth still loading...");
     }
   }, [user?._id, authLoading, filters]);
 
@@ -29,6 +36,8 @@ const AIRecommendations = () => {
       setLoading(true);
       setError(null);
 
+      console.log("🤖 Fetching AI recommendations for user:", user._id);
+
       const response = await api.get(`/recommendations/user/${user._id}`, {
         params: {
           top_n: filters.topN,
@@ -36,17 +45,29 @@ const AIRecommendations = () => {
         },
       });
 
+      console.log("📦 API Response:", response.data);
+
       if (response.data.success) {
-        setRecommendations(response.data.recommendations);
+        console.log(
+          `✅ Received ${
+            response.data.recommendations?.length || 0
+          } recommendations`
+        );
+        setRecommendations(response.data.recommendations || []);
       } else {
         throw new Error(
-          response.data.message || "Failed to fetch recommendations"
+          response.data.error ||
+            response.data.message ||
+            "Failed to fetch recommendations"
         );
       }
     } catch (err) {
-      console.error("Error fetching recommendations:", err);
+      console.error("❌ Error fetching recommendations:", err);
+      console.error("Error details:", err.response?.data);
       setError(
-        err.response?.data?.message ||
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message ||
           "Failed to load recommendations. Please try again later."
       );
     } finally {

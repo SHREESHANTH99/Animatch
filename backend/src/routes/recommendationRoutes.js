@@ -17,6 +17,8 @@ router.get("/user/:userId", async (req, res) => {
     const { userId } = req.params;
     const { top_n = 12, min_score = 0 } = req.query;
 
+    console.log(`🤖 Fetching recommendations for user: ${userId}`);
+
     // Call Python Flask API
     const response = await axios.get(`${PYTHON_API_URL}/user/${userId}`, {
       params: {
@@ -25,39 +27,46 @@ router.get("/user/:userId", async (req, res) => {
       timeout: 30000, // 30 second timeout
     });
 
+    console.log(
+      `✅ Received ${
+        response.data.recommendations?.length || 0
+      } recommendations`
+    );
+
     return res.json({
       success: true,
       user_id: response.data.user_id,
-      recommendations: response.data.recommendations,
-      count: response.data.count,
+      recommendations: response.data.recommendations || [],
+      count: response.data.count || 0,
+      is_cold_start: response.data.is_cold_start || false,
       message: "Recommendations fetched successfully",
     });
   } catch (error) {
-    console.error("Error fetching recommendations:", error.message);
+    console.error("❌ Error fetching recommendations:", error.message);
+    console.error("Error details:", error.response?.data);
 
     // Handle different error scenarios
     if (error.code === "ECONNREFUSED") {
       return res.status(503).json({
         success: false,
-        message:
+        error:
           "Recommendation service is currently unavailable. Please try again later.",
-        error: "SERVICE_UNAVAILABLE",
+        recommendations: [],
       });
     }
 
     if (error.response?.status === 404) {
       return res.status(404).json({
         success: false,
-        message: "No recommendations found. Try watching more anime first!",
-        error: "NO_RECOMMENDATIONS",
+        error: "No recommendations found. Try watching more anime first!",
+        recommendations: [],
       });
     }
 
     return res.status(500).json({
       success: false,
-      message:
-        error.response?.data?.message || "Failed to fetch recommendations",
-      error: "INTERNAL_ERROR",
+      error: error.response?.data?.error || "Failed to fetch recommendations",
+      recommendations: [],
     });
   }
 });
@@ -72,6 +81,8 @@ router.get("/similar/:animeId", async (req, res) => {
     const { animeId } = req.params;
     const { top_n = 6 } = req.query;
 
+    console.log(`🔍 Fetching similar anime for ID: ${animeId}`);
+
     // Call Python Flask API
     const response = await axios.get(`${PYTHON_API_URL}/similar/${animeId}`, {
       params: {
@@ -80,36 +91,41 @@ router.get("/similar/:animeId", async (req, res) => {
       timeout: 30000,
     });
 
+    console.log(
+      `✅ Received ${response.data.similar?.length || 0} similar anime`
+    );
+
     return res.json({
       success: true,
       anime_id: response.data.anime_id,
-      similar_anime: response.data.similar_anime,
-      count: response.data.count,
+      similar: response.data.similar || [],
+      count: response.data.count || 0,
       message: "Similar anime fetched successfully",
     });
   } catch (error) {
-    console.error("Error fetching similar anime:", error.message);
+    console.error("❌ Error fetching similar anime:", error.message);
+    console.error("Error details:", error.response?.data);
 
     if (error.code === "ECONNREFUSED") {
       return res.status(503).json({
         success: false,
-        message: "Recommendation service is currently unavailable",
-        error: "SERVICE_UNAVAILABLE",
+        error: "Recommendation service is currently unavailable",
+        similar: [],
       });
     }
 
     if (error.response?.status === 404) {
       return res.status(404).json({
         success: false,
-        message: "Anime not found in recommendation system",
-        error: "NOT_FOUND",
+        error: "Anime not found in recommendation system",
+        similar: [],
       });
     }
 
     return res.status(500).json({
       success: false,
-      message: error.response?.data?.message || "Failed to fetch similar anime",
-      error: "INTERNAL_ERROR",
+      error: error.response?.data?.error || "Failed to fetch similar anime",
+      similar: [],
     });
   }
 });
