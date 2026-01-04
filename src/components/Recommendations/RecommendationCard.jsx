@@ -5,6 +5,23 @@ import { motion } from "framer-motion";
 const RecommendationCard = ({ anime, rank }) => {
   const navigate = useNavigate();
   const [imgError, setImgError] = React.useState(false);
+  const [jikanImage, setJikanImage] = React.useState(null);
+
+  // Fetch image from Jikan API if original fails
+  React.useEffect(() => {
+    if (imgError && anime.anime_id && !jikanImage) {
+      fetch(`https://api.jikan.moe/v4/anime/${anime.anime_id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data?.images?.jpg?.large_image_url) {
+            setJikanImage(data.data.images.jpg.large_image_url);
+          }
+        })
+        .catch(() => {
+          // Keep fallback if Jikan also fails
+        });
+    }
+  }, [imgError, anime.anime_id, jikanImage]);
 
   const handleClick = () => {
     navigate(`/anime/${anime.anime_id}`);
@@ -12,6 +29,9 @@ const RecommendationCard = ({ anime, rank }) => {
 
   // Construct fallback image URL
   const getImageUrl = () => {
+    if (jikanImage) {
+      return jikanImage;
+    }
     if (
       imgError ||
       !anime.image_url ||
