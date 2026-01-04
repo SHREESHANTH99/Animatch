@@ -42,6 +42,20 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Data files (CSV, large datasets)
+recommendation_system/data/*.csv
+recommendation_system/models/*.pkl
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 

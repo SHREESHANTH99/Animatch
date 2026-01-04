@@ -9,7 +9,7 @@ def load_anime_from_mongodb(mongodb_uri):
     """Load anime data from MongoDB."""
     print("📡 Connecting to MongoDB...")
     client = MongoClient(mongodb_uri)
-    db = client['animatch']  # Your database name
+    db = client.get_database()  # Use the database from the URI
     
     # Load anime
     print("📺 Loading anime data...")

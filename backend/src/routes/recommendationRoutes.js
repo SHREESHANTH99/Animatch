@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Configuration for Python Flask API
 const PYTHON_API_URL =
-  process.env.PYTHON_API_URL || "http://localhost:5000/api/recommend";
+  process.env.PYTHON_API_URL || "http://localhost:5002/api/recommend";
 
 /**
  * @route   GET /api/recommendations/user/:userId
@@ -21,23 +21,17 @@ router.get("/user/:userId", async (req, res) => {
     const response = await axios.get(`${PYTHON_API_URL}/user/${userId}`, {
       params: {
         top_n: parseInt(top_n),
-        min_score: parseFloat(min_score),
       },
       timeout: 30000, // 30 second timeout
     });
 
-    if (response.data.success) {
-      return res.json({
-        success: true,
-        recommendations: response.data.recommendations,
-        message:
-          response.data.message || "Recommendations fetched successfully",
-      });
-    } else {
-      throw new Error(
-        response.data.message || "Failed to fetch recommendations"
-      );
-    }
+    return res.json({
+      success: true,
+      user_id: response.data.user_id,
+      recommendations: response.data.recommendations,
+      count: response.data.count,
+      message: "Recommendations fetched successfully",
+    });
   } catch (error) {
     console.error("Error fetching recommendations:", error.message);
 
@@ -86,15 +80,13 @@ router.get("/similar/:animeId", async (req, res) => {
       timeout: 30000,
     });
 
-    if (response.data.success) {
-      return res.json({
-        success: true,
-        similar: response.data.similar,
-        message: "Similar anime fetched successfully",
-      });
-    } else {
-      throw new Error(response.data.message || "Failed to fetch similar anime");
-    }
+    return res.json({
+      success: true,
+      anime_id: response.data.anime_id,
+      similar_anime: response.data.similar_anime,
+      count: response.data.count,
+      message: "Similar anime fetched successfully",
+    });
   } catch (error) {
     console.error("Error fetching similar anime:", error.message);
 
