@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Bell,
   User,
   Menu,
   X,
@@ -9,8 +8,8 @@ import {
   BookOpen,
   Star,
   TrendingUp,
-  Settings,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { logo } from "../../assets/animePosters.js";
@@ -32,10 +31,11 @@ export default function AniMatchNavbar() {
   const navItems = [
     { name: "Home", icon: Home, href: "/home" },
     { name: "Discover", icon: Compass, href: "/discover" },
-    { name: "My List", icon: BookOpen, href: "library" },
+    { name: "My List", icon: BookOpen, href: "/library" },
     { name: "Top Rated", icon: Star, href: "/top" },
     { name: "Trending", icon: TrendingUp, href: "/trending" },
     { name: "AI Picks", icon: Sparkles, href: "/ai-recommendations" },
+    { name: "Community", icon: MessageCircle, href: "/community" },
   ];
 
   return (
@@ -79,10 +79,6 @@ export default function AniMatchNavbar() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 rounded-lg transition-all duration-200 border border-transparent hover:border-cyan-400/30 hover:shadow-lg hover:shadow-cyan-500/20">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full shadow-lg shadow-pink-500/50"></span>
-            </button>
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}

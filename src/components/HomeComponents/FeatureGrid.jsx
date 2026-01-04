@@ -13,7 +13,7 @@ const features = [
   { 
     title: 'AI Recommendations', 
     desc: 'Get personalized anime suggestions using advanced machine learning algorithms',
-    href: '/AI',
+    href: '/ai-recommendations',
     icon: '🧠',
     gradient: 'from-blue-500 via-cyan-500 to-teal-500',
     particles: ['🤖', '✨', '🔮'],
