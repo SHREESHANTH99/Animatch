@@ -15,11 +15,11 @@ const AIRecommendations = () => {
   });
 
   useEffect(() => {
-    console.log("🔍 AIRecommendations useEffect:", { 
-      authLoading, 
-      hasUser: !!user, 
+    console.log("🔍 AIRecommendations useEffect:", {
+      authLoading,
+      hasUser: !!user,
       userId: user?._id || user?.id,
-      userKeys: user ? Object.keys(user) : []
+      userKeys: user ? Object.keys(user) : [],
     });
 
     // Wait for auth to complete and user to exist
