@@ -17,30 +17,51 @@ router.get("/group/:groupId", verifyToken, async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
+    console.log(
+      `📝 Fetching posts for group: ${groupId}, user: ${req.user?.id}`
+    );
+
     const group = await Group.findById(groupId);
-    if (!group) return res.status(404).json({ message: "Group not found" });
+    if (!group) {
+      console.log(`❌ Group not found: ${groupId}`);
+      return res.status(404).json({ message: "Group not found" });
+    }
 
     if (group.isPrivate && !group.members.includes(req.user.id)) {
+      console.log(
+        `❌ Access denied for user ${req.user.id} to private group ${groupId}`
+      );
       return res.status(403).json({ message: "Access denied" });
     }
 
     const posts = await Post.find({ group: groupId })
       .populate("author", "username")
-      .populate("likes.user", "username")
-      .populate("comments.author", "username")
+      .populate({
+        path: "likes.user",
+        select: "username",
+      })
+      .populate({
+        path: "comments.author",
+        select: "username",
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
+    console.log(`✅ Found ${posts.length} posts for group ${groupId}`);
+
     const formattedPosts = posts.map((post) => ({
       ...post.toObject(),
-      isAdmin: group.admins.includes(post.author._id.toString()),
+      isAdmin: group.admins.some(
+        (adminId) => adminId.toString() === post.author?._id?.toString()
+      ),
     }));
 
     res.json({ posts: formattedPosts });
   } catch (error) {
-    console.error("Error fetching posts:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Error fetching posts:", error);
+    console.error("Error stack:", error.stack);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 

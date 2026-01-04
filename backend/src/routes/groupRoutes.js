@@ -15,12 +15,16 @@ const generateInviteCode = () => {
 // Get all groups (public + user's private groups)
 router.get("/", verifyToken, async (req, res) => {
   try {
+    console.log(`📋 Fetching groups for user: ${req.user?.id}`);
+
     const groups = await Group.find({
       $or: [{ isPrivate: false }, { members: req.user.id }],
     })
       .populate("creator", "username")
       .populate("members", "username")
       .sort({ createdAt: -1 });
+
+    console.log(`✅ Found ${groups.length} groups`);
 
     // Add member count and online count (mock for now)
     const groupsWithCounts = groups.map((group) => ({
@@ -34,8 +38,9 @@ router.get("/", verifyToken, async (req, res) => {
 
     res.json({ groups: groupsWithCounts });
   } catch (error) {
-    console.error("Error fetching groups:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Error fetching groups:", error);
+    console.error("Error stack:", error.stack);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 

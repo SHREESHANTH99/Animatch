@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const features = [
-  { 
-    title: 'Track Your Watchlist', 
-    desc: 'Organize anime by Watching, Completed, Dropped and Planned with smart progress tracking',
-    href: '/library',
-    icon: '📺',
-    gradient: 'from-purple-500 via-pink-500 to-red-500',
-    particles: ['⭐', '🎬', '📖'],
-    stats: '2.4K+ tracked'
+  {
+    title: "Track Your Watchlist",
+    desc: "Organize anime by Watching, Completed, Dropped and Planned with smart progress tracking",
+    href: "/library",
+    icon: "📺",
+    gradient: "from-purple-500 via-pink-500 to-red-500",
+    particles: ["⭐", "🎬", "📖"],
+    stats: "2.4K+ tracked",
   },
-  { 
-    title: 'AI Recommendations', 
-    desc: 'Get personalized anime suggestions using advanced machine learning algorithms',
-    href: '/ai-recommendations',
-    icon: '🧠',
-    gradient: 'from-blue-500 via-cyan-500 to-teal-500',
-    particles: ['🤖', '✨', '🔮'],
-    stats: '95% accuracy'
+  {
+    title: "AI Recommendations",
+    desc: "Get personalized anime suggestions using advanced machine learning algorithms",
+    href: "/ai-recommendations",
+    icon: "🧠",
+    gradient: "from-blue-500 via-cyan-500 to-teal-500",
+    particles: ["🤖", "✨", "🔮"],
+    stats: "95% accuracy",
   },
-  { 
-    title: 'Community Hub', 
-    desc: 'Connect with fellow otaku, share reviews, and discover hidden gems together',
-    href: '/Community',
-    icon: '💬',
-    gradient: 'from-orange-500 via-red-500 to-pink-500',
-    particles: ['👥', '💭', '🌟'],
-    stats: '50K+ members'
+  {
+    title: "Community Hub",
+    desc: "Connect with fellow otaku, share reviews, and discover hidden gems together",
+    href: "/Community",
+    icon: "💬",
+    gradient: "from-orange-500 via-red-500 to-pink-500",
+    particles: ["👥", "💭", "🌟"],
+    stats: "50K+ members",
   },
 ];
 
@@ -38,8 +38,8 @@ export default function FeatureGrid() {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   return (
@@ -65,13 +65,18 @@ export default function FeatureGrid() {
           />
         ))}
       </div>
-
-      
     </div>
   );
 }
 
-function FeatureCard({ feature, index, isHovered, onHover, onLeave, mousePosition }) {
+function FeatureCard({
+  feature,
+  index,
+  isHovered,
+  onHover,
+  onLeave,
+  mousePosition,
+}) {
   const [particles, setParticles] = useState([]);
 
   useEffect(() => {
@@ -80,8 +85,11 @@ function FeatureCard({ feature, index, isHovered, onHover, onLeave, mousePositio
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        emoji: feature.particles[Math.floor(Math.random() * feature.particles.length)],
-        delay: Math.random() * 2
+        emoji:
+          feature.particles[
+            Math.floor(Math.random() * feature.particles.length)
+          ],
+        delay: Math.random() * 2,
       }));
       setParticles(newParticles);
     }
@@ -96,40 +104,59 @@ function FeatureCard({ feature, index, isHovered, onHover, onLeave, mousePositio
           shadow-2xl hover:shadow-3xl
           transform transition-all duration-700 ease-out
           hover:scale-105 hover:-translate-y-2
-          ${isHovered ? 'ring-2 ring-white/30' : ''}
+          ${isHovered ? "ring-2 ring-white/30" : ""}
         `}
         onMouseEnter={onHover}
         onMouseLeave={onLeave}
         style={{
-          transform: isHovered ? 
-            `perspective(1000px) rotateX(${(mousePosition.y - window.innerHeight/2) * 0.01}deg) rotateY(${(mousePosition.x - window.innerWidth/2) * 0.01}deg) scale(1.05) translateY(-8px)` :
-            'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)'
+          transform: isHovered
+            ? `perspective(1000px) rotateX(${
+                (mousePosition.y - window.innerHeight / 2) * 0.01
+              }deg) rotateY(${
+                (mousePosition.x - window.innerWidth / 2) * 0.01
+              }deg) scale(1.05) translateY(-8px)`
+            : "perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)",
         }}
       >
-        <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-80 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-60'}`} />
-        
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
-             style={{
-               background: `conic-gradient(from ${index * 120}deg, transparent, rgba(255,255,255,0.2), transparent)`
-             }} />
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${
+            feature.gradient
+          } opacity-80 transition-opacity duration-500 ${
+            isHovered ? "opacity-100" : "opacity-60"
+          }`}
+        />
 
-        {isHovered && particles.map((particle) => (
-          <div
-            key={particle.id}
-            className="absolute text-2xl pointer-events-none animate-bounce"
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              animationDelay: `${particle.delay}s`,
-              animationDuration: '2s'
-            }}
-          >
-            {particle.emoji}
-          </div>
-        ))}
+        <div
+          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `conic-gradient(from ${
+              index * 120
+            }deg, transparent, rgba(255,255,255,0.2), transparent)`,
+          }}
+        />
+
+        {isHovered &&
+          particles.map((particle) => (
+            <div
+              key={particle.id}
+              className="absolute text-2xl pointer-events-none animate-bounce"
+              style={{
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+                animationDelay: `${particle.delay}s`,
+                animationDuration: "2s",
+              }}
+            >
+              {particle.emoji}
+            </div>
+          ))}
         <div className="relative z-10">
           <div className="mb-6 relative">
-            <div className={`text-6xl mb-4 transition-transform duration-500 ${isHovered ? 'scale-110 rotate-12' : 'scale-100'}`}>
+            <div
+              className={`text-6xl mb-4 transition-transform duration-500 ${
+                isHovered ? "scale-110 rotate-12" : "scale-100"
+              }`}
+            >
               {feature.icon}
             </div>
             {isHovered && (
@@ -146,14 +173,34 @@ function FeatureCard({ feature, index, isHovered, onHover, onLeave, mousePositio
             <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse" />
             {feature.stats}
           </div>
-          <div className={`absolute bottom-6 right-6 transform transition-all duration-300 ${isHovered ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}`}>
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          <div
+            className={`absolute bottom-6 right-6 transform transition-all duration-300 ${
+              isHovered
+                ? "translate-x-0 opacity-100"
+                : "translate-x-4 opacity-0"
+            }`}
+          >
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
             </svg>
           </div>
         </div>
-        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 ${isHovered ? 'translate-x-full' : '-translate-x-full'}`} 
-             style={{ transitionDelay: '200ms' }} />
+        <div
+          className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 ${
+            isHovered ? "translate-x-full" : "-translate-x-full"
+          }`}
+          style={{ transitionDelay: "200ms" }}
+        />
       </div>
     </a>
   );
