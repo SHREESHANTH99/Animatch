@@ -25,7 +25,7 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       });
 
       if (response.data.success) {
-        setSimilar(response.data.similar);
+        setSimilar(response.data.similar || []);
       } else {
         throw new Error(
           response.data.message || "Failed to fetch similar anime"
@@ -69,7 +69,7 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
     );
   }
 
-  if (similar.length === 0) {
+  if (!similar || similar.length === 0) {
     return null;
   }
 

@@ -5,7 +5,7 @@ import RecommendationCard from "../components/Recommendations/RecommendationCard
 import api from "../utils/api";
 
 const AIRecommendations = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,20 +15,19 @@ const AIRecommendations = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    // Wait for auth to complete AND user._id to be available
+    if (!authLoading && user && user._id) {
       fetchRecommendations();
+    } else if (!authLoading && !user) {
+      // Auth completed but no user - not logged in
+      setLoading(false);
     }
-  }, [user, filters]);
+  }, [user?._id, authLoading, filters]);
 
   const fetchRecommendations = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Check if user._id exists
-      if (!user?._id) {
-        throw new Error("User ID not found. Please log in again.");
-      }
 
       const response = await api.get(`/recommendations/user/${user._id}`, {
         params: {
