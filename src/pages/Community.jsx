@@ -276,7 +276,7 @@ const Community = () => {
         const formData = new FormData();
         formData.append("image", img.file);
 
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
         const xhr = new XMLHttpRequest();
 
         // Track upload progress
@@ -291,7 +291,7 @@ const Community = () => {
           }
         };
 
-        xhr.open("POST", `${apiUrl}/api/upload/image`, true);
+        xhr.open("POST", `${apiUrl}/upload/image`, true);
         xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
         xhr.onload = () => {
@@ -343,8 +343,9 @@ const Community = () => {
     if (!token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/api/groups`, {
+      const apiUrl =
+        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const res = await fetch(`${apiUrl}/groups`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -368,8 +369,8 @@ const Community = () => {
     if (!token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const response = await fetch(`${apiUrl}/api/notifications`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const response = await fetch(`${apiUrl}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -387,8 +388,8 @@ const Community = () => {
     if (!token || !notificationId) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      await fetch(`${apiUrl}/api/notifications/${notificationId}/read`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      await fetch(`${apiUrl}/notifications/${notificationId}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -405,8 +406,8 @@ const Community = () => {
 
       try {
         setLoading(true);
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-        const res = await fetch(`${apiUrl}/api/posts/group/${groupId}`, {
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        const res = await fetch(`${apiUrl}/posts/group/${groupId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -431,8 +432,9 @@ const Community = () => {
     if (!newGroupName.trim() || !token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/api/groups/create`, {
+      const apiUrl =
+        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const res = await fetch(`${apiUrl}/groups/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -466,8 +468,9 @@ const Community = () => {
     if (!groupId || !token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/api/groups/${groupId}/join`, {
+      const apiUrl =
+        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const res = await fetch(`${apiUrl}/groups/${groupId}/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -521,8 +524,8 @@ const Community = () => {
 
       console.log("📤 Sending post data:", postData);
 
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/api/posts/create`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const res = await fetch(`${apiUrl}/posts/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -583,8 +586,8 @@ const Community = () => {
     if (!postId || !reactionType || !token || !emit) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      await fetch(`${apiUrl}/api/posts/${postId}/react`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      await fetch(`${apiUrl}/posts/${postId}/react`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -606,8 +609,8 @@ const Community = () => {
     const content = newComment[postId].trim();
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const response = await fetch(`${apiUrl}/api/posts/${postId}/comment`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const response = await fetch(`${apiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -632,8 +635,8 @@ const Community = () => {
     }
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      await fetch(`${apiUrl}/api/posts/${postId}/comment`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      await fetch(`${apiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -951,8 +954,8 @@ const Community = () => {
 
     try {
       console.log("🗑️ Deleting post:", postId);
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/api/posts/${postId}`, {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const res = await fetch(`${apiUrl}/posts/${postId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -984,9 +987,9 @@ const Community = () => {
     if (!postId || !commentId || !token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
       const res = await fetch(
-        `${apiUrl}/api/posts/${postId}/comments/${commentId}`,
+        `${apiUrl}/posts/${postId}/comments/${commentId}`,
         {
           method: "DELETE",
           headers: {
