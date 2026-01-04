@@ -95,6 +95,22 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {similar.map((anime, index) => {
+          const [imgError, setImgError] = React.useState(false);
+
+          // Construct fallback image URL
+          const getImageUrl = () => {
+            if (
+              imgError ||
+              !anime.image_url ||
+              anime.image_url.includes("placeholder")
+            ) {
+              return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                anime.title
+              )}&size=300&background=6366f1&color=fff&bold=true&length=2`;
+            }
+            return anime.image_url;
+          };
+
           const genres =
             typeof anime.genres === "string"
               ? anime.genres
@@ -120,17 +136,13 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
             >
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
-                {anime.image_url ? (
-                  <img
-                    src={anime.image_url}
-                    alt={anime.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-purple-900 to-blue-900 flex items-center justify-center">
-                    <span className="text-4xl">🎬</span>
-                  </div>
-                )}
+                <img
+                  src={getImageUrl()}
+                  alt={anime.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  onError={() => setImgError(true)}
+                  loading="lazy"
+                />
 
                 {/* Match Badge */}
                 <div className="absolute top-2 right-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white font-bold rounded-full px-3 py-1 text-xs shadow-lg">

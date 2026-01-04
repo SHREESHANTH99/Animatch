@@ -4,17 +4,25 @@ import { motion } from "framer-motion";
 
 const RecommendationCard = ({ anime, rank }) => {
   const navigate = useNavigate();
-
-  // Debug logging
-  console.log(`🎴 RecommendationCard #${rank}:`, {
-    title: anime.title,
-    image_url: anime.image_url,
-    image_url_type: typeof anime.image_url,
-    image_url_length: anime.image_url?.length,
-  });
+  const [imgError, setImgError] = React.useState(false);
 
   const handleClick = () => {
     navigate(`/anime/${anime.anime_id}`);
+  };
+
+  // Construct fallback image URL
+  const getImageUrl = () => {
+    if (
+      imgError ||
+      !anime.image_url ||
+      anime.image_url.includes("placeholder")
+    ) {
+      // Use a colorful gradient placeholder with anime ID
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        anime.title
+      )}&size=400&background=6366f1&color=fff&bold=true&length=2`;
+    }
+    return anime.image_url;
   };
 
   // Parse genres if it's a string
@@ -69,17 +77,13 @@ const RecommendationCard = ({ anime, rank }) => {
 
       {/* Anime Image */}
       <div className="relative h-80 overflow-hidden">
-        {anime.image_url ? (
-          <img
-            src={anime.image_url}
-            alt={anime.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-900 to-blue-900 flex items-center justify-center">
-            <span className="text-6xl">🎬</span>
-          </div>
-        )}
+        <img
+          src={getImageUrl()}
+          alt={anime.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={() => setImgError(true)}
+          loading="lazy"
+        />
 
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-90"></div>
