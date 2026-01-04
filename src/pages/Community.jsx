@@ -1252,11 +1252,11 @@ const Community = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 mt-14 lg:mt-0">
+      <div className="flex-1 flex flex-col min-w-0 mt-14 lg:mt-0 h-[calc(100vh-3.5rem)] lg:h-screen overflow-hidden">
         {activeGroup ? (
           <>
             {/* Enhanced Group Header */}
-            <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 sm:p-4 shadow-lg">
+            <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 sm:p-4 shadow-lg flex-shrink-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1388,12 +1388,12 @@ const Community = () => {
             </div>
 
             {/* Post Composer */}
-            <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 lg:p-4">
+            <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 lg:p-4 flex-shrink-0">
               <div className="max-w-4xl mx-auto">{renderPostForm()}</div>
             </div>
 
             {/* Posts Feed */}
-            <div className="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4">
+            <div className="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div className="max-w-4xl mx-auto">
                 {/* Sort Options */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
