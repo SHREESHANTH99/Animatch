@@ -3,6 +3,99 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 
+// Separate component for each similar anime card
+const SimilarAnimeCard = ({ anime, index, onClick }) => {
+  const [imgError, setImgError] = useState(false);
+
+  // Construct fallback image URL
+  const getImageUrl = () => {
+    if (
+      imgError ||
+      !anime.image_url ||
+      anime.image_url.includes("placeholder")
+    ) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        anime.title
+      )}&size=300&background=6366f1&color=fff&bold=true&length=2`;
+    }
+    return anime.image_url;
+  };
+
+  const genres =
+    typeof anime.genres === "string"
+      ? anime.genres
+          .split(",")
+          .map((g) => g.trim())
+          .slice(0, 2)
+      : Array.isArray(anime.genres)
+      ? anime.genres.slice(0, 2)
+      : [];
+
+  const matchPercentage = Math.round((anime.content_similarity || 0) * 100);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="bg-gray-900 rounded-lg overflow-hidden cursor-pointer group hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-purple-500"
+      onClick={() => onClick(anime.anime_id)}
+    >
+      {/* Image */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={getImageUrl()}
+          alt={anime.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={() => setImgError(true)}
+          loading="lazy"
+        />
+
+        {/* Match Badge */}
+        <div className="absolute top-2 right-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white font-bold rounded-full px-3 py-1 text-xs shadow-lg">
+          {matchPercentage}% Match
+        </div>
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-80"></div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <h4 className="text-white font-bold text-sm mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
+          {anime.title}
+        </h4>
+
+        {/* Genres */}
+        {genres.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {genres.map((genre, idx) => (
+              <span
+                key={idx}
+                className="bg-purple-900/50 text-purple-300 text-xs px-2 py-0.5 rounded-full border border-purple-700"
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Reason */}
+        {anime.reason_for_recommendation && (
+          <p className="text-gray-400 text-xs line-clamp-2 mb-3">
+            {anime.reason_for_recommendation}
+          </p>
+        )}
+
+        {/* View Button */}
+        <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-semibold py-2 rounded transition-all duration-300">
+          View Details
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
   const [similar, setSimilar] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,100 +187,14 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {similar.map((anime, index) => {
-          const [imgError, setImgError] = React.useState(false);
-
-          // Construct fallback image URL
-          const getImageUrl = () => {
-            if (
-              imgError ||
-              !anime.image_url ||
-              anime.image_url.includes("placeholder")
-            ) {
-              return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                anime.title
-              )}&size=300&background=6366f1&color=fff&bold=true&length=2`;
-            }
-            return anime.image_url;
-          };
-
-          const genres =
-            typeof anime.genres === "string"
-              ? anime.genres
-                  .split(",")
-                  .map((g) => g.trim())
-                  .slice(0, 2)
-              : Array.isArray(anime.genres)
-              ? anime.genres.slice(0, 2)
-              : [];
-
-          const matchPercentage = Math.round(
-            (anime.content_similarity || 0) * 100
-          );
-
-          return (
-            <motion.div
-              key={anime.anime_id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              className="bg-gray-900 rounded-lg overflow-hidden cursor-pointer group hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-purple-500"
-              onClick={() => handleAnimeClick(anime.anime_id)}
-            >
-              {/* Image */}
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={getImageUrl()}
-                  alt={anime.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  onError={() => setImgError(true)}
-                  loading="lazy"
-                />
-
-                {/* Match Badge */}
-                <div className="absolute top-2 right-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white font-bold rounded-full px-3 py-1 text-xs shadow-lg">
-                  {matchPercentage}% Match
-                </div>
-
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-80"></div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4">
-                <h4 className="text-white font-bold text-sm mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
-                  {anime.title}
-                </h4>
-
-                {/* Genres */}
-                {genres.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {genres.map((genre, idx) => (
-                      <span
-                        key={idx}
-                        className="bg-purple-900/50 text-purple-300 text-xs px-2 py-0.5 rounded-full border border-purple-700"
-                      >
-                        {genre}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Reason */}
-                {anime.reason_for_recommendation && (
-                  <p className="text-gray-400 text-xs line-clamp-2 mb-3">
-                    {anime.reason_for_recommendation}
-                  </p>
-                )}
-
-                {/* View Button */}
-                <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-semibold py-2 rounded transition-all duration-300">
-                  View Details
-                </button>
-              </div>
-            </motion.div>
-          );
-        })}
+        {similar.map((anime, index) => (
+          <SimilarAnimeCard
+            key={anime.anime_id}
+            anime={anime}
+            index={index}
+            onClick={handleAnimeClick}
+          />
+        ))}
       </div>
 
       {/* View All Button */}
