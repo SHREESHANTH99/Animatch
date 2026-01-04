@@ -419,3 +419,32 @@ if __name__ == "__main__":
         # Print results as JSON
         import json
         print(json.dumps(recommendations, indent=2))
+
+# Auto-initialize when running with Gunicorn
+if os.environ.get('MONGODB_URI') and not api.is_initialized:
+    try:
+        print("🚀 Auto-initializing recommendation system...")
+        from load_from_mongodb import load_anime_from_mongodb
+        from dotenv import load_dotenv
+        
+        # Load environment variables
+        load_dotenv()
+        
+        mongodb_uri = os.environ.get('MONGODB_URI')
+        if mongodb_uri:
+            print("📡 Loading data from MongoDB...")
+            anime_df, interaction_df = load_anime_from_mongodb(mongodb_uri)
+            print(f"✅ Loaded {len(anime_df)} anime and {len(interaction_df)} interactions")
+            
+            # Set global interactions_df
+            interactions_df = interaction_df
+            
+            # Initialize the system
+            api.initialize(anime_df, interaction_df)
+            print("✅ Recommendation system ready!")
+        else:
+            print("⚠️  MONGODB_URI not set, skipping auto-initialization")
+    except Exception as e:
+        print(f"❌ Auto-initialization failed: {e}")
+        import traceback
+        traceback.print_exc()
