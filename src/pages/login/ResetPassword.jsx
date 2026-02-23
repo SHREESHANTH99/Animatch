@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Lock, EyeOff, Eye, AlertCircle, CheckCircle } from "lucide-react";
@@ -18,16 +18,7 @@ export default function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (token) {
-      verifyToken();
-    } else {
-      setIsValidToken(false);
-      setMessage("No reset token provided");
-    }
-  }, [token]);
-
-  const verifyToken = async () => {
+  const verifyToken = useCallback(async () => {
     try {
       console.log("=== FRONTEND TOKEN VERIFICATION ===");
       console.log("1. Token from URL:", token);
@@ -64,7 +55,16 @@ export default function ResetPassword() {
         console.error("6. Debug info from server:", err.response.data.debug);
       }
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      verifyToken();
+    } else {
+      setIsValidToken(false);
+      setMessage("No reset token provided");
+    }
+  }, [token, verifyToken]);
 
   const validateForm = () => {
     const newErrors = {};

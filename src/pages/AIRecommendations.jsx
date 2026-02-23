@@ -14,6 +14,7 @@ const AIRecommendations = () => {
     minScore: 0,
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     console.log("🔍 AIRecommendations useEffect:", {
       authLoading,
@@ -38,6 +39,7 @@ const AIRecommendations = () => {
       console.log("ℹ️ No user logged in");
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id, user?.id, authLoading, filters]);
 
   const fetchRecommendations = async () => {

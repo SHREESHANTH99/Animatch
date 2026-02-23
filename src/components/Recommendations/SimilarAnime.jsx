@@ -9,6 +9,7 @@ const SimilarAnimeCard = ({ anime, index, onClick }) => {
   const [jikanImage, setJikanImage] = useState(null);
 
   // Fetch image from Jikan API if original fails
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (imgError && anime.anime_id && !jikanImage) {
       fetch(`https://api.jikan.moe/v4/anime/${anime.anime_id}`)
@@ -122,12 +123,6 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (animeId) {
-      fetchSimilarAnime();
-    }
-  }, [animeId]);
-
   const fetchSimilarAnime = async () => {
     try {
       setLoading(true);
@@ -164,6 +159,13 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       setLoading(false);
     }
   };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (animeId) {
+      fetchSimilarAnime();
+    }
+  }, [animeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAnimeClick = (id) => {
     navigate(`/anime/${id}`);

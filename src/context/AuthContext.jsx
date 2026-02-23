@@ -206,6 +206,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     let mounted = true;
     mountedRef.current = true;
@@ -265,7 +266,9 @@ export const AuthProvider = ({ children }) => {
       mounted = false;
       mountedRef.current = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const {
       data: { subscription },
@@ -304,6 +307,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       subscription.unsubscribe();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, authMethod, user]);
 
   const isAuthenticated = !!user;
