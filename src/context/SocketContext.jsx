@@ -4,8 +4,8 @@ import { useAuth } from "./AuthContext";
 
 const SocketContext = createContext();
 
-const SOCKET_SERVER_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:5000";
+const rawApiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
+const SOCKET_SERVER_URL = rawApiUrl.replace(/\/api\/?$/, "");
 
 export const useSocket = () => {
   return useContext(SocketContext);
