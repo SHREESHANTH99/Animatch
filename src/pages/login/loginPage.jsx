@@ -116,7 +116,7 @@ export default function LoginPage() {
     setMessage("");
 
     try {
-      const res = await axios.post(
+      await axios.post(
         `${
           process.env.REACT_APP_API_URL || "http://localhost:5001/api"
         }/auth/forgot-password`,

@@ -27,7 +27,7 @@ import {
 const Community = () => {
   const { token, user } = useAuth();
   const socketContext = useSocket();
-  const { socket, emit, on, off } = socketContext || {};
+  const { socket, emit, on } = socketContext || {};
   const [activeGroup, setActiveGroup] = useState(null);
   const [groups, setGroups] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -49,10 +49,8 @@ const Community = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [typingUsers, setTypingUsers] = useState({});
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState(new Set());
   const typingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   // Socket.IO event handlers
   useEffect(() => {
@@ -112,19 +110,6 @@ const Community = () => {
       });
     };
 
-    // Handle online status
-    const handleUserOnline = ({ userId }) => {
-      setOnlineUsers((prev) => new Set([...prev, userId]));
-    };
-
-    const handleUserOffline = ({ userId }) => {
-      setOnlineUsers((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(userId);
-        return newSet;
-      });
-    };
-
     // Set up event listeners using the context's 'on' function
     const cleanupFunctions = [
       on("new-post", handleNewPost),
@@ -132,8 +117,6 @@ const Community = () => {
       on("new-comment", handleNewComment),
       on("reaction", handleReaction),
       on("user-typing", handleUserTyping),
-      on("user-online", handleUserOnline),
-      on("user-offline", handleUserOffline),
     ];
 
     // Clean up event listeners
@@ -276,7 +259,7 @@ const Community = () => {
         const formData = new FormData();
         formData.append("image", img.file);
 
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
         const xhr = new XMLHttpRequest();
 
         // Track upload progress
@@ -344,7 +327,7 @@ const Community = () => {
 
     try {
       const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/groups`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -369,7 +352,7 @@ const Community = () => {
     if (!token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const response = await fetch(`${apiUrl}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -388,7 +371,7 @@ const Community = () => {
     if (!token || !notificationId) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       await fetch(`${apiUrl}/notifications/${notificationId}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
@@ -406,7 +389,7 @@ const Community = () => {
 
       try {
         setLoading(true);
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
         const res = await fetch(`${apiUrl}/posts/group/${groupId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -433,7 +416,7 @@ const Community = () => {
 
     try {
       const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/groups/create`, {
         method: "POST",
         headers: {
@@ -469,7 +452,7 @@ const Community = () => {
 
     try {
       const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/groups/${groupId}/join`, {
         method: "POST",
         headers: {
@@ -524,7 +507,7 @@ const Community = () => {
 
       console.log("📤 Sending post data:", postData);
 
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/posts/create`, {
         method: "POST",
         headers: {
@@ -586,7 +569,7 @@ const Community = () => {
     if (!postId || !reactionType || !token || !emit) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       await fetch(`${apiUrl}/posts/${postId}/react`, {
         method: "POST",
         headers: {
@@ -609,7 +592,7 @@ const Community = () => {
     const content = newComment[postId].trim();
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const response = await fetch(`${apiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
@@ -635,7 +618,7 @@ const Community = () => {
     }
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       await fetch(`${apiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
@@ -730,17 +713,6 @@ const Community = () => {
         {typingUserNames.join(", ")}
         {typingUserNames.length === 1 ? " is " : " are "}
         typing...
-      </div>
-    );
-  };
-
-  const renderOnlineUsers = () => {
-    const onlineCount = onlineUsers.size;
-    if (onlineCount === 0) return null;
-
-    return (
-      <div className="text-xs text-green-400 mt-1 ml-2">
-        {onlineCount} {onlineCount === 1 ? "user" : "users"} online
       </div>
     );
   };
@@ -954,7 +926,7 @@ const Community = () => {
 
     try {
       console.log("🗑️ Deleting post:", postId);
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/posts/${postId}`, {
         method: "DELETE",
         headers: {
@@ -987,7 +959,7 @@ const Community = () => {
     if (!postId || !commentId || !token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(
         `${apiUrl}/posts/${postId}/comments/${commentId}`,
         {

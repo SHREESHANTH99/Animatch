@@ -21,7 +21,7 @@ const ProfilePage = () => {
   const { user, logout } = useAuth();
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [, setError] = useState(null);
 
   useEffect(() => {
     const fetchLibrary = async () => {

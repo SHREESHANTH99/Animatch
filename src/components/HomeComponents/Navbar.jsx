@@ -54,7 +54,7 @@ export default function AniMatchNavbar() {
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200 shadow-lg ">
                     <span className="text-white font-bold text-lg">
-                      <img src={logo.img} className="rounded-lg" />
+                      <img src={logo.img} alt="AniMatch logo" className="rounded-lg" />
                     </span>
                   </div>
                 </div>
