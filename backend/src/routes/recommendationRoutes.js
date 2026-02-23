@@ -7,11 +7,14 @@ const REQUEST_TIMEOUT_MS = 30000;
 
 const PYTHON_RECOMMEND_API_URL =
   process.env.PYTHON_RECOMMEND_API_URL ||
+  process.env.RECOMMENDATION_API_URL ||
   process.env.PYTHON_API_URL ||
   "http://localhost:5002/api/recommend";
 
 const PYTHON_HEALTH_URL =
-  process.env.PYTHON_HEALTH_URL || "http://localhost:5002/api/health";
+  process.env.PYTHON_HEALTH_URL ||
+  process.env.RECOMMENDATION_HEALTH_URL ||
+  "http://localhost:5002/api/health";
 
 const STATIC_FALLBACK_RECOMMENDATIONS = [
   {
@@ -198,6 +201,11 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
         count: fallbackRecommendations.length,
         is_cold_start: true,
         source: "fallback",
+        fallback_source:
+          fallbackRecommendations[0]?.reason_for_recommendation ===
+          "Reliable fallback recommendation"
+            ? "static"
+            : "jikan",
         warning:
           "Recommendation service unavailable. Showing fallback recommendations.",
       });
@@ -250,6 +258,11 @@ router.get("/similar/:animeId", async (req, res) => {
       similar: fallbackSimilar,
       count: fallbackSimilar.length,
       source: "fallback",
+      fallback_source:
+        fallbackSimilar[0]?.reason_for_recommendation ===
+        "Similar taste fallback recommendation"
+          ? "static"
+          : "jikan",
       warning:
         "Recommendation service unavailable. Showing fallback similar anime.",
     });
