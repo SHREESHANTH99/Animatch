@@ -1,5 +1,6 @@
 import express from "express";
 import axios from "axios";
+import { verifyToken } from "../middleware/authMiddlesware.js";
 
 const router = express.Router();
 const REQUEST_TIMEOUT_MS = 30000;
@@ -66,7 +67,7 @@ router.get("/user/:userId", async (req, res) => {
 
     return res.json({
       success: true,
-      user_id: response.data.user_id,
+      user_id: response.data.user_id || effectiveUserId,
       recommendations: response.data.recommendations || [],
       count: response.data.count || 0,
       is_cold_start: response.data.is_cold_start || false,

@@ -18,7 +18,7 @@ export const SocketProvider = ({ children }) => {
 
   // Initialize socket connection
   useEffect(() => {
-    if (!token || !user?._id) return;
+    if (!token || !(user?._id || user?.id)) return;
 
     // Create socket connection with auth token
     socketRef.current = io(SOCKET_SERVER_URL, {
@@ -58,7 +58,7 @@ export const SocketProvider = ({ children }) => {
         socketRef.current = null;
       }
     };
-  }, [token, user?._id]);
+  }, [token, user?._id, user?.id]);
 
   // Function to join a group room
   const joinGroup = (groupId) => {

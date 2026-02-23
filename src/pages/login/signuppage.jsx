@@ -83,7 +83,7 @@ export default function SignUpPage() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      const res = await axios.post(
+      await axios.post(
         `${
           process.env.REACT_APP_API_URL || "http://localhost:5001/api"
         }/auth/register`,

@@ -27,7 +27,7 @@ import {
 const Community = () => {
   const { token, user } = useAuth();
   const socketContext = useSocket();
-  const { socket, emit, on, off } = socketContext || {};
+  const { socket, emit, on } = socketContext || {};
   const [activeGroup, setActiveGroup] = useState(null);
   const [groups, setGroups] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -49,10 +49,8 @@ const Community = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [typingUsers, setTypingUsers] = useState({});
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState(new Set());
   const typingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   // Socket.IO event handlers
   useEffect(() => {
@@ -112,19 +110,6 @@ const Community = () => {
       });
     };
 
-    // Handle online status
-    const handleUserOnline = ({ userId }) => {
-      setOnlineUsers((prev) => new Set([...prev, userId]));
-    };
-
-    const handleUserOffline = ({ userId }) => {
-      setOnlineUsers((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(userId);
-        return newSet;
-      });
-    };
-
     // Set up event listeners using the context's 'on' function
     const cleanupFunctions = [
       on("new-post", handleNewPost),
@@ -132,8 +117,6 @@ const Community = () => {
       on("new-comment", handleNewComment),
       on("reaction", handleReaction),
       on("user-typing", handleUserTyping),
-      on("user-online", handleUserOnline),
-      on("user-offline", handleUserOffline),
     ];
 
     // Clean up event listeners
@@ -730,17 +713,6 @@ const Community = () => {
         {typingUserNames.join(", ")}
         {typingUserNames.length === 1 ? " is " : " are "}
         typing...
-      </div>
-    );
-  };
-
-  const renderOnlineUsers = () => {
-    const onlineCount = onlineUsers.size;
-    if (onlineCount === 0) return null;
-
-    return (
-      <div className="text-xs text-green-400 mt-1 ml-2">
-        {onlineCount} {onlineCount === 1 ? "user" : "users"} online
       </div>
     );
   };

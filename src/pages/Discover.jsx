@@ -120,11 +120,11 @@ const Discover = () => {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, filters]);
+  }, [searchAnime, searchQuery, filters]);
 
   useEffect(() => {
     searchAnime(1, true);
-  }, []);
+  }, [searchAnime]);
 
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({ ...prev, [filterName]: value }));
