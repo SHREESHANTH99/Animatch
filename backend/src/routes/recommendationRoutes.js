@@ -5,174 +5,65 @@ import { verifyToken } from "../middleware/authMiddlesware.js";
 const router = express.Router();
 const REQUEST_TIMEOUT_MS = 30000;
 
+// Flask API typically exposes /api/recommend/* and /api/health
 const PYTHON_RECOMMEND_API_URL =
   process.env.PYTHON_RECOMMEND_API_URL ||
-  process.env.RECOMMENDATION_API_URL ||
   process.env.PYTHON_API_URL ||
   "http://localhost:5002/api/recommend";
-
 const PYTHON_HEALTH_URL =
-  process.env.PYTHON_HEALTH_URL ||
-  process.env.RECOMMENDATION_HEALTH_URL ||
-  "http://localhost:5002/api/health";
-
-const STATIC_FALLBACK_RECOMMENDATIONS = [
-  {
-    anime_id: 5114,
-    title: "Fullmetal Alchemist: Brotherhood",
-    genres: ["Action", "Adventure", "Drama"],
-    image_url: "https://cdn.myanimelist.net/images/anime/1208/94745.jpg",
-    score: 9.1,
-  },
-  {
-    anime_id: 9253,
-    title: "Steins;Gate",
-    genres: ["Sci-Fi", "Thriller"],
-    image_url: "https://cdn.myanimelist.net/images/anime/1935/127974.jpg",
-    score: 9.0,
-  },
-  {
-    anime_id: 1535,
-    title: "Death Note",
-    genres: ["Mystery", "Psychological", "Supernatural"],
-    image_url: "https://cdn.myanimelist.net/images/anime/9/9453.jpg",
-    score: 8.6,
-  },
-  {
-    anime_id: 16498,
-    title: "Attack on Titan",
-    genres: ["Action", "Drama", "Fantasy"],
-    image_url: "https://cdn.myanimelist.net/images/anime/10/47347.jpg",
-    score: 8.5,
-  },
-  {
-    anime_id: 11061,
-    title: "Hunter x Hunter (2011)",
-    genres: ["Action", "Adventure", "Fantasy"],
-    image_url: "https://cdn.myanimelist.net/images/anime/1337/99013.jpg",
-    score: 9.0,
-  },
-  {
-    anime_id: 20,
-    title: "Naruto",
-    genres: ["Action", "Adventure", "Shounen"],
-    image_url: "https://cdn.myanimelist.net/images/anime/13/17405.jpg",
-    score: 8.0,
-  },
-];
-
-let popularFallbackCache = {
-  data: null,
-  expiresAt: 0,
-};
-
-const buildStaticFallback = (limit = 12) =>
-  STATIC_FALLBACK_RECOMMENDATIONS.slice(0, limit).map((anime, index) => ({
-    ...anime,
-    popularity_score: Math.max(0, 100 - index),
-    hybrid_score: Math.max(0.55, 1 - index / Math.max(limit, 1)),
-    reason_for_recommendation: "Reliable fallback recommendation",
-  }));
+  process.env.PYTHON_HEALTH_URL || "http://localhost:5002/api/health";
 
 const getPopularFallback = async (limit = 12) => {
-  const now = Date.now();
-  if (popularFallbackCache.data && popularFallbackCache.expiresAt > now) {
-    return popularFallbackCache.data.slice(0, limit);
-  }
+  const { data } = await axios.get("https://api.jikan.moe/v4/top/anime", {
+    params: { filter: "bypopularity", limit },
+    timeout: 10000,
+  });
 
-  try {
-    const { data } = await axios.get("https://api.jikan.moe/v4/top/anime", {
-      params: { filter: "bypopularity", limit: Math.max(limit, 12) },
-      timeout: 8000,
-    });
-
-    const mapped = (data.data || []).map((anime, index) => ({
-      anime_id: anime.mal_id,
-      title: anime.title,
-      genres: (anime.genres || []).map((g) => g.name),
-      synopsis: anime.synopsis,
-      image_url:
-        anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url,
-      score: anime.score,
-      scored_by: anime.scored_by,
-      popularity_rank: anime.popularity,
-      popularity_score: Math.max(0, 100 - index),
-      hybrid_score: Math.max(0.5, 1 - index / Math.max(limit, 1)),
-      reason_for_recommendation: "Popular fallback recommendation",
-    }));
-
-    if (!mapped.length) {
-      return buildStaticFallback(limit);
-    }
-
-    popularFallbackCache = {
-      data: mapped,
-      expiresAt: now + 10 * 60 * 1000,
-    };
-
-    return mapped.slice(0, limit);
-  } catch {
-    return buildStaticFallback(limit);
-  }
+  return (data.data || []).map((anime, index) => ({
+    anime_id: anime.mal_id,
+    title: anime.title,
+    genres: (anime.genres || []).map((g) => g.name),
+    synopsis: anime.synopsis,
+    image_url: anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url,
+    score: anime.score,
+    scored_by: anime.scored_by,
+    popularity_rank: anime.popularity,
+    popularity_score: Math.max(0, 100 - index),
+    hybrid_score: Math.max(0.5, 1 - index / Math.max(limit, 1)),
+    reason_for_recommendation: "Popular fallback recommendation",
+  }));
 };
 
 const getSimilarFallback = async (animeId, limit = 6) => {
-  try {
-    const { data } = await axios.get(
-      `https://api.jikan.moe/v4/anime/${animeId}/recommendations`,
-      {
-        params: { limit },
-        timeout: 8000,
-      }
-    );
-
-    const mapped = (data.data || []).slice(0, limit).map((item) => ({
-      anime_id: item.entry?.mal_id,
-      title: item.entry?.title,
-      image_url:
-        item.entry?.images?.jpg?.large_image_url ||
-        item.entry?.images?.jpg?.image_url,
-      content_similarity: Math.min(1, Math.max(0.1, (item.votes || 1) / 100)),
-      reason_for_recommendation:
-        item.content || "Recommended by similar viewers",
-    }));
-
-    if (mapped.length) {
-      return mapped;
+  const { data } = await axios.get(
+    `https://api.jikan.moe/v4/anime/${animeId}/recommendations`,
+    {
+      params: { limit },
+      timeout: 10000,
     }
-  } catch {
-    // no-op and continue to static fallback
-  }
+  );
 
-  return buildStaticFallback(limit).map((anime) => ({
-    anime_id: anime.anime_id,
-    title: anime.title,
-    image_url: anime.image_url,
-    content_similarity: anime.hybrid_score,
-    reason_for_recommendation: "Similar taste fallback recommendation",
+  return (data.data || []).slice(0, limit).map((item) => ({
+    anime_id: item.entry?.mal_id,
+    title: item.entry?.title,
+    image_url: item.entry?.images?.jpg?.large_image_url || item.entry?.images?.jpg?.image_url,
+    content_similarity: Math.min(1, Math.max(0.1, (item.votes || 1) / 100)),
+    reason_for_recommendation: item.content || "Recommended by similar viewers",
   }));
 };
 
-router.get("/user/:userId", verifyToken, async (req, res) => {
-  const requestedUserId = req.params.userId;
-  const tokenUserId = req.user?.id;
-  const effectiveUserId = tokenUserId || requestedUserId;
-
+router.get("/user/:userId", async (req, res) => {
   try {
+    const { userId } = req.params;
     const { top_n = 12, min_score = 0 } = req.query;
-    const parsedTopN = Number.parseInt(top_n, 10) || 12;
-    const parsedMinScore = Number.parseFloat(min_score) || 0;
 
-    const response = await axios.get(
-      `${PYTHON_RECOMMEND_API_URL}/user/${effectiveUserId}`,
-      {
-        params: {
-          top_n: parsedTopN,
-          min_score: parsedMinScore,
-        },
-        timeout: REQUEST_TIMEOUT_MS,
-      }
-    );
+    const response = await axios.get(`${PYTHON_RECOMMEND_API_URL}/user/${userId}`, {
+      params: {
+        top_n: Number.parseInt(top_n, 10),
+        min_score: Number.parseFloat(min_score),
+      },
+      timeout: REQUEST_TIMEOUT_MS,
+    });
 
     return res.json({
       success: true,
@@ -186,35 +77,28 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching recommendations:", error.message);
 
+    // Graceful fallback: still return recommendations instead of hard-failing.
     try {
-      const parsedTopN = Number.parseInt(req.query.top_n || 12, 10) || 12;
-      const parsedMinScore = Number.parseFloat(req.query.min_score || 0) || 0;
-
-      const fallbackRecommendations = (await getPopularFallback(parsedTopN)).filter(
-        (anime) => (anime.hybrid_score || 0) >= parsedMinScore
+      const fallbackRecommendations = await getPopularFallback(
+        Number.parseInt(req.query.top_n || 12, 10)
       );
 
       return res.status(200).json({
         success: true,
-        user_id: effectiveUserId,
+        user_id: req.params.userId,
         recommendations: fallbackRecommendations,
         count: fallbackRecommendations.length,
         is_cold_start: true,
-        source: "fallback",
-        fallback_source:
-          fallbackRecommendations[0]?.reason_for_recommendation ===
-          "Reliable fallback recommendation"
-            ? "static"
-            : "jikan",
+        source: "fallback-jikan",
         warning:
-          "Recommendation service unavailable. Showing fallback recommendations.",
+          "Recommendation service unavailable. Showing popular anime instead.",
       });
     } catch (fallbackError) {
+      console.error("❌ Fallback recommendations failed:", fallbackError.message);
       return res.status(503).json({
         success: false,
         error:
           "Recommendation service is currently unavailable and fallback failed.",
-        details: fallbackError.message,
         recommendations: [],
       });
     }
@@ -224,13 +108,13 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
 router.get("/similar/:animeId", async (req, res) => {
   try {
     const { animeId } = req.params;
-    const parsedTopN = Number.parseInt(req.query.top_n || 6, 10) || 6;
+    const { top_n = 6 } = req.query;
 
     const response = await axios.get(
       `${PYTHON_RECOMMEND_API_URL}/similar/${animeId}`,
       {
         params: {
-          top_n: parsedTopN,
+          top_n: Number.parseInt(top_n, 10),
         },
         timeout: REQUEST_TIMEOUT_MS,
       }
@@ -247,25 +131,29 @@ router.get("/similar/:animeId", async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching similar anime:", error.message);
 
-    const fallbackSimilar = await getSimilarFallback(
-      req.params.animeId,
-      Number.parseInt(req.query.top_n || 6, 10) || 6
-    );
+    try {
+      const fallbackSimilar = await getSimilarFallback(
+        req.params.animeId,
+        Number.parseInt(req.query.top_n || 6, 10)
+      );
 
-    return res.json({
-      success: true,
-      anime_id: req.params.animeId,
-      similar: fallbackSimilar,
-      count: fallbackSimilar.length,
-      source: "fallback",
-      fallback_source:
-        fallbackSimilar[0]?.reason_for_recommendation ===
-        "Similar taste fallback recommendation"
-          ? "static"
-          : "jikan",
-      warning:
-        "Recommendation service unavailable. Showing fallback similar anime.",
-    });
+      return res.json({
+        success: true,
+        anime_id: req.params.animeId,
+        similar: fallbackSimilar,
+        count: fallbackSimilar.length,
+        source: "fallback-jikan",
+        warning:
+          "Recommendation service unavailable. Showing Jikan similar anime fallback.",
+      });
+    } catch (fallbackError) {
+      return res.status(503).json({
+        success: false,
+        error: "Failed to fetch similar anime",
+        details: fallbackError.message,
+        similar: [],
+      });
+    }
   }
 });
 
