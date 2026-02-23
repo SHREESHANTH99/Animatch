@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      return data.token;
+      return data;
     } catch (error) {
       console.error("Token exchange error:", error);
       throw error;
@@ -162,13 +162,33 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("🔄 Processing Supabase auth for:", session.user.email);
 
-      const customToken = await exchangeToken(session.user);
+      const exchangeData = await exchangeToken(session.user);
+      const customToken = exchangeData?.token;
+
+      if (!customToken) {
+        throw new Error("Token exchange returned no token");
+      }
 
       if (mountedRef.current) {
         localStorage.setItem("token", customToken);
         setToken(customToken);
-        setUser(session.user);
         setAuthMethod("supabase");
+
+        // Always resolve user from backend profile so IDs are consistent
+        // across JWT and Supabase accounts (MongoDB user id).
+        if (exchangeData?.user) {
+          setUser(exchangeData.user);
+        }
+
+        try {
+          const profile = await fetchUserProfile(customToken);
+          if (profile && mountedRef.current) {
+            setUser(profile);
+          }
+        } catch (profileError) {
+          console.warn("⚠️ Profile fetch after Supabase exchange failed:", profileError.message);
+        }
+
         if (window.location.pathname === "/login") {
           navigate("/home");
         }

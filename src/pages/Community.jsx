@@ -276,7 +276,7 @@ const Community = () => {
         const formData = new FormData();
         formData.append("image", img.file);
 
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
         const xhr = new XMLHttpRequest();
 
         // Track upload progress
@@ -344,7 +344,7 @@ const Community = () => {
 
     try {
       const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/groups`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -369,7 +369,7 @@ const Community = () => {
     if (!token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const response = await fetch(`${apiUrl}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -388,7 +388,7 @@ const Community = () => {
     if (!token || !notificationId) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       await fetch(`${apiUrl}/notifications/${notificationId}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
@@ -406,7 +406,7 @@ const Community = () => {
 
       try {
         setLoading(true);
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
         const res = await fetch(`${apiUrl}/posts/group/${groupId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -433,7 +433,7 @@ const Community = () => {
 
     try {
       const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/groups/create`, {
         method: "POST",
         headers: {
@@ -469,7 +469,7 @@ const Community = () => {
 
     try {
       const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+        process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/groups/${groupId}/join`, {
         method: "POST",
         headers: {
@@ -524,7 +524,7 @@ const Community = () => {
 
       console.log("📤 Sending post data:", postData);
 
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/posts/create`, {
         method: "POST",
         headers: {
@@ -586,7 +586,7 @@ const Community = () => {
     if (!postId || !reactionType || !token || !emit) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       await fetch(`${apiUrl}/posts/${postId}/react`, {
         method: "POST",
         headers: {
@@ -609,7 +609,7 @@ const Community = () => {
     const content = newComment[postId].trim();
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const response = await fetch(`${apiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
@@ -635,7 +635,7 @@ const Community = () => {
     }
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       await fetch(`${apiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
@@ -954,7 +954,7 @@ const Community = () => {
 
     try {
       console.log("🗑️ Deleting post:", postId);
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(`${apiUrl}/posts/${postId}`, {
         method: "DELETE",
         headers: {
@@ -987,7 +987,7 @@ const Community = () => {
     if (!postId || !commentId || !token) return;
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
       const res = await fetch(
         `${apiUrl}/posts/${postId}/comments/${commentId}`,
         {
