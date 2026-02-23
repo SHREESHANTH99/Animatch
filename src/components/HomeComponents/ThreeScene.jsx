@@ -32,7 +32,7 @@ function AnimeCube() {
     }, [size.width]);
   return (
     <Float speed={2} rotationIntensity={1.2} floatIntensity={1.5}>
-      <mesh ref={meshRef} scale={[5,5,5]}  castShadow receiveShadow >
+      <mesh ref={meshRef} scale={cubeScale}  castShadow receiveShadow >
         <boxGeometry args={[1, 1, 1]}  />
       <meshBasicMaterial attach="material-0" map={textureRight}/>
       <meshBasicMaterial attach="material-1" map={textureLeft} />

@@ -60,7 +60,7 @@ const onlineUsers = new Map();
 
 // Socket.IO connection handler
 io.on("connection", (socket) => {
-  const userId = socket.user._id;
+  const userId = socket.user.id || socket.user._id;
   console.log(`User connected: ${userId}`);
 
   // Add user to online users

@@ -14,6 +14,7 @@ const AIRecommendations = () => {
     minScore: 0,
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     console.log("🔍 AIRecommendations useEffect:", {
       authLoading,
@@ -38,9 +39,11 @@ const AIRecommendations = () => {
       console.log("ℹ️ No user logged in");
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id, user?.id, authLoading, filters]);
 
   const fetchRecommendations = async () => {
+    let timeoutId;
     try {
       setLoading(true);
       setError(null);
@@ -50,7 +53,7 @@ const AIRecommendations = () => {
 
       // Add timeout to prevent infinite loading
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       const response = await api.get(`/recommendations/user/${userId}`, {
         params: {
@@ -60,7 +63,6 @@ const AIRecommendations = () => {
         signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
 
       if (response.data.success) {
         setRecommendations(response.data.recommendations || []);
@@ -89,6 +91,9 @@ const AIRecommendations = () => {
         );
       }
     } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       setLoading(false);
     }
   };
