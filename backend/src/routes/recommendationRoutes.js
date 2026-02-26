@@ -108,7 +108,7 @@ router.get("/user/:userId", async (req, res) => {
 router.get("/similar/:animeId", async (req, res) => {
   try {
     const { animeId } = req.params;
-    const { top_n = 6 } = req.query;
+    const parsedTopN = Number.parseInt(req.query.top_n || 6, 10) || 6;
 
     const response = await axios.get(
       `${PYTHON_RECOMMEND_API_URL}/similar/${animeId}`,
