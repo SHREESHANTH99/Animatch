@@ -14,7 +14,6 @@ const ThreeDImageCarousel = ({
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const intervalRef = useRef(null);
   const progressRef = useRef(null);
   const total = slides.length;
 
