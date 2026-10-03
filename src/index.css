@@ -1,3 +1,95 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #080810;
+    color: #f0f0f8;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: rgba(230, 57, 70, 0.35);
+    color: #ffffff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0d0d1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #e63946;
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  .bg-site {
+    background-color: #080810;
+  }
+
+  .bg-card {
+    background-color: #13131f;
+  }
+
+  .bg-card-hover {
+    background-color: #1a1a2e;
+  }
+
+  .border-subtle {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .text-muted {
+    color: rgba(240, 240, 248, 0.55);
+  }
+
+  .text-bright {
+    color: #f0f0f8;
+  }
+
+  .accent-crimson {
+    color: #e63946;
+  }
+
+  .btn-crimson {
+    @apply bg-anicrimson-500 hover:bg-anicrimson-400 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:shadow-crimson;
+  }
+
+  .card-anime {
+    @apply bg-card border border-subtle rounded-2xl overflow-hidden hover:border-anicrimson-600/40 transition-all duration-300 hover:shadow-crimson;
+  }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-right {
+  animation: scroll-right 80s linear infinite;
+}
+
+.animate-scroll-left {
+  animation: scroll-left 100s linear infinite;
+}
+
+.hover-pause:hover {
+  animation-play-state: paused;
+}

@@ -32,7 +32,7 @@ const SavedPosts = ({ savedPosts, onUnsave, onNavigate, user }) => {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-6 h-6 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
                   {post.username?.[0]?.toUpperCase() || "👤"}
                 </div>
                 <span className="text-sm font-medium text-white">

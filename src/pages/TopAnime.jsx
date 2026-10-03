@@ -2,6 +2,7 @@ import { AlertCircle, Loader2, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AniMatchNavbar from "../components/HomeComponents/Navbar";
+import { dummyAnimeData } from "../assets/dummyAnime";
 
 const TopAnime = () => {
   const [animeData, setAnimeData] = useState([]);
@@ -14,32 +15,36 @@ const TopAnime = () => {
       setLoading(true);
       setError(null);
 
-      // Add delay to respect API rate limits
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
       const res = await fetch(
-        `https://api.jikan.moe/v4/top/anime?page=${pageNO}`
+        `https://api.jikan.moe/v4/top/anime?page=${pageNO}`,
+        { signal: controller.signal }
       );
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       const newAnime = data.data;
+
+      if (!newAnime || newAnime.length === 0) throw new Error("No data returned");
 
       if (pageNO === 1) {
         setAnimeData(newAnime);
       } else {
         setAnimeData((prev) => {
           const existingIds = new Set(prev.map((item) => item.mal_id));
-          const filtered = newAnime.filter(
-            (item) => !existingIds.has(item.mal_id)
-          );
+          const filtered = newAnime.filter((item) => !existingIds.has(item.mal_id));
           return [...prev, ...filtered];
         });
       }
     } catch (err) {
-      console.error("Error loading anime:", err);
-      setError(err.message);
+      console.error("Error loading anime, using fallback:", err);
+      if (pageNO === 1) {
+        setAnimeData(dummyAnimeData);
+        setError(null); // Don't show error when fallback is used
+      }
     } finally {
       setLoading(false);
     }
@@ -56,17 +61,15 @@ const TopAnime = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="relative min-h-screen bg-site">
       <AniMatchNavbar />
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-purple-900/30 to-pink-900/20"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.3),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,75,178,0.2),transparent_50%)]"></div>
 
       <div className="relative z-10 px-6 py-14">
-        <h1 className="text-4xl pb-8 bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent text-center font-semibold font-serif">
-          <Star className="h-5 w-5" />
+        <h1 className="text-4xl pb-2 text-white text-center font-bold flex items-center justify-center gap-2">
+          <Star className="h-6 w-6 text-anigold-400 fill-anigold-400" />
           Top Anime
         </h1>
+        <div className="w-12 h-0.5 bg-anicrimson-500 mx-auto mb-8 rounded-full" />
 
         {error && (
           <div className="max-w-4xl mx-auto mb-6 p-4 bg-red-900/80 border border-red-500 rounded-lg flex items-center gap-2 backdrop-blur-sm">
@@ -77,7 +80,7 @@ const TopAnime = () => {
 
         {loading && animeData.length === 0 && (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-pink-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-anicrimson-500" />
             <span className="ml-2 text-gray-300">Loading top anime...</span>
           </div>
         )}
@@ -110,14 +113,14 @@ const TopAnime = () => {
                   )}
 
                   {item.rank && (
-                    <div className="absolute top-3 left-3 bg-purple-500/90 text-white px-3 py-1 rounded-full backdrop-blur-sm">
+                    <div className="absolute top-3 left-3 bg-anicrimson-500/90 text-white px-3 py-1 rounded-full backdrop-blur-sm">
                       <span className="text-sm font-bold">#{item.rank}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="p-4">
-                  <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-pink-300 transition-colors">
+                  <h3 className="text-white font-semibold text-lg mb-2 line-clamp-2 group-hover:text-anicrimson-400 transition-colors">
                     {item.title}
                   </h3>
 
@@ -126,7 +129,7 @@ const TopAnime = () => {
                       {item.genres.slice(0, 3).map((genre) => (
                         <span
                           key={genre.mal_id}
-                          className="px-2 py-1 bg-purple-500/30 text-purple-200 text-xs rounded-full"
+                          className="px-2 py-1 bg-anicrimson-500/30 text-anicrimson-400 text-xs rounded-full"
                         >
                           {genre.name}
                         </span>
@@ -148,7 +151,7 @@ const TopAnime = () => {
           <div className="flex justify-center mt-12">
             <button
               onClick={loadMore}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full font-medium flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200"
+              className="px-8 py-3 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-xl font-semibold flex items-center gap-2 shadow-crimson hover:shadow-crimson-lg transition-all duration-200"
             >
               Load More Anime
             </button>

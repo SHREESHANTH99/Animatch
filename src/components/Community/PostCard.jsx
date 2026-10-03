@@ -93,7 +93,7 @@ const PostCard = ({
         {/* Post Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+            <div className="w-10 h-10 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
               {post.username?.[0]?.toUpperCase() || "👤"}
             </div>
             <div className="flex-1 min-w-0">
@@ -102,7 +102,7 @@ const PostCard = ({
                   {post.username}
                 </span>
                 {post.isAdmin && (
-                  <span className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-xs px-2 py-0.5 rounded-full font-bold">
+                  <span className="bg-site text-black text-xs px-2 py-0.5 rounded-full font-bold">
                     ADMIN
                   </span>
                 )}
@@ -217,13 +217,13 @@ const PostCard = ({
             <textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+              className="w-full bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-anicrimson-500/50 resize-none"
               rows={4}
             />
             <div className="flex gap-2 mt-2">
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all"
+                className="px-4 py-2 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-lg hover:bg-anicrimson-400 transition-all"
               >
                 Save
               </button>
@@ -365,7 +365,7 @@ const PostCard = ({
                   key={comment._id}
                   className="flex items-start gap-2 group/comment"
                 >
-                  <div className="w-7 h-7 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  <div className="w-7 h-7 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                     {comment.user?.username?.[0]?.toUpperCase() || "👤"}
                   </div>
                   <div className="flex-1 bg-white/5 rounded-xl p-3 min-w-0 hover:bg-white/10 transition-colors relative">
@@ -401,7 +401,7 @@ const PostCard = ({
 
             {/* Add Comment */}
             <div className="flex gap-2 items-end">
-              <div className="w-7 h-7 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <div className="w-7 h-7 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 {user?.username?.[0]?.toUpperCase() || "👤"}
               </div>
               <div className="flex-1 relative">
@@ -414,7 +414,7 @@ const PostCard = ({
                     }))
                   }
                   placeholder="Write a thoughtful comment..."
-                  className="w-full px-4 py-2 pr-20 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 text-sm bg-white/10 text-white placeholder-white/60 backdrop-blur-sm resize-none overflow-hidden min-h-[40px] max-h-32"
+                  className="w-full px-4 py-2 pr-20 border border-white/20 rounded-xl focus:ring-2 focus:ring-anicrimson-500/50 focus:border-anicrimson-500/50 text-sm bg-white/10 text-white placeholder-white/60 backdrop-blur-sm resize-none overflow-hidden min-h-[40px] max-h-32"
                   rows="1"
                   onKeyPress={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -436,7 +436,7 @@ const PostCard = ({
                           [`comment_${post._id}`]: !prev[`comment_${post._id}`],
                         }))
                       }
-                      className="p-1 text-pink-400 hover:bg-white/10 rounded transition-colors"
+                      className="p-1 text-anicrimson-400 hover:bg-white/10 rounded transition-colors"
                     >
                       <Smile size={14} />
                     </button>
@@ -467,7 +467,7 @@ const PostCard = ({
                   <button
                     onClick={() => addComment(post._id)}
                     disabled={!newComment[post._id]?.trim()}
-                    className="p-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                    className="p-1.5 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-full hover:bg-anicrimson-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
                   >
                     <Send size={12} />
                   </button>

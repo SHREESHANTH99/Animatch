@@ -135,10 +135,10 @@ export default function ResetPassword() {
 
   if (isValidToken === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-site flex items-center justify-center p-4">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
-          <div className="text-purple-400 mb-4">
-            <div className="w-16 h-16 mx-auto mb-4 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-anicrimson-400 mb-4">
+            <div className="w-16 h-16 mx-auto mb-4 border-4 border-anicrimson-500 border-t-transparent rounded-full animate-spin"></div>
             <h2 className="text-2xl font-bold text-white">Verifying Token</h2>
             <p className="text-gray-400 mt-2">
               Please wait while we verify your reset link...
@@ -151,7 +151,7 @@ export default function ResetPassword() {
 
   if (isValidToken === false) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-site flex items-center justify-center p-4">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
           <div className="text-red-400 mb-4">
             <AlertCircle className="w-16 h-16 mx-auto mb-4" />
@@ -162,7 +162,7 @@ export default function ResetPassword() {
           </div>
           <button
             onClick={() => navigate("/forgot-password")}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg mb-3"
+            className="w-full bg-anicrimson-500 hover:bg-anicrimson-400 hover:bg-anicrimson-400 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg mb-3"
           >
             Request New Reset Link
           </button>
@@ -178,9 +178,9 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-site flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-anicrimson-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
       </div>
 
@@ -190,9 +190,9 @@ export default function ResetPassword() {
             {isSuccess ? (
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
             ) : (
-              <Lock className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+              <Lock className="w-16 h-16 text-anicrimson-400 mx-auto mb-4" />
             )}
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold text-white mb-2">
               {isSuccess ? "Success!" : "Reset Password"}
             </h1>
             <p className="text-gray-400 text-sm">
@@ -299,7 +299,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
+                className="w-full bg-anicrimson-500 hover:bg-anicrimson-400 hover:bg-anicrimson-400 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -330,7 +330,7 @@ export default function ResetPassword() {
           <div className="text-center mt-6">
             <button
               onClick={() => navigate("/login")}
-              className="text-purple-400 hover:text-purple-300 font-medium hover:underline transition-colors"
+              className="text-anicrimson-400 hover:text-anicrimson-400 font-medium hover:underline transition-colors"
             >
               Back to Login
             </button>

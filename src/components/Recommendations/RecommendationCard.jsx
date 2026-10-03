@@ -61,7 +61,7 @@ const RecommendationCard = ({ anime, rank }) => {
     if (score >= 0.8) return "from-green-500 to-emerald-600";
     if (score >= 0.6) return "from-blue-500 to-cyan-600";
     if (score >= 0.4) return "from-yellow-500 to-orange-600";
-    return "from-red-500 to-pink-600";
+    return "from-anicrimson-500 to-anicrimson-600";
   };
 
   // Render match percentage badge
@@ -74,12 +74,12 @@ const RecommendationCard = ({ anime, rank }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: rank * 0.05 }}
-      className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-gray-700 hover:border-purple-500"
+      className="bg-site rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-gray-700 hover:border-anicrimson-500"
       onClick={handleClick}
     >
       {/* Rank Badge */}
       <div className="absolute top-4 left-4 z-10">
-        <div className="bg-gradient-to-br from-purple-600 to-pink-600 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center shadow-lg text-lg">
+        <div className="bg-site text-white font-bold rounded-full w-10 h-10 flex items-center justify-center shadow-lg text-lg">
           #{rank}
         </div>
       </div>
@@ -112,7 +112,7 @@ const RecommendationCard = ({ anime, rank }) => {
       {/* Content */}
       <div className="p-5">
         {/* Title */}
-        <h3 className="text-xl font-bold text-white mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
+        <h3 className="text-xl font-bold text-white mb-2 line-clamp-2 group-hover:text-anicrimson-400 transition-colors">
           {anime.title}
         </h3>
 
@@ -121,7 +121,7 @@ const RecommendationCard = ({ anime, rank }) => {
           {genres.map((genre, index) => (
             <span
               key={index}
-              className="bg-gradient-to-r from-purple-900 to-blue-900 text-purple-200 text-xs font-medium px-3 py-1 rounded-full border border-purple-700"
+              className="bg-anicrimson-500 hover:bg-anicrimson-400 text-anicrimson-400 text-xs font-medium px-3 py-1 rounded-full border border-anicrimson-500"
             >
               {genre}
             </span>
@@ -158,9 +158,9 @@ const RecommendationCard = ({ anime, rank }) => {
 
         {/* Reason */}
         {anime.reason_for_recommendation && (
-          <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-lg p-3 border border-purple-700/50">
+          <div className="bg-anicrimson-500/10 rounded-lg p-3 border border-anicrimson-500/50">
             <p className="text-gray-300 text-sm leading-relaxed">
-              <span className="text-purple-400 font-semibold">💡 Why: </span>
+              <span className="text-anicrimson-400 font-semibold">💡 Why: </span>
               {anime.reason_for_recommendation}
             </p>
           </div>
@@ -178,7 +178,7 @@ const RecommendationCard = ({ anime, rank }) => {
 
       {/* View Details Button */}
       <div className="px-5 pb-5">
-        <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 transform group-hover:scale-105 shadow-lg">
+        <button className="w-full bg-anicrimson-500 hover:bg-anicrimson-400 hover:bg-anicrimson-400 text-white font-semibold py-3 rounded-lg transition-all duration-300 transform group-hover:scale-105 shadow-lg">
           View Details →
         </button>
       </div>

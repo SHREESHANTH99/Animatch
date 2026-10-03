@@ -22,7 +22,7 @@ const socialLinks = [
     name: 'Instagram',
     icon: Instagram,
     href: 'https://instagram.com/SHREESHANTH_99/',
-    color: 'from-pink-400 to-purple-600',
+    color: 'from-anicrimson-500 to-anicrimson-600',
     hoverColor: 'hover:shadow-pink-500/25',
     description: 'Visual Stories'
   }
@@ -66,15 +66,15 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative h-auto bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white overflow-hidden">
+    <footer className="relative h-auto bg-site text-white overflow-hidden border-t border-white/[0.05]">
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-8">
         <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-12 mb-12">
           <div className="lg:col-span-2">
             <div className="flex items-center mb-6">
-              <div className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              <div className="text-4xl font-bold text-white">
                 AniMatch
               </div>
-              <div className="ml-3 px-3 py-1 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-full text-sm border border-pink-500/30">
+              <div className="ml-3 px-3 py-1 bg-anicrimson-500/20 rounded-full text-sm border border-anicrimson-500/30">
                 Beta
               </div>
             </div>
@@ -83,11 +83,11 @@ export default function Footer() {
             </p>
             <div className="space-y-3">
               <div className="flex items-center text-gray-400">
-                <Mail className="w-4 h-4 mr-3 text-pink-400" />
+                <Mail className="w-4 h-4 mr-3 text-anicrimson-400" />
                 <span>shreeshanthshetty@gmail.com</span>
               </div>
               <div className="flex items-center text-gray-400">
-                <MapPin className="w-4 h-4 mr-3 text-purple-400" />
+                <MapPin className="w-4 h-4 mr-3 text-anicrimson-400" />
                 <span>Mumbai, Maharashtra, India</span>
               </div>
               <div className="flex items-center text-gray-400">
@@ -97,7 +97,7 @@ export default function Footer() {
             </div>
           </div>
           <div>
-            <h3 className="text-xl font-semibold mb-6 text-transparent bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text">
+            <h3 className="text-xl font-semibold mb-6 text-transparent bg-anicrimson-500 hover:bg-anicrimson-400 bg-clip-text">
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -114,7 +114,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-xl font-semibold mb-6 text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text">
+            <h3 className="text-xl font-semibold mb-6 text-white">
               Legal
             </h3>
             <ul className="space-y-3">
@@ -134,7 +134,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-700/50 flex flex-col justify-center items-center">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-4 text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text">
+            <h3 className="text-2xl font-black mb-4 text-white">
               Connect With Us
             </h3>
             <p className="text-gray-400 max-w-2xl mx-auto">
@@ -164,7 +164,7 @@ export default function Footer() {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-3 rounded-full shadow-2xl hover:shadow-pink-500/25 hover:scale-110 transition-all duration-300 z-50"
+          className="fixed bottom-8 right-8 bg-anicrimson-500 hover:bg-anicrimson-400 text-white p-3 rounded-full shadow-2xl hover:shadow-pink-500/25 hover:scale-110 transition-all duration-300 z-50"
         >
           <ArrowUp className="w-5 h-5" />
         </button>

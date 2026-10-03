@@ -156,14 +156,14 @@ const Discover = () => {
 
   return (
 
-    <div className="min-h-screen  bg-[linear-gradient(135deg,#0f172a_0%,#581c87_50%,_#0f172a_100%)]">
+    <div className="min-h-screen  bg-site">
       <AniMatchNavbar/>
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-400 via-red-400 to-cyan-400 bg-clip-text text-transparent mb-2 font-serif">
+          <h1 className="text-4xl font-bold text-white mb-2 font-serif">
             Anime Discovery
           </h1>
-          <p className="text-purple-400">
+          <p className="text-anicrimson-400">
             Discover your next favorite anime with advanced search
           </p>
         </div>
@@ -173,7 +173,7 @@ const Discover = () => {
             <input
               type="text"
               placeholder="Search anime titles..."
-              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500 focus:border-transparent"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -204,7 +204,7 @@ const Discover = () => {
                 <select
                   value={filters.type}
                   onChange={(e) => handleFilterChange("type", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                 >
                   <option value="">All Types</option>
                   <option value="tv">TV</option>
@@ -222,7 +222,7 @@ const Discover = () => {
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                 >
                   <option value="">All Status</option>
                   <option value="airing">Airing</option>
@@ -237,7 +237,7 @@ const Discover = () => {
                 <select
                   value={filters.rating}
                   onChange={(e) => handleFilterChange("rating", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                 >
                   <option value="">All Ratings</option>
                   <option value="g">G - All Ages</option>
@@ -257,7 +257,7 @@ const Discover = () => {
                   onChange={(e) =>
                     handleFilterChange("orderBy", e.target.value)
                   }
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                 >
                   <option value="popularity">Popularity</option>
                   <option value="score">Score</option>
@@ -280,7 +280,7 @@ const Discover = () => {
                   onChange={(e) =>
                     handleFilterChange("minScore", e.target.value)
                   }
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                   placeholder="e.g., 7.5"
                 />
               </div>
@@ -294,7 +294,7 @@ const Discover = () => {
                   max="2030"
                   value={filters.year}
                   onChange={(e) => handleFilterChange("year", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                   placeholder="e.g., 2023"
                 />
               </div>
@@ -305,7 +305,7 @@ const Discover = () => {
                 <select
                   value={filters.sort}
                   onChange={(e) => handleFilterChange("sort", e.target.value)}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded text-gray-300 focus:outline-none focus:ring-2 focus:ring-anicrimson-500"
                 >
                   <option value="asc">Ascending</option>
                   <option value="desc">Descending</option>
@@ -331,7 +331,7 @@ const Discover = () => {
         )}
         {loading && anime.length === 0 && (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-anicrimson-400" />
             <span className="ml-2 text-gray-300">Loading anime...</span>
           </div>
         )}
@@ -393,7 +393,7 @@ const Discover = () => {
                       {item.genres.slice(0, 3).map((genre) => (
                         <span
                           key={genre.mal_id}
-                          className="px-2 py-1 bg-purple-600/50 text-xs text-white rounded"
+                          className="px-2 py-1 bg-anicrimson-500/50 text-xs text-white rounded"
                         >
                           {genre.name}
                         </span>
@@ -417,7 +417,7 @@ const Discover = () => {
             <button
               onClick={loadMore}
               disabled={loading}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3 bg-anicrimson-500 hover:bg-anicrimson-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <>

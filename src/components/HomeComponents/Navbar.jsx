@@ -1,29 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  User,
-  Menu,
-  X,
-  Home,
-  Compass,
-  BookOpen,
-  Star,
-  TrendingUp,
-  Sparkles,
-  MessageCircle,
+  User, Menu, X, Home, Compass, BookOpen,
+  Star, TrendingUp, Sparkles, MessageCircle, LogOut,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { logo } from "../../assets/animePosters.js";
+
 export default function AniMatchNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { user, logout } = useAuth();
-  console.log("User", user);
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
 
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -35,126 +25,112 @@ export default function AniMatchNavbar() {
     { name: "Top Rated", icon: Star, href: "/top" },
     { name: "Trending", icon: TrendingUp, href: "/trending" },
     { name: "AI Picks", icon: Sparkles, href: "/ai-recommendations" },
-    { name: "Community", icon: MessageCircle, href: "/community" },
+    { name: "Community", icon: MessageCircle, href: "/Community" },
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300  ${
-        isScrolled
-          ? "bg-gradient-to-r from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg shadow-lg border-gray-600 border-1"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg shadow-lg border-gray-600 border-1">
-        <div className="flex items-center justify-between h-16 ">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 group cursor-pointer">
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200 shadow-lg ">
-                    <span className="text-white font-bold text-lg">
-                      <img src={logo.img} alt="AniMatch logo" className="rounded-lg" />
-                    </span>
-                  </div>
-                </div>
-                <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg">
-                  <a href="/"> AniMatch</a>
-                </div>
-              </div>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled
+        ? "bg-[#0d0d1a]/95 backdrop-blur-xl border-b border-white/[0.06] shadow-xl"
+        : "bg-[#0d0d1a]/80 backdrop-blur-md border-b border-white/[0.04]"
+    }`}>
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <a href="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl overflow-hidden border border-anicrimson-600/50 shadow-lg group-hover:shadow-crimson transition-shadow duration-300">
+              <img src={logo.img} alt="AniMatch logo" className="w-full h-full object-cover rounded-xl" />
             </div>
+            <span className="text-xl font-black tracking-tight text-white group-hover:text-anicrimson-400 transition-colors duration-200">
+              ANI<span className="text-anicrimson-500">MATCH</span>
+            </span>
+          </a>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/[0.06] transition-all duration-200 text-sm font-medium"
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                <span>{item.name}</span>
+              </a>
+            ))}
           </div>
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-1">
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="group px-4 py-2 rounded-lg text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-all duration-200 flex items-center space-x-2 border border-transparent hover:border-cyan-400/30 hover:shadow-lg hover:shadow-cyan-500/20"
-                >
-                  <item.icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">{item.name}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
+
+          {/* Profile */}
+          <div className="flex items-center gap-3">
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 p-2 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 rounded-lg transition-all duration-200 border border-transparent hover:border-cyan-400/30 hover:shadow-lg hover:shadow-cyan-500/20"
+                className="flex items-center gap-2 p-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all duration-200 border border-white/[0.08]"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/50">
-                  <User className="h-4 w-4 text-white" />
+                <div className="w-7 h-7 bg-anicrimson-500/20 border border-anicrimson-500/50 rounded-full flex items-center justify-center">
+                  <User className="h-3.5 w-3.5 text-anicrimson-400" />
                 </div>
-                <span className="hidden lg:block font-medium text-white">
-                  Profile
+                <span className="hidden lg:block text-sm font-medium pr-1">
+                  {user?.username || "Profile"}
                 </span>
               </button>
+
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-gradient-to-br from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg rounded-lg shadow-lg shadow-cyan-500/20 border border-cyan-400/20 overflow-hidden">
-                  <div className="px-4 py-3 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 border-b border-cyan-400/20">
-                    <p className="text-sm text-white font-medium">
-                      {user.user_metadata?.full_name || user?.username}
+                <div className="absolute right-0 mt-2 w-52 bg-[#13131f] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50">
+                  <div className="px-4 py-3 border-b border-white/[0.06]">
+                    <p className="text-sm text-white font-semibold">
+                      {user?.user_metadata?.full_name || user?.username || "User"}
                     </p>
-                    <p className="text-xs text-cyan-300">Premium Member</p>
+                    <p className="text-xs text-anicrimson-400 mt-0.5">Premium Member</p>
                   </div>
-                  <div className="py-1">
-                    <a
-                      href="/profile"
-                      className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors"
-                    >
-                      <User className="h-4 w-4 mr-2" />
+                  <div className="py-1.5">
+                    <a href="/profile" className="flex items-center px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.05] transition-colors">
+                      <User className="h-4 w-4 mr-3 text-white/40" />
                       My Profile
                     </a>
-                    <a
-                      href="/library"
-                      className="flex items-center px-4 py-2 text-sm text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-colors"
-                    >
-                      <BookOpen className="h-4 w-4 mr-2" />
+                    <a href="/library" className="flex items-center px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.05] transition-colors">
+                      <BookOpen className="h-4 w-4 mr-3 text-white/40" />
                       My Watchlist
                     </a>
-                    <hr className="my-1 border-cyan-400/20" />
+                    <hr className="my-1 border-white/[0.06]" />
                     {user && (
-                      <a
-                        href
+                      <button
                         onClick={logout}
-                        className="flex items-center px-4 py-2 text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-anicrimson-400 hover:text-anicrimson-300 hover:bg-anicrimson-500/10 transition-colors"
                       >
-                        <X className="h-4 w-4 mr-2" />
+                        <LogOut className="h-4 w-4 mr-3" />
                         Sign Out
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Mobile menu toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 rounded-lg transition-all duration-200 border border-transparent hover:border-cyan-400/30"
+              className="md:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/[0.06] transition-all"
             >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-gradient-to-br from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg border-t border-cyan-400/20 shadow-lg shadow-cyan-500/20">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="md:hidden bg-[#0d0d1a]/98 backdrop-blur-xl border-t border-white/[0.06]">
+          <div className="px-3 py-3 space-y-1">
             {navItems.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="flex items-center space-x-2 px-3 py-2 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 rounded-lg transition-all duration-200 border border-transparent hover:border-cyan-400/30"
+                className="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/[0.05] rounded-xl transition-all text-sm font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <item.icon className="h-5 w-5" />
-                <span className="font-medium">{item.name}</span>
+                <item.icon className="h-4 w-4" />
+                <span>{item.name}</span>
               </a>
             ))}
           </div>

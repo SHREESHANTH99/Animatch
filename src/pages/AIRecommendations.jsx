@@ -104,7 +104,7 @@ const AIRecommendations = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-site flex items-center justify-center p-4">
         <div className="text-center">
           <div className="text-6xl mb-4">🔒</div>
           <h2 className="text-3xl font-bold text-white mb-4">Login Required</h2>
@@ -113,7 +113,7 @@ const AIRecommendations = () => {
           </p>
           <a
             href="/login"
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+            className="bg-anicrimson-500 hover:bg-anicrimson-400 text-white px-8 py-3 rounded-lg font-semibold hover:bg-anicrimson-400 transition-all duration-300"
           >
             Login Now
           </a>
@@ -123,7 +123,7 @@ const AIRecommendations = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-site py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -131,7 +131,7 @@ const AIRecommendations = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-4">
+          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-anicrimson-500 hover:bg-anicrimson-400 mb-4">
             🤖 AI Recommendations
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -159,7 +159,7 @@ const AIRecommendations = () => {
                   onChange={(e) =>
                     setFilters({ ...filters, topN: parseInt(e.target.value) })
                   }
-                  className="bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                  className="bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-anicrimson-500"
                 >
                   <option value={6}>6 Anime</option>
                   <option value={12}>12 Anime</option>
@@ -180,7 +180,7 @@ const AIRecommendations = () => {
                       minScore: parseFloat(e.target.value),
                     })
                   }
-                  className="bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                  className="bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-anicrimson-500"
                 >
                   <option value={0}>All (0%)</option>
                   <option value={0.3}>30% and above</option>
@@ -195,7 +195,7 @@ const AIRecommendations = () => {
             <button
               onClick={handleRefresh}
               disabled={loading}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-anicrimson-500 hover:bg-anicrimson-400 hover:bg-anicrimson-400 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <span>🔄</span>
               {loading ? "Loading..." : "Refresh"}
@@ -203,8 +203,8 @@ const AIRecommendations = () => {
           </div>
 
           {/* Info Banner */}
-          <div className="mt-4 bg-purple-900/30 border border-purple-700 rounded-lg p-4">
-            <p className="text-purple-200 text-sm">
+          <div className="mt-4 bg-anicrimson-500/30 border border-anicrimson-500 rounded-lg p-4">
+            <p className="text-anicrimson-400 text-sm">
               <span className="font-semibold">💡 How it works:</span> Our AI
               analyzes your library, favorites, and watch history using TF-IDF
               vectorization and cosine similarity to find anime that match your
@@ -217,7 +217,7 @@ const AIRecommendations = () => {
         {/* Loading State */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-anicrimson-500 mb-4"></div>
             <p className="text-white text-xl">Analyzing your preferences...</p>
             <p className="text-gray-400 mt-2">This may take a few seconds</p>
           </div>
@@ -261,7 +261,7 @@ const AIRecommendations = () => {
             </p>
             <a
               href="/discover"
-              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+              className="inline-block bg-anicrimson-500 hover:bg-anicrimson-400 text-white px-8 py-3 rounded-lg font-semibold hover:bg-anicrimson-400 transition-all duration-300"
             >
               Explore Anime
             </a>

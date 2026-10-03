@@ -101,13 +101,11 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-site flex items-center justify-center p-4">
       <div className="relative w-full max-w-md">
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2">
-              AniMatch
-            </h1>
+            <h1 className="text-4xl font-black text-white mb-2">ANI<span className="text-anicrimson-500">MATCH</span></h1>
             <p className="text-white/70 text-sm">
               Create your account to get started
             </p>
@@ -231,7 +229,7 @@ export default function SignUpPage() {
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full mt-6 bg-anicrimson-500 hover:bg-anicrimson-400 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:shadow-crimson hover:scale-[1.01] disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>

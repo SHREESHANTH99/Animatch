@@ -165,9 +165,9 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-site flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-anicrimson-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
       </div>
 
@@ -182,9 +182,7 @@ export default function LoginPage() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
             )}
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2">
-              AniMatch
-            </h1>
+            <h1 className="text-4xl font-black text-white mb-2">ANI<span className="text-anicrimson-500">MATCH</span></h1>
             <p className="text-gray-400 text-sm">
               {showForgotPassword
                 ? "Enter your email to reset your password"
@@ -306,7 +304,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowForgotPassword(true)}
-                  className="text-purple-400 hover:text-purple-300 text-sm font-medium hover:underline transition-colors"
+                  className="text-anicrimson-400 hover:text-anicrimson-400 text-sm font-medium hover:underline transition-colors"
                 >
                   Forgot your password?
                 </button>
@@ -316,7 +314,7 @@ export default function LoginPage() {
                 type="submit"
                 onClick={handleLogin}
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
+                className="w-full bg-anicrimson-500 hover:bg-anicrimson-400 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.01] hover:shadow-crimson disabled:cursor-not-allowed disabled:scale-100"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -333,7 +331,7 @@ export default function LoginPage() {
                   Don't have an account?{" "}
                   <a
                     href="/register"
-                    className="text-purple-400 hover:text-purple-300 font-medium hover:underline transition-colors"
+                    className="text-anicrimson-400 hover:text-anicrimson-400 font-medium hover:underline transition-colors"
                   >
                     Create one here
                   </a>
@@ -379,7 +377,7 @@ export default function LoginPage() {
                 type="submit"
                 onClick={handleForgotPassword}
                 disabled={isForgotPasswordLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:scale-100"
+                className="w-full bg-anicrimson-500 hover:bg-anicrimson-400 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.01] hover:shadow-crimson disabled:cursor-not-allowed disabled:scale-100"
               >
                 {isForgotPasswordLoading ? (
                   <div className="flex items-center justify-center gap-2">

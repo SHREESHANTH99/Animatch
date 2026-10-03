@@ -111,23 +111,24 @@ export default function LibraryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-site flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-xl">Loading your anime library...</p>
+          <div className="w-16 h-16 border-4 border-anicrimson-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/70 text-xl">Loading your anime library...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-site">
       <AniMatchNavbar/>
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            AniMatch Library
+          <h1 className="text-5xl font-black text-white mb-2">
+            Library
           </h1>
+          <div className="w-16 h-0.5 bg-anicrimson-500 mx-auto mt-4 rounded-full" />
           <p className="text-gray-300 text-lg">Track your anime journey</p>
         </div>
         <div className="mb-8 max-w-md mx-auto">
@@ -231,7 +232,7 @@ function AnimeCard({ item, updateStatus, deleteItem }) {
       case "dropped":
         return "bg-red-500";
       case "planned":
-        return "bg-purple-500";
+        return "bg-anicrimson-500";
       default:
         return "bg-gray-500";
     }
@@ -268,7 +269,7 @@ function AnimeCard({ item, updateStatus, deleteItem }) {
         </div></Link>
       </div>
       <div className="p-4">
-        <h3 className="text-white font-bold text-lg mb-2 line-clamp-2 group-hover:text-purple-300 transition-colors">
+        <h3 className="text-white font-bold text-lg mb-2 line-clamp-2 group-hover:text-anicrimson-400 transition-colors">
           {item.title}
         </h3>
 
@@ -293,7 +294,7 @@ function AnimeCard({ item, updateStatus, deleteItem }) {
                 {item.status !== "planned" && (
                   <button
                     onClick={() => handleStatusUpdate("planned")}
-                    className="w-full px-4 py-2 text-left text-purple-400 hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-anicrimson-400 hover:bg-anicrimson-500/20 transition-colors flex items-center gap-2"
                   >
                     <Clock size={14} />
                     Planned

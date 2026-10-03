@@ -6,10 +6,10 @@ export const ProtectedLayout=()=>{
     const {isAuthenticated,loading}=useAuth();
       if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
+      <div className="min-h-screen bg-site p-6 text-white flex items-center justify-center">
         <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-pink-500" />
-          <span className="ml-2 text-gray-300">Loading anime...</span>
+          <Loader2 className="h-8 w-8 animate-spin text-anicrimson-500" />
+          <span className="ml-2 text-white/70">Loading anime...</span>
         </div>
       </div>
     );

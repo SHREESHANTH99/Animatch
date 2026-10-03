@@ -93,7 +93,7 @@ const DetailPage = () => {
   const getStatusIcon = (statusValue) => {
     switch (statusValue) {
       case "planned":
-        return <Clock size={16} className="text-purple-400" />;
+        return <Clock size={16} className="text-anicrimson-400" />;
       case "watching":
         return <PlayCircle size={16} className="text-blue-400" />;
       case "completed":
@@ -108,7 +108,7 @@ const DetailPage = () => {
   const getStatusColor = (statusValue) => {
     switch (statusValue) {
       case "planned":
-        return "from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700";
+        return "bg-anicrimson-500 hover:bg-anicrimson-400";
       case "watching":
         return "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700";
       case "completed":
@@ -122,9 +122,9 @@ const DetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
+      <div className="min-h-screen bg-site p-6 text-white">
         <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-pink-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-anicrimson-400" />
           <span className="ml-2 text-gray-300">Loading anime...</span>
         </div>
       </div>
@@ -133,7 +133,7 @@ const DetailPage = () => {
 
   if (error || !anime) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
+      <div className="min-h-screen bg-site p-6 text-white">
         <div className="max-w-4xl mx-auto mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-red-400" />
           <span className="text-red-200">Error: {error}</span>
@@ -143,7 +143,7 @@ const DetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-site text-white">
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent z-10" />
         <div className="relative z-20 max-w-7xl mx-auto px-6 py-12">
@@ -160,7 +160,7 @@ const DetailPage = () => {
             </div>
             <div className="lg:col-span-2 space-y-6">
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 mb-4">
+                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-anicrimson-500 hover:bg-anicrimson-400 mb-4">
                   {anime.title}
                 </h1>
                 {anime.title_english && anime.title_english !== anime.title && (
@@ -192,15 +192,15 @@ const DetailPage = () => {
                   <p className="text-sm text-gray-300">Status</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
-                  <Users className="h-6 w-6 text-purple-400 mx-auto mb-1" />
-                  <p className="text-sm font-bold text-purple-400">
+                  <Users className="h-6 w-6 text-anicrimson-400 mx-auto mb-1" />
+                  <p className="text-sm font-bold text-anicrimson-400">
                     {anime.type}
                   </p>
                   <p className="text-sm text-gray-300">Type</p>
                 </div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-3 text-pink-400">
+                <h3 className="text-xl font-semibold mb-3 text-anicrimson-400">
                   Synopsis
                 </h3>
                 <p className="text-gray-200 leading-relaxed">
@@ -210,24 +210,24 @@ const DetailPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <h4 className="font-semibold text-purple-300 mb-2">Aired</h4>
+                  <h4 className="font-semibold text-anicrimson-400 mb-2">Aired</h4>
                   <p className="text-gray-200">
                     {anime.aired?.string || "N/A"}
                   </p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <h4 className="font-semibold text-purple-300 mb-2">Rating</h4>
+                  <h4 className="font-semibold text-anicrimson-400 mb-2">Rating</h4>
                   <p className="text-gray-200">{anime.rating || "N/A"}</p>
                 </div>
               </div>
 
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <h4 className="font-semibold text-purple-300 mb-3">Genres</h4>
+                <h4 className="font-semibold text-anicrimson-400 mb-3">Genres</h4>
                 <div className="flex flex-wrap gap-2">
                   {anime.genres.slice(0, 3).map((genre) => (
                     <span
                       key={genre.mal_id}
-                      className="px-3 py-1 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 rounded-full text-sm text-pink-200"
+                      className="px-3 py-1 bg-anicrimson-500/20 border border-anicrimson-500/30 rounded-full text-sm text-anicrimson-400"
                     >
                       {genre.name}
                     </span>
@@ -238,7 +238,7 @@ const DetailPage = () => {
               <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="text-2xl">📚</div>
-                  <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                  <h2 className="text-xl font-bold text-transparent bg-clip-text bg-anicrimson-500 hover:bg-anicrimson-400">
                     Add to Your Library
                   </h2>
                 </div>
@@ -270,7 +270,7 @@ const DetailPage = () => {
                             onClick={() => setStatus(option.value)}
                             className={`p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
                               isSelected
-                                ? "border-purple-400 bg-purple-500/20 text-purple-300"
+                                ? "border-anicrimson-500 bg-anicrimson-500/20 text-anicrimson-400"
                                 : "border-white/20 hover:border-white/40 text-gray-300 hover:text-white"
                             }`}
                           >
@@ -325,7 +325,7 @@ const DetailPage = () => {
               <div className="text-center">
                 <Link
                   to="/discover"
-                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                  className="inline-flex items-center px-6 py-3 bg-anicrimson-500 hover:bg-anicrimson-400 hover:bg-anicrimson-400 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
                 >
                   ← Back to Discover
                 </Link>
@@ -337,8 +337,8 @@ const DetailPage = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex items-center gap-3 mb-8">
-          <Users className="h-8 w-8 text-pink-400" />
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">
+          <Users className="h-8 w-8 text-anicrimson-400" />
+          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-anicrimson-500 hover:bg-anicrimson-400">
             Characters & Voice Actors
           </h2>
         </div>
@@ -358,17 +358,17 @@ const DetailPage = () => {
                       className="w-20 h-28 object-cover rounded-lg shadow-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-pink-300 mb-1">
+                      <h3 className="text-lg font-semibold text-anicrimson-400 mb-1">
                         {char.character.name}
                       </h3>
-                      <p className="text-sm text-gray-300 bg-purple-500/20 px-2 py-1 rounded">
+                      <p className="text-sm text-gray-300 bg-anicrimson-500/20 px-2 py-1 rounded">
                         {char.role}
                       </p>
                     </div>
                   </div>
                   {char.voice_actors.length > 0 && (
                     <div className="border-t border-white/20 pt-4">
-                      <p className="text-sm font-semibold text-purple-300 mb-3">
+                      <p className="text-sm font-semibold text-anicrimson-400 mb-3">
                         Voice Actors
                       </p>
                       <div className="space-y-3">
@@ -383,7 +383,7 @@ const DetailPage = () => {
                               <img
                                 src={va.person.images.jpg.image_url}
                                 alt={va.person.name}
-                                className="w-12 h-12 object-cover rounded-full border-2 border-purple-400/30"
+                                className="w-12 h-12 object-cover rounded-full border-2 border-anicrimson-500/30"
                               />
                               <div>
                                 <p className="text-sm font-medium text-gray-200">

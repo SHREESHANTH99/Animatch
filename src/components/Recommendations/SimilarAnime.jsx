@@ -59,7 +59,7 @@ const SimilarAnimeCard = ({ anime, index, onClick }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="bg-gray-900 rounded-lg overflow-hidden cursor-pointer group hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-purple-500"
+      className="bg-gray-900 rounded-lg overflow-hidden cursor-pointer group hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-anicrimson-500"
       onClick={() => onClick(anime.anime_id)}
     >
       {/* Image */}
@@ -73,7 +73,7 @@ const SimilarAnimeCard = ({ anime, index, onClick }) => {
         />
 
         {/* Match Badge */}
-        <div className="absolute top-2 right-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white font-bold rounded-full px-3 py-1 text-xs shadow-lg">
+        <div className="absolute top-2 right-2 bg-site text-white font-bold rounded-full px-3 py-1 text-xs shadow-lg">
           {matchPercentage}% Match
         </div>
 
@@ -83,7 +83,7 @@ const SimilarAnimeCard = ({ anime, index, onClick }) => {
 
       {/* Content */}
       <div className="p-4">
-        <h4 className="text-white font-bold text-sm mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
+        <h4 className="text-white font-bold text-sm mb-2 line-clamp-2 group-hover:text-anicrimson-400 transition-colors">
           {anime.title}
         </h4>
 
@@ -93,7 +93,7 @@ const SimilarAnimeCard = ({ anime, index, onClick }) => {
             {genres.map((genre, idx) => (
               <span
                 key={idx}
-                className="bg-purple-900/50 text-purple-300 text-xs px-2 py-0.5 rounded-full border border-purple-700"
+                className="bg-anicrimson-500/50 text-anicrimson-400 text-xs px-2 py-0.5 rounded-full border border-anicrimson-500"
               >
                 {genre}
               </span>
@@ -109,7 +109,7 @@ const SimilarAnimeCard = ({ anime, index, onClick }) => {
         )}
 
         {/* View Button */}
-        <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-semibold py-2 rounded transition-all duration-300">
+        <button className="w-full bg-anicrimson-500 hover:bg-anicrimson-400 hover:bg-anicrimson-400 text-white text-sm font-semibold py-2 rounded transition-all duration-300">
           View Details
         </button>
       </div>
@@ -178,7 +178,7 @@ const SimilarAnime = ({ animeId, currentAnimeTitle }) => {
       <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
         <h3 className="text-2xl font-bold text-white mb-4">Similar Anime</h3>
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-anicrimson-500"></div>
         </div>
       </div>
     );

@@ -61,12 +61,12 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search posts, users, or keywords..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-anicrimson-500/50"
           />
         </div>
         <button
           type="submit"
-          className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all font-medium"
+          className="px-5 py-2.5 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-xl hover:bg-anicrimson-400 transition-all font-medium"
         >
           Search
         </button>
@@ -77,7 +77,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
         >
           <Filter size={18} />
           {activeFiltersCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+            <span className="absolute -top-1 -right-1 bg-anicrimson-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
               {activeFiltersCount}
             </span>
           )}
@@ -94,7 +94,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
             </h3>
             <button
               onClick={resetFilters}
-              className="text-sm text-pink-400 hover:text-pink-300 transition-colors"
+              className="text-sm text-anicrimson-400 hover:text-anicrimson-400 transition-colors"
             >
               Reset All
             </button>
@@ -112,7 +112,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
                 onChange={(e) =>
                   setFilters({ ...filters, sortBy: e.target.value })
                 }
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-purple-500/50"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-anicrimson-500/50"
               >
                 <option value="recent" className="bg-gray-800">
                   Most Recent
@@ -140,7 +140,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
                 onChange={(e) =>
                   setFilters({ ...filters, timeRange: e.target.value })
                 }
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-purple-500/50"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-anicrimson-500/50"
               >
                 <option value="all" className="bg-gray-800">
                   All Time
@@ -170,7 +170,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
                   setFilters({ ...filters, author: e.target.value })
                 }
                 placeholder="Filter by author..."
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/60 focus:ring-2 focus:ring-purple-500/50"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/60 focus:ring-2 focus:ring-anicrimson-500/50"
               />
             </div>
 
@@ -187,7 +187,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
                     onChange={(e) =>
                       setFilters({ ...filters, hasImages: e.target.checked })
                     }
-                    className="w-4 h-4 rounded border-white/20 bg-white/10 text-purple-600 focus:ring-purple-500/50"
+                    className="w-4 h-4 rounded border-white/20 bg-white/10 text-anicrimson-400 focus:ring-anicrimson-500/50"
                   />
                   <span className="text-sm">Has Images</span>
                 </label>
@@ -198,7 +198,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
                     onChange={(e) =>
                       setFilters({ ...filters, hasComments: e.target.checked })
                     }
-                    className="w-4 h-4 rounded border-white/20 bg-white/10 text-purple-600 focus:ring-purple-500/50"
+                    className="w-4 h-4 rounded border-white/20 bg-white/10 text-anicrimson-400 focus:ring-anicrimson-500/50"
                   />
                   <span className="text-sm">Has Comments</span>
                 </label>
@@ -209,7 +209,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
           {/* Apply Button */}
           <button
             onClick={handleSearch}
-            className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all font-medium"
+            className="w-full py-2.5 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-xl hover:bg-anicrimson-400 transition-all font-medium"
           >
             Apply Filters
           </button>
@@ -224,7 +224,7 @@ const PostSearchFilter = ({ onSearch, onFilter, totalPosts }) => {
         {(searchQuery || activeFiltersCount > 0) && (
           <button
             onClick={resetFilters}
-            className="text-pink-400 hover:text-pink-300 transition-colors flex items-center gap-1"
+            className="text-anicrimson-400 hover:text-anicrimson-400 transition-colors flex items-center gap-1"
           >
             <X size={14} />
             Clear all

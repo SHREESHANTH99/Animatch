@@ -49,19 +49,19 @@ export default function ThreeScene() {
   return (
     <div className="relative w-full h-auto flex flex-col md:flex-row items-center justify-between   backdrop-blur-lg  overflow-hidden pt-10 pb-10 ">
       <section className="text-center mt-7  md:text-left p-8  space-y-4 ">
-      <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent drop-shadow-lg leading-tight tracking-tight font-sans">
-        AniMatch <span className="text-pink-500">.</span>
+      <h1 className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-lg leading-tight tracking-tight font-sans">
+        AniMatch <span className="text-anicrimson-400">.</span>
       </h1>
       <p className="text-2xl md:text-3xl text-red-200 font-light leading-relaxed">
         Dive into a world of anime made just for you.
         <br></br>
         Discover top picks, track your progress, and get smart recommendations-all powered by AI.
       </p>
-      <p className="text-sm text-purple-400 uppercase tracking-widest font-semibold">
+      <p className="text-sm text-anicrimson-400 uppercase tracking-widest font-semibold">
         Your Anime Journey Starts Here 🚀
       </p>
       <div className="pt-2">
-        <Link to="/discover"><button className="bg-pink-600  hover:bg-white hover:text-pink-600 hover:scale-105 text-white font-bold py-2 w-44 rounded-lg shadow-lg transition duration-300">
+        <Link to="/discover"><button className="bg-anicrimson-500  hover:bg-white hover:text-anicrimson-400 hover:scale-105 text-white font-bold py-2 w-44 rounded-lg shadow-lg transition duration-300">
           Start Exploring
         </button></Link>
       </div>

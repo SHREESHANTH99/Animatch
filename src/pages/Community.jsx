@@ -743,7 +743,7 @@ const Community = () => {
         <img
           src={user?.avatar || "/default-avatar.png"}
           alt={user?.username}
-          className="w-12 h-12 rounded-full object-cover border-2 border-purple-400/50"
+          className="w-12 h-12 rounded-full object-cover border-2 border-anicrimson-500/50"
         />
         <div className="flex-1">
           <div className="relative">
@@ -759,7 +759,7 @@ const Community = () => {
               placeholder={`What's on your mind, ${
                 user?.username || "friend"
               }?`}
-              className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent resize-none transition-all duration-200"
+              className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-anicrimson-500/50 focus:border-transparent resize-none transition-all duration-200"
               rows={3}
             />
             {renderTypingIndicator()}
@@ -787,7 +787,7 @@ const Community = () => {
                   {img.isUploading && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 h-1.5">
                       <div
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-300"
+                        className="bg-anicrimson-500 hover:bg-anicrimson-400 h-full transition-all duration-300"
                         style={{ width: `${img.uploadProgress}%` }}
                       />
                     </div>
@@ -823,7 +823,7 @@ const Community = () => {
                   }}
                 />
                 <div className="flex items-center space-x-1">
-                  <Image size={20} className="text-purple-300" />
+                  <Image size={20} className="text-anicrimson-400" />
                   <span className="text-sm hidden sm:inline">Photo/Video</span>
                 </div>
               </label>
@@ -879,7 +879,7 @@ const Community = () => {
                 (!newPost.trim() && selectedImages.length === 0) ||
                 uploadingImage
                   ? "bg-gray-600/50 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg hover:shadow-purple-500/20"
+                  : "bg-anicrimson-500 hover:bg-anicrimson-400 text-white hover:bg-anicrimson-400 shadow-lg hover:shadow-purple-500/20"
               }`}
             >
               {uploadingImage ? (
@@ -995,12 +995,12 @@ const Community = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 relative overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-screen bg-site relative overflow-hidden">
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -top-4 -left-4 w-72 h-72 bg-anicrimson-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute top-1/3 -right-8 w-96 h-96 bg-gradient-to-r from-blue-400/15 to-indigo-400/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute -bottom-8 left-1/3 w-80 h-80 bg-gradient-to-r from-pink-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute -bottom-8 left-1/3 w-80 h-80 bg-anicrimson-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-3000"></div>
       </div>
 
@@ -1009,12 +1009,12 @@ const Community = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="p-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all shadow-lg"
+            className="p-2 rounded-lg bg-anicrimson-500 hover:bg-anicrimson-400 text-white hover:bg-anicrimson-400 transition-all shadow-lg"
           >
             {showSidebar ? <X size={20} /> : <Hash size={20} />}
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center">
               <Star className="text-white" size={12} />
             </div>
             <h1 className="text-white font-bold text-lg">Anime Hub</h1>
@@ -1046,11 +1046,11 @@ const Community = () => {
         <div className="hidden lg:block p-4 border-b border-white/10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center">
                 <Star className="text-white" size={16} />
               </div>
               <div>
-                <h2 className="text-lg font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
+                <h2 className="text-lg font-bold text-white">
                   Anime Hub
                 </h2>
                 <p className="text-xs text-white/60">
@@ -1061,7 +1061,7 @@ const Community = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowCreateGroup(true)}
-                className="p-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                className="p-2 rounded-full bg-anicrimson-500 hover:bg-anicrimson-400 text-white hover:bg-anicrimson-400 transition-all duration-200 transform hover:scale-105 shadow-lg"
               >
                 <Plus size={16} />
               </button>
@@ -1079,7 +1079,7 @@ const Community = () => {
               placeholder="Search communities..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-white/20 rounded-full focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
+              className="w-full pl-10 pr-4 py-2.5 border border-white/20 rounded-full focus:ring-2 focus:ring-anicrimson-500/50 focus:border-anicrimson-500/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
             />
           </div>
 
@@ -1091,7 +1091,7 @@ const Community = () => {
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-2 px-3 rounded-full text-xs font-medium transition-all duration-200 ${
                   activeTab === tab
-                    ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg"
+                    ? "bg-anicrimson-500 hover:bg-anicrimson-400 text-white shadow-lg"
                     : "text-white/70 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -1115,7 +1115,7 @@ const Community = () => {
               placeholder="Search communities..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-white/20 rounded-full focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
+              className="w-full pl-10 pr-4 py-2.5 border border-white/20 rounded-full focus:ring-2 focus:ring-anicrimson-500/50 focus:border-anicrimson-500/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200"
             />
           </div>
 
@@ -1126,7 +1126,7 @@ const Community = () => {
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-2 px-3 rounded-full text-xs font-medium transition-all duration-200 ${
                   activeTab === tab
-                    ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg"
+                    ? "bg-anicrimson-500 hover:bg-anicrimson-400 text-white shadow-lg"
                     : "text-white/70 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -1155,7 +1155,7 @@ const Community = () => {
                 }}
                 className={`relative p-4 border-b border-white/10 cursor-pointer transition-all duration-200 hover:bg-white/10 group ${
                   activeGroup?._id === group._id
-                    ? "bg-gradient-to-r from-pink-500/20 to-purple-500/20 border-l-4 border-l-pink-400"
+                    ? "bg-anicrimson-500/20 border-l-4 border-l-anicrimson-500"
                     : ""
                 }`}
               >
@@ -1163,7 +1163,7 @@ const Community = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <Hash size={14} className="text-pink-400 flex-shrink-0" />
+                      <Hash size={14} className="text-anicrimson-400 flex-shrink-0" />
                       <h3 className="font-semibold text-white truncate">
                         {group.name}
                       </h3>
@@ -1177,7 +1177,7 @@ const Community = () => {
 
                     {group.anime && (
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs bg-pink-500/20 text-pink-300 px-2 py-1 rounded-full">
+                        <span className="text-xs bg-anicrimson-500/20 text-anicrimson-400 px-2 py-1 rounded-full">
                           📺 {group.anime}
                         </span>
                       </div>
@@ -1211,7 +1211,7 @@ const Community = () => {
                         e.stopPropagation();
                         joinGroup(group._id);
                       }}
-                      className="ml-2 p-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg group-hover:shadow-xl"
+                      className="ml-2 p-2 rounded-full bg-anicrimson-500 hover:bg-anicrimson-400 text-white hover:bg-anicrimson-400 transition-all duration-200 transform hover:scale-105 shadow-lg group-hover:shadow-xl"
                     >
                       <UserPlus size={12} />
                     </button>
@@ -1231,12 +1231,12 @@ const Community = () => {
             <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-3 sm:p-4 shadow-lg flex-shrink-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center flex-shrink-0">
                     <Star className="text-white" size={16} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <Hash className="text-pink-400 flex-shrink-0" size={18} />
+                      <Hash className="text-anicrimson-400 flex-shrink-0" size={18} />
                       <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate">
                         {activeGroup.name}
                       </h1>
@@ -1249,7 +1249,7 @@ const Community = () => {
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
                       {activeGroup.anime && (
-                        <span className="text-pink-300 font-medium">
+                        <span className="text-anicrimson-400 font-medium">
                           📺 {activeGroup.anime}
                         </span>
                       )}
@@ -1323,7 +1323,7 @@ const Community = () => {
                                 }
                               >
                                 <div className="flex items-start gap-3">
-                                  <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <div className="w-8 h-8 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center flex-shrink-0">
                                     {notification.type === "like" && (
                                       <Heart size={14} />
                                     )}
@@ -1345,7 +1345,7 @@ const Community = () => {
                                     </p>
                                   </div>
                                   {!notification.read && (
-                                    <div className="w-2 h-2 bg-pink-500 rounded-full flex-shrink-0"></div>
+                                    <div className="w-2 h-2 bg-anicrimson-500 rounded-full flex-shrink-0"></div>
                                   )}
                                 </div>
                               </div>
@@ -1399,7 +1399,7 @@ const Community = () => {
                 <div className="space-y-4">
                   {loading ? (
                     <div className="flex items-center justify-center py-12">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-400"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-anicrimson-500"></div>
                       <span className="ml-3 text-white/70">
                         Loading posts...
                       </span>
@@ -1418,7 +1418,7 @@ const Community = () => {
                         onClick={() =>
                           document.querySelector("textarea").focus()
                         }
-                        className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                        className="px-6 py-3 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-full hover:bg-anicrimson-400 transition-all duration-200 transform hover:scale-105 shadow-lg"
                       >
                         Start the conversation
                       </button>
@@ -1433,7 +1433,7 @@ const Community = () => {
                           {/* Post Header */}
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-start gap-3 flex-1 min-w-0">
-                              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                              <div className="w-10 h-10 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
                                 {post.username?.[0]?.toUpperCase() || "👤"}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -1578,7 +1578,7 @@ const Community = () => {
                                     key={comment._id}
                                     className="flex items-start gap-2 group/comment"
                                   >
-                                    <div className="w-7 h-7 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                    <div className="w-7 h-7 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                       {comment.user?.username?.[0]?.toUpperCase() ||
                                         "👤"}
                                     </div>
@@ -1634,7 +1634,7 @@ const Community = () => {
 
                               {/* Add Comment */}
                               <div className="flex gap-2 items-end">
-                                <div className="w-7 h-7 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                <div className="w-7 h-7 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                   {user?.username?.[0]?.toUpperCase() || "👤"}
                                 </div>
                                 <div className="flex-1 relative">
@@ -1647,7 +1647,7 @@ const Community = () => {
                                       }))
                                     }
                                     placeholder="Write a thoughtful comment..."
-                                    className="w-full px-4 py-2 pr-20 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 text-sm bg-white/10 text-white placeholder-white/60 backdrop-blur-sm resize-none overflow-hidden min-h-[40px] max-h-32"
+                                    className="w-full px-4 py-2 pr-20 border border-white/20 rounded-xl focus:ring-2 focus:ring-anicrimson-500/50 focus:border-anicrimson-500/50 text-sm bg-white/10 text-white placeholder-white/60 backdrop-blur-sm resize-none overflow-hidden min-h-[40px] max-h-32"
                                     rows="1"
                                     onKeyPress={(e) => {
                                       if (e.key === "Enter" && !e.shiftKey) {
@@ -1671,7 +1671,7 @@ const Community = () => {
                                               !prev[`comment_${post._id}`],
                                           }))
                                         }
-                                        className="p-1 text-pink-400 hover:bg-white/10 rounded transition-colors"
+                                        className="p-1 text-anicrimson-400 hover:bg-white/10 rounded transition-colors"
                                       >
                                         <Smile size={12} />
                                       </button>
@@ -1709,7 +1709,7 @@ const Community = () => {
                                     <button
                                       onClick={() => addComment(post._id)}
                                       disabled={!newComment[post._id]?.trim()}
-                                      className="p-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                                      className="p-1.5 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-full hover:bg-anicrimson-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
                                     >
                                       <Send size={12} />
                                     </button>
@@ -1739,7 +1739,7 @@ const Community = () => {
                   ✨
                 </div>
               </div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 text-white">
                 Welcome to Anime Hub!
               </h2>
               <p className="text-sm sm:text-base text-white/70 mb-6 leading-relaxed px-4">
@@ -1750,7 +1750,7 @@ const Community = () => {
               <div className="flex flex-col gap-3 px-4">
                 <button
                   onClick={() => setShowSidebar(true)}
-                  className="w-full sm:w-auto sm:mx-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg font-medium"
+                  className="w-full sm:w-auto sm:mx-auto px-6 sm:px-8 py-3 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-full hover:bg-anicrimson-400 transition-all duration-200 transform hover:scale-105 shadow-lg font-medium"
                 >
                   Browse Communities
                 </button>
@@ -1772,7 +1772,7 @@ const Community = () => {
           <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-anicrimson-500 hover:bg-anicrimson-400 rounded-full flex items-center justify-center">
                   <Plus className="text-white" size={18} />
                 </div>
                 <div>
@@ -1802,7 +1802,7 @@ const Community = () => {
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                   placeholder="e.g., Naruto Shinobi Academy"
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200 text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-anicrimson-500/50 focus:border-anicrimson-500/50 bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200 text-sm sm:text-base"
                 />
               </div>
               <div>
@@ -1813,7 +1813,7 @@ const Community = () => {
                   value={newGroupDescription}
                   onChange={(e) => setNewGroupDescription(e.target.value)}
                   placeholder="What makes this community special? What will members discuss here?"
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-pink-400/50 focus:border-pink-400/50 resize-none bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200 text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-anicrimson-500/50 focus:border-anicrimson-500/50 resize-none bg-white/10 text-white placeholder-white/60 backdrop-blur-sm transition-all duration-200 text-sm sm:text-base"
                   rows="3"
                 />
                 <p className="text-xs text-white/50 mt-1">
@@ -1850,7 +1850,7 @@ const Community = () => {
               <button
                 onClick={createGroup}
                 disabled={!newGroupName.trim()}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg font-medium flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-anicrimson-500 hover:bg-anicrimson-400 text-white rounded-xl hover:bg-anicrimson-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg font-medium flex items-center justify-center gap-2"
               >
                 <Plus size={16} />
                 Create Community
